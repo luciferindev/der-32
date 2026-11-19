@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 16:41:39 -0700
+Subject: [PATCH 2/5] amd64: add DER32 kernel configuration
+
+Derived from GENERIC by inclusion; keeps every GENERIC driver so the kernel
+boots on QEMU/KVM and real hardware.  DER/32-specific deltas go here.
+---
+ sys/arch/amd64/conf/DER32 | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100644 sys/arch/amd64/conf/DER32
+
+diff --git a/sys/arch/amd64/conf/DER32 b/sys/arch/amd64/conf/DER32
+new file mode 100644
+index 0000000000000000000000000000000000000000..3c5fdde7259d3c0a4aaebde06a4093799a189237
+--- /dev/null
++++ b/sys/arch/amd64/conf/DER32
+@@ -0,0 +1,13 @@
++#	$DER32: DER32,v 0.1 2026/11/19 $
++#
++# DER32 -- DER/32 kernel configuration for amd64.
++#
++# Derived from NetBSD GENERIC.  Milestone 0/1 keeps every GENERIC driver so
++# that the kernel boots on QEMU/KVM (IDE/AHCI/virtio disks, e1000/virtio
++# network, ns16550 serial console) as well as real hardware.  DER/32-specific
++# divergence from GENERIC is expressed below as explicit additions/removals so
++# the delta stays reviewable.
++
++include 	"arch/amd64/conf/GENERIC"
++
++ident		"DER32"

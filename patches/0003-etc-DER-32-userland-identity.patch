@@ -1,0 +1,121 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 16:41:39 -0700
+Subject: [PATCH 3/5] etc: DER/32 userland identity
+
+/etc/release names the DER/32 release (from der32.release) and its NetBSD
+base; motd templates, the rc.d/motd first-line rewrite and the default
+getty banner identify DER/32.
+---
+ etc/Makefile     |  5 ++++-
+ etc/gettytab     |  2 +-
+ etc/motd.beta    | 10 ++++------
+ etc/motd.current | 10 ++++------
+ etc/motd.default |  6 ++++--
+ etc/rc.d/motd    |  6 +++---
+ 6 files changed, 20 insertions(+), 19 deletions(-)
+
+diff --git a/etc/Makefile b/etc/Makefile
+index 1ab29a49b18d533f7aeb693f53a9306b7b2cdd0e..9a6100e917a29ace338ca1287746e08919ddcee1 100644
+--- a/etc/Makefile
++++ b/etc/Makefile
+@@ -45,6 +45,8 @@ LOCALTIME?=	UTC
+ CKSUM?=		${TOOL_CKSUM}
+ MAKESUMS=	MAKE=${MAKE:Q} CKSUM=${CKSUM:Q} ${HOST_SH} ${NETBSDSRCDIR}/distrib/sets/makesums
+ DISTRIBVER!=	${HOST_SH} ${NETBSDSRCDIR}/sys/conf/osrelease.sh
++# DER/32 release identity (DER32_NAME, DER32_RELEASE, DER32_CODENAME).
++.include "${NETBSDSRCDIR}/sys/conf/der32.release"
+ 
+ GZIP_FLAGS= -9 ${GZIP_N_FLAG}
+ 
+@@ -195,7 +197,8 @@ MAKEDEV: ${.CURDIR}/MAKEDEV.awk ${.CURDIR}/MAKEDEV.tmpl \
+ CLEANFILES+=	etc-release
+ etc-release: .EXEC .MAKE
+ 	${_MKTARGET_CREATE}
+-	@(	echo "NetBSD ${DISTRIBVER}/${MACHINE}"; \
++	@(	echo "${DER32_NAME} ${DER32_RELEASE} ${DER32_CODENAME}/${MACHINE}"; \
++		echo "Based on NetBSD ${DISTRIBVER}"; \
+ 		echo ; \
+ 		cat ${NETBSDSRCDIR}/sys/conf/copyright; \
+ 		echo ; \
+diff --git a/etc/gettytab b/etc/gettytab
+index 111ba33b3621fe3cfd7852c1c65c4d649bdf595b..a3ae3415458d836599a4e494e399cb63ba2ac02e 100644
+--- a/etc/gettytab
++++ b/etc/gettytab
+@@ -10,7 +10,7 @@
+ # entries, and in cases where getty is called with no table name
+ #
+ default:\
+-	:ce:ck:np:im=\r\n%s/%m (%h) (%t)\r\n\r\n:
++	:ce:ck:np:im=\r\nDER/32 UNIX Operating System\r\nRelease 0.1 \342\200\224 Genesis\r\n\r\n%h/%m (%t)\r\n\r\n:
+ 
+ #
+ # Fixed speed entries
+diff --git a/etc/motd.beta b/etc/motd.beta
+index 4dec1de17206b45cbae942a42c08518ece472511..c27ee0ad253a49f3323d62d9b4fb5ddb7be509df 100644
+--- a/etc/motd.beta
++++ b/etc/motd.beta
+@@ -1,8 +1,6 @@
+-NetBSD ?.? (UNKNOWN)
++DER/32 ?.? (UNKNOWN)
+ 
+-Welcome to NetBSD!
++Welcome to DER/32 0.1 Genesis.
+ 
+-This is a beta release of NetBSD for testing.
+-
+-Bug reports: https://www.NetBSD.org/support/send-pr.html
+-Donations to the NetBSD Foundation: https://www.NetBSD.org/donations/
++DER/32 is a NetBSD-derived Unix operating system.
++Third-party software is managed with upkg(8); see "upkg help".
+diff --git a/etc/motd.current b/etc/motd.current
+index c72840ac171eb748794bf56b912b40ac3a726f19..c27ee0ad253a49f3323d62d9b4fb5ddb7be509df 100644
+--- a/etc/motd.current
++++ b/etc/motd.current
+@@ -1,8 +1,6 @@
+-NetBSD ?.? (UNKNOWN)
++DER/32 ?.? (UNKNOWN)
+ 
+-Welcome to NetBSD!
++Welcome to DER/32 0.1 Genesis.
+ 
+-This is a development snapshot of NetBSD for testing -- user beware!
+-
+-Bug reports: https://www.NetBSD.org/support/send-pr.html
+-Donations to the NetBSD Foundation: https://www.NetBSD.org/donations/
++DER/32 is a NetBSD-derived Unix operating system.
++Third-party software is managed with upkg(8); see "upkg help".
+diff --git a/etc/motd.default b/etc/motd.default
+index 35f8066c71e24a75662d89dc2cf4c805a7f3374f..c27ee0ad253a49f3323d62d9b4fb5ddb7be509df 100644
+--- a/etc/motd.default
++++ b/etc/motd.default
+@@ -1,4 +1,6 @@
+-NetBSD ?.? (UNKNOWN)
++DER/32 ?.? (UNKNOWN)
+ 
+-Welcome to NetBSD!
++Welcome to DER/32 0.1 Genesis.
+ 
++DER/32 is a NetBSD-derived Unix operating system.
++Third-party software is managed with upkg(8); see "upkg help".
+diff --git a/etc/rc.d/motd b/etc/rc.d/motd
+index c798be9c531fb4aee75a386dd840a59d6aba80ab..61d8cb8dff47f47fd2f7eeda4e3582ae7823ff44 100755
+--- a/etc/rc.d/motd
++++ b/etc/rc.d/motd
+@@ -29,13 +29,13 @@ motd_start()
+ 	sysctl -n kern.version | while read i; do echo "$i"; break; done > $T
+ 	if checkyesno update_motd_release; then
+ 		local t=$(echo "${motd_release_tag%%:*}" | tr -d /)
+-		sed -En '1{/^NetBSD/{'"${t:+s/^/${t}: /;}"'h;d;};q;}
++		sed -En '1{/^(NetBSD|DER\/32)/{'"${t:+s/^/${t}: /;}"'h;d;};q;}
+ 		    /^ *Build ID */{s//(/;s/$/)/;H;g;y/\n/ /;p;q;}
+ 		    ${g;p;}' < /etc/release >> $T
+-		sed -E '1,2{/^([^:]*: )?NetBSD/{d;};};' \
++		sed -E '1,2{/^([^:]*: )?(NetBSD|DER\/32)/{d;};};' \
+ 		    < /etc/motd >> $T
+ 	else
+-		sed '1{/^NetBSD.*/{d;};};' < /etc/motd >> $T
++		sed -E '1{/^(NetBSD|DER\/32).*/{d;};};' < /etc/motd >> $T
+ 	fi
+ 	cmp -s $T /etc/motd || cp $T /etc/motd
+ 	rm -f $T

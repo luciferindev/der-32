@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 16:41:41 -0700
+Subject: [PATCH 5/5] usr.sbin/upkg: reachover Makefile for the DER/32 package
+ manager
+
+Compiles ../upkg (top level of the DER/32 tree) against the base
+libarchive, sqlite3, libfetch and OpenSSL.  Not yet hooked into SUBDIR.
+---
+ usr.sbin/upkg/Makefile | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 usr.sbin/upkg/Makefile
+
+diff --git a/usr.sbin/upkg/Makefile b/usr.sbin/upkg/Makefile
+new file mode 100644
+index 0000000000000000000000000000000000000000..7d097de4f89f458c2849b9ea56d6c2c273cbaa69
+--- /dev/null
++++ b/usr.sbin/upkg/Makefile
+@@ -0,0 +1,23 @@
++#	$DER32: Makefile,v 0.1 2026/11/19 $
++#
++# Reachover Makefile: upkg is developed in the top-level DER/32 upkg/
++# directory and compiled into the base system here against the base
++# libarchive, sqlite3, libfetch and OpenSSL.
++
++.include <bsd.own.mk>
++
++UPKGDIR=	${NETBSDSRCDIR}/../upkg
++.PATH:		${UPKGDIR}/src ${UPKGDIR}/doc
++
++PROG=		upkg
++MAN=		upkg.8
++SRCS=		main.c util.c version.c meta.c config.c sig.c fetch.c \
++		repo.c pkgfile.c db.c txn.c ops.c build.c
++
++CPPFLAGS+=	-I${UPKGDIR}/include -DUPKG_WITH_LIBFETCH
++WARNS=		5
++
++LDADD+=		-larchive -lsqlite3 -lfetch -lssl -lcrypto
++DPADD+=		${LIBARCHIVE} ${LIBSQLITE3} ${LIBFETCH} ${LIBSSL} ${LIBCRYPTO}
++
++.include <bsd.prog.mk>

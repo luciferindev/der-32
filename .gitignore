@@ -1,0 +1,5 @@
+/out/
+/upkg/upkg
+/upkg/src/*.o
+*.upkg
+__pycache__/

@@ -1,0 +1,142 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 16:41:40 -0700
+Subject: [PATCH 4/5] distrib/amd64: DER/32 bootable disk image
+
+Builds der32-<release>-amd64.img from the release sets and kern-DER32 with
+the stock Makefile.bootimage: MBR + FFS root, serial console on com0,
+getty on tty00, hostname der32, DHCP, and DER/32 upkg directories.
+---
+ distrib/amd64/der32image/Makefile      | 57 ++++++++++++++++++++++++++
+ distrib/amd64/der32image/rc.conf.der32 |  6 +++
+ distrib/amd64/der32image/root.hash     |  1 +
+ distrib/amd64/der32image/spec.der32    |  7 ++++
+ distrib/amd64/der32image/ttys          | 20 +++++++++
+ 5 files changed, 91 insertions(+)
+ create mode 100644 distrib/amd64/der32image/Makefile
+ create mode 100644 distrib/amd64/der32image/rc.conf.der32
+ create mode 100644 distrib/amd64/der32image/root.hash
+ create mode 100644 distrib/amd64/der32image/spec.der32
+ create mode 100644 distrib/amd64/der32image/ttys
+
+diff --git a/distrib/amd64/der32image/Makefile b/distrib/amd64/der32image/Makefile
+new file mode 100644
+index 0000000000000000000000000000000000000000..cfe4e2facc26e8a71c61e30020e21deb29c6d7bc
+--- /dev/null
++++ b/distrib/amd64/der32image/Makefile
+@@ -0,0 +1,57 @@
++#	$DER32: Makefile,v 0.1 2026/11/19 $
++#
++# DER/32 bootable disk image for amd64 (raw, MBR + FFSv1 root, serial
++# console on com0).  Built from the release sets with NetBSD's
++# Makefile.bootimage; DER/32-specific content is added below.
++#
++# Required:  RELEASEDIR with binary/sets/{base,etc,...}.tgz and
++#            kern-DER32.tgz (build.sh sets releasekernel=DER32)
++# Optional:  DER32_EXTRA_DIR  directory merged into the image root
++#            DER32_ROOT_HASH  file holding root's password hash
++
++.include <bsd.own.mk>
++.include "${NETBSDSRCDIR}/sys/conf/der32.release"
++
++LIVEIMGBASE=	der32-${DER32_RELEASE}-${MACHINE}
++LIVEIMAGEMB?=	2048
++SWAPMB=		0
++IMAGEHOSTNAME=	der32
++
++KERN_SET=	kern-DER32
++SETS?=		base etc comp misc man
++PRIMARY_BOOT=	bootxx_ffsv1
++SECONDARY_BOOT=	boot
++SECONDARY_BOOT_ARG=
++USE_MBR=	yes
++INSTALLBOOTOPTIONS=	-o console=com0,speed=9600,timeout=3
++
++RC_CONF_EXTRA=	${.CURDIR}/rc.conf.der32
++SPEC_EXTRA=	${.CURDIR}/spec.der32
++
++DER32_ROOT_HASH?=	${.CURDIR}/root.hash
++PWWORK=		${.OBJDIR}/pwwork
++
++IMGFILE_EXTRA=	${.CURDIR}/ttys			etc/ttys \
++		${PWWORK}/etc/master.passwd	etc/master.passwd \
++		${PWWORK}/etc/passwd		etc/passwd \
++		${PWWORK}/etc/pwd.db		etc/pwd.db \
++		${PWWORK}/etc/spwd.db		etc/spwd.db
++
++.if defined(DER32_EXTRA_DIR)
++IMGDIR_EXTRA=	${DER32_EXTRA_DIR}	.
++.endif
++
++# Root's password database is regenerated with the image's root hash.
++prepare_md_post: ${PWWORK}/etc/spwd.db
++${PWWORK}/etc/spwd.db: ${DER32_ROOT_HASH}
++	rm -rf ${PWWORK}
++	mkdir -p ${PWWORK}/etc
++	hash=$$(cat ${DER32_ROOT_HASH}); \
++	${TOOL_AWK} -F: -v OFS=: -v h="$$hash" \
++	    '$$1 == "root" { $$2 = h } { print }' \
++	    ${NETBSDSRCDIR}/etc/master.passwd > ${PWWORK}/etc/master.passwd
++	${TOOL_PWD_MKDB} -V 0 -p -d ${PWWORK} ${PWWORK}/etc/master.passwd
++
++CLEANDIRFILES+=	${PWWORK}
++
++.include "${.CURDIR}/../liveimage/Makefile.liveimage"
+diff --git a/distrib/amd64/der32image/rc.conf.der32 b/distrib/amd64/der32image/rc.conf.der32
+new file mode 100644
+index 0000000000000000000000000000000000000000..e1310c9adb186c4c7041a5fa518415c6bb57e3ab
+--- /dev/null
++++ b/distrib/amd64/der32image/rc.conf.der32
+@@ -0,0 +1,6 @@
++# DER/32 image defaults (appended to /etc/rc.conf by the image build)
++dhcpcd=YES
++dhcpcd_flags="-q"
++update_motd=YES
++ntpd=NO
++sshd=NO
+diff --git a/distrib/amd64/der32image/root.hash b/distrib/amd64/der32image/root.hash
+new file mode 100644
+index 0000000000000000000000000000000000000000..df15f4f1bb035809998292fc1f96c7479f95248d
+--- /dev/null
++++ b/distrib/amd64/der32image/root.hash
+@@ -0,0 +1 @@
++$2a$10$CdZbkAUivS7AdwEv.9kDbuPUbDKLMa0wsxyjQPM1Yl8bjoGuLbUVu
+diff --git a/distrib/amd64/der32image/spec.der32 b/distrib/amd64/der32image/spec.der32
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c80ee9d0f9b562bd5682753540d58305c27cd42
+--- /dev/null
++++ b/distrib/amd64/der32image/spec.der32
+@@ -0,0 +1,7 @@
++./etc/upkg			type=dir  uname=root gname=wheel mode=0755
++./etc/upkg/keys			type=dir  uname=root gname=wheel mode=0755
++./var/lib			type=dir  uname=root gname=wheel mode=0755
++./var/lib/upkg			type=dir  uname=root gname=wheel mode=0755
++./var/cache			type=dir  uname=root gname=wheel mode=0755
++./var/cache/upkg		type=dir  uname=root gname=wheel mode=0755
++./usr/local			type=dir  uname=root gname=wheel mode=0755
+diff --git a/distrib/amd64/der32image/ttys b/distrib/amd64/der32image/ttys
+new file mode 100644
+index 0000000000000000000000000000000000000000..4dbd397117bbbb4f8bf1ecd7ffb72975e375d65d
+--- /dev/null
++++ b/distrib/amd64/der32image/ttys
+@@ -0,0 +1,20 @@
++#
++#	from: @(#)ttys	5.1 (Berkeley) 4/17/89
++#	$NetBSD: ttys,v 1.7 2019/09/25 23:09:19 abs Exp $
++#
++# name	getty				type	status		comments
++#
++console	"/usr/libexec/getty Pc"		vt100	off secure
++constty	"/usr/libexec/getty Pc"		vt100	off secure
++ttyE0	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE1	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE2	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE3	"/usr/libexec/getty Pc"		wsvt25	off secure
++tty00	"/usr/libexec/getty std.9600"	vt100 on secure
++tty01	"/usr/libexec/getty std.9600"	unknown off secure
++tty02	"/usr/libexec/getty std.9600"	unknown off secure
++tty03	"/usr/libexec/getty std.9600"	unknown off secure
++tty04	"/usr/libexec/getty std.9600"	unknown off secure
++tty05	"/usr/libexec/getty std.9600"	unknown off secure
++tty06	"/usr/libexec/getty std.9600"	unknown off secure
++tty07	"/usr/libexec/getty std.9600"	unknown off secure

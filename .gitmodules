@@ -1,0 +1,6 @@
+[submodule "src"]
+	path = src
+	url = https://github.com/NetBSD/src
+	branch = netbsd-10
+	shallow = true
+	ignore = all

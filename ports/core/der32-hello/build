@@ -1,0 +1,4 @@
+# Built natively by "upkg build der32-hello" or cross-built by scripts/mkrepo.sh
+${CC:-cc} ${CFLAGS:--O2} -Wall -o der32-hello "$PORTDIR/der32-hello.c"
+mkdir -p "$DESTDIR$PREFIX/bin"
+install -m 755 der32-hello "$DESTDIR$PREFIX/bin/der32-hello"

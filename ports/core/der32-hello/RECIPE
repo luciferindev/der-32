@@ -1,0 +1,6 @@
+name der32-hello
+version 1.0
+release 1
+description report DER/32 system identity through uname(3) and sysctl(3)
+license BSD-2-Clause
+maintainer DER/32 Project

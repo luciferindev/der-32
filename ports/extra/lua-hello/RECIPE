@@ -1,0 +1,8 @@
+name lua-hello
+version 1.0
+release 1
+arch any
+description architecture-independent Lua script greeting the system
+license BSD-2-Clause
+maintainer DER/32 Project
+depend lua>=5.4

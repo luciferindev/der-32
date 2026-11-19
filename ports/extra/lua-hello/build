@@ -1,0 +1,2 @@
+mkdir -p "$DESTDIR$PREFIX/bin"
+install -m 755 "$PORTDIR/lua-hello.lua" "$DESTDIR$PREFIX/bin/lua-hello"

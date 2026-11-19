@@ -1,0 +1,149 @@
+.\"	$DER32: upkg.8,v 0.1 2026/11/19 $
+.\"
+.\" Copyright (c) 2026 The DER/32 Project.  All rights reserved.
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd November 19, 2026
+.Dt UPKG 8
+.Os
+.Sh NAME
+.Nm upkg
+.Nd DER/32 Unix package manager
+.Sh SYNOPSIS
+.Nm
+.Op Fl v
+.Op Fl r Ar root
+.Ar command
+.Op Ar arguments
+.Sh DESCRIPTION
+.Nm
+installs, removes and upgrades third-party software on DER/32.
+Packages come from any number of configured repositories, each published
+with an Ed25519-signed index; every package archive is verified against the
+SHA-256 digest recorded in that signed index before anything is installed.
+Packages install below
+.Pa /usr/local
+by default; the base system is never modified by
+.Nm .
+.Pp
+The global options are:
+.Bl -tag -width Ds
+.It Fl r Ar root
+Operate on the system rooted at
+.Ar root
+instead of
+.Pa / .
+Configuration, the database and the installed files are all taken relative
+to
+.Ar root .
+.It Fl v
+Print debugging output.
+.El
+.Sh COMMANDS
+.Bl -tag -width Ds
+.It Cm sync
+Download every enabled repository's
+.Pa INDEX
+and
+.Pa INDEX.sig ,
+verify the signature against the trusted keys in
+.Pa /etc/upkg/keys ,
+and refuse indexes that name a different repository or are older than the
+copy already held.
+.It Cm install Oo Fl n Oc Oo Fl Fl asdeps Oc Oo Fl Fl nodeps Oc Oo Fl Fl allow-unsigned Oc Ar package ...
+Install packages and their dependencies.
+A
+.Ar package
+is
+.Ar name ,
+.Ar repo Ns / Ns Ar name
+(take it from that repository only),
+.Ar name Ns Op <,<=,=,>=,> Ns Ar version
+or the path of a local
+.Pa .upkg
+file
+(which requires
+.Fl Fl allow-unsigned ) .
+.Fl n
+only prints the transaction.
+.It Cm remove Oo Fl n Oc Oo Fl c Oc Ar package ...
+Remove packages.
+Removal of a package another package depends on is refused unless
+.Fl c
+is given, in which case the dependents are removed as well.
+.It Cm autoremove Op Fl n
+Remove packages that were installed only as dependencies and are no longer
+required.
+.It Cm upgrade Op Fl n
+Upgrade every installed package for which a repository offers a newer
+version.
+.It Cm search Ar query
+Search package names and descriptions.
+.It Cm info Ar package
+Show installed and repository information.
+.It Cm list Oo Fl e | Fl d Oc Op Fl f Ar package
+List installed packages
+.Pq Fl e : No explicitly installed only, Fl d : No dependencies only ,
+or the files owned by
+.Ar package .
+.It Cm check Op Ar package ...
+Verify installed files against the checksums in the database.
+.It Cm build Oo Fl o Ar output Oc Ar port
+Build a package from the source recipe
+.Ar port
+(a directory, or a name looked up in
+.Ar portsdir ) .
+When run as root the build runs as the unprivileged
+.Ar build_user .
+Recipes are only ever executed on explicit request.
+.It Cm repo list | add Ar name url Oo Fl p Ar prio Oc Oo Fl k Ar key Oc Oo Fl Fl disabled Oc | remove Ar name | enable Ar name | disable Ar name | priority Ar name n
+Manage repositories.
+.It Cm keygen Ar prefix
+Create
+.Ar prefix Ns .key
+and
+.Ar prefix Ns .pub .
+.It Cm create Fl i Ar PKGINFO Fl d Ar stagedir Op Fl o Ar file
+Create a package from a staging directory.
+.It Cm index Fl n Ar repo Fl k Ar keyfile Ar dir
+Write and sign
+.Ar dir Ns /INDEX .
+.It Cm recover
+Complete or undo an interrupted transaction.
+This also happens automatically before any command that modifies the system.
+.It Cm vercmp Ar a b
+Print \-1, 0 or 1.
+.El
+.Sh FILES
+.Bl -tag -width /etc/upkg/repos.conf -compact
+.It Pa /etc/upkg/upkg.conf
+options:
+.Cm arch , prefixes , portsdir , builddir , build_user , ca_file , allow_http
+.It Pa /etc/upkg/repos.conf
+repositories:
+.Cm url , priority , enabled , key
+.It Pa /etc/upkg/keys/
+trusted Ed25519 public keys
+.It Pa /var/lib/upkg/upkg.db
+installed package database
+.It Pa /var/lib/upkg/journal
+transaction journal
+.It Pa /var/cache/upkg/
+downloaded packages and distfiles
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# upkg repo add core https://example.org/der32/core -p 100
+# upkg sync
+# upkg install core/curl
+# upkg remove curl && upkg autoremove
+.Ed
+.Sh SEE ALSO
+.Xr pkg_add 1 ,
+.Xr hier 7
+.Sh HISTORY
+.Nm
+first appeared in DER/32 0.1
+.Dq Genesis .

@@ -1,0 +1,5 @@
+# Pinned upstream NetBSD source (sourced by scripts; keep as sh assignments).
+UPSTREAM_URL=https://github.com/NetBSD/src
+UPSTREAM_BRANCH=netbsd-10
+UPSTREAM_COMMIT=06f422a9d514cd1d9476676205760cc7e7c56a21
+UPSTREAM_DESC="NetBSD 10.2_STABLE (netbsd-10 branch, 2026-11-17, 'Ticket #1422')"
