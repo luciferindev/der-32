@@ -64,11 +64,12 @@ evidence in `devlog.md`), **partial**, **planned**.
   `OPSYS=DER32` to the NetBSD platform files, then add a `pkgsrc <path>`
   recipe type to `upkg build`, so pkgsrc can be reused instead of
   duplicating recipes.
-* **Console**: images use the serial console. Add a VGA/`wscons` image
-  variant (`console=pc`, getty on `ttyE0`).
-* **Installer**: the raw image is copied to disk with `dd`. A sysinst-
-  based or scripted installer (partitioning, user creation, password) is
-  planned.
+* **Console**: the existing serial image remains the tested default. An experimental
+  VGA/`wscons` variant (`make image-pc`, `console=pc`, getty on `ttyE0`) has
+  been implemented but needs QEMU VGA and real-machine validation.
+* **Installer**: `scripts/install-image.sh` now provides a guarded Linux
+  whole-disk writer with explicit confirmation. A real sysinst-based or
+  scripted installer (partitioning, user creation, password) is still planned.
 * **Default root password** `der32` on the image: replace with a
   first-boot password prompt.
 * **Package scripts**: by design upkg runs no install scripts. Services
