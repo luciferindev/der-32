@@ -25,7 +25,10 @@ SRC=$ROOT/src
 OUT=${DER32_OUT:-$ROOT/out}
 LOGDIR=$OUT/logs
 MACHINE=amd64
-. "$SRC/sys/conf/der32.release" 2>/dev/null || DER32_RELEASE=0.1
+REL="$SRC/sys/conf/der32.release"
+# exists only once patches/ is applied (a fresh clone has pristine NetBSD)
+[ -f "$REL" ] && . "$REL"
+: "${DER32_RELEASE:=0.1}"
 
 ncpu() {
 	getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2

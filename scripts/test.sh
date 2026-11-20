@@ -14,7 +14,10 @@ set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${DER32_OUT:-$ROOT/out}
 LOGDIR=$OUT/logs
-. "$ROOT/src/sys/conf/der32.release" 2>/dev/null || DER32_RELEASE=0.1
+REL="$ROOT/src/sys/conf/der32.release"
+# exists only once patches/ is applied (a fresh clone has pristine NetBSD)
+[ -f "$REL" ] && . "$REL"
+: "${DER32_RELEASE:=0.1}"
 IMG=$OUT/images/der32-$DER32_RELEASE-amd64.img
 KERNEL=$OUT/obj/sys/arch/amd64/compile/DER32/netbsd
 mkdir -p "$LOGDIR"

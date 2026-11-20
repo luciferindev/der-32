@@ -13,7 +13,10 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${DER32_OUT:-$ROOT/out}
-. "$ROOT/src/sys/conf/der32.release" 2>/dev/null || DER32_RELEASE=0.1
+REL="$ROOT/src/sys/conf/der32.release"
+# exists only once patches/ is applied (a fresh clone has pristine NetBSD)
+[ -f "$REL" ] && . "$REL"
+: "${DER32_RELEASE:=0.1}"
 IMG=${1:-$OUT/images/der32-$DER32_RELEASE-amd64.img}
 
 command -v qemu-system-x86_64 >/dev/null ||

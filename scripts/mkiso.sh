@@ -13,6 +13,7 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=${DER32_OUT:-$ROOT/out}
+[ -f "$ROOT/src/sys/conf/der32.release" ] || sh "$ROOT/scripts/patches.sh" apply
 . "$ROOT/src/sys/conf/der32.release"
 TOOLS=$OUT/tools/bin
 IMGOBJ=$OUT/obj/distrib/amd64/der32image
