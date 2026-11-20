@@ -95,8 +95,8 @@ def run(cmd, timeout=CMD_TIMEOUT):
     seq += 1
     # the markers are split by quotes so the echoed command line never
     # matches them -- only the shell's output does
-    send(f"echo '@@B''EGIN{seq}@@'; {cmd}; echo \"@@E''ND{seq}@@ $?\"\n")
-    expect(rf"@@BEGIN{seq}@@\r?\n", timeout)
+    send(f"echo @@B''EGIN{seq}@@; {cmd}; echo @@E''ND{seq}@@ $?\n")
+    expect(rf"@@BEGIN{seq}@@\r*\n", timeout)
     start = pos
     m = expect(rf"@@END{seq}@@ (\d+)", timeout)
     out = text()[start:m.start()].replace("\r", "").strip("\n")
@@ -128,8 +128,8 @@ try:
     t0 = time.time()
     expect(r"DER/32 0\.1 GENESIS \(DER32\)", 300)
     check("kernel identifies as DER/32 0.1 GENESIS at boot", True)
-    m = expect(r"DER/32 UNIX Operating System\r?\nRelease 0\.1 \S+ Genesis\r?\n\r?\n"
-               r"(\S+)/(\S+) \((\S+)\)\r?\n\r?\nlogin: ", BOOT_TIMEOUT)
+    m = expect(r"DER/32 UNIX Operating System\r*\nRelease 0\.1 \S+ Genesis\r*\n\r*\n"
+               r"(\S+)/(\S+) \((\S+)\)\r*\n\r*\nlogin: ", BOOT_TIMEOUT)
     check(f"multi-user boot to getty login in {int(time.time() - t0)}s "
           f"({m.group(1)}/{m.group(2)} ({m.group(3)}))", True)
     check("getty banner: der32/amd64 (tty00)",
@@ -166,21 +166,21 @@ try:
     if ISO:
         check_cmd("root filesystem is the read-only CD (cd9660)",
                   "mount | head -1", rx=r" on / type cd9660 \(.*read-only")
-        check_cmd("writable tmpfs union layers", "mount | grep -c 'tmpfs on /'",
+        check_cmd("writable tmpfs layers", "mount | grep -c 'tmpfs on /'",
                   rx=r"^[5-9]$")
     else:
         check_cmd("root filesystem is FFS", "mount | head -1", rx=r" on / type ffs")
     check_cmd("filesystem operations (mkdir/write/mv/ln/rm)",
-              "set -e; d=/tmp/t.$$; mkdir -p $d/a/b; echo hi > $d/a/f; "
+              "(set -e; d=/tmp/t.$$; mkdir -p $d/a/b; echo hi > $d/a/f; "
               "mv $d/a/f $d/a/b/g; ln -s b/g $d/a/l; cat $d/a/l; "
-              "test -L $d/a/l; rm -r $d; test ! -e $d && echo gone",
+              "test -L $d/a/l; rm -r $d; test ! -e $d && echo gone)",
               want="hi\ngone")
     check_cmd("standard hierarchy present",
               "for d in /bin /sbin /etc /usr/bin /usr/sbin /usr/lib /var/log "
               "/usr/local /var/lib/upkg; do test -d $d || echo missing $d; done; echo done",
               want="done")
     check_cmd("C compiler present (self-hosting)", "cc --version | head -1",
-              rx=r"gcc")
+              rx=r"^cc \(nb\d+ \d+\) \d+\.\d+")
     check_cmd("network interface configured by dhcpcd",
               "sleep 5; ifconfig wm0 | grep 'inet '", rx=r"inet 10\.0\.2\.\d+")
     check_cmd("network: reach the QEMU gateway",
@@ -201,7 +201,10 @@ try:
     check_cmd("upkg search", "upkg search lua", rx=r"core/lua 5\.4\.7-1")
     check_cmd("upkg install lua-hello (pulls lua as dependency)",
               "upkg install lua-hello", rx=r"installing lua 5\.4\.7-1")
-    check_cmd("native Lua runs on DER/32", "lua -v", rx=r"^Lua 5\.4\.7")
+    check_cmd("native packaged Lua 5.4.7 runs on DER/32",
+              "/usr/local/bin/lua -v", rx=r"^Lua 5\.4\.7")
+    check_cmd("base system's own /usr/bin/lua is untouched by the package",
+              "/usr/bin/lua -v", rx=r"^Lua 5\.4\.6")
     check_cmd("package from 'extra' runs", "lua-hello",
               want="Hello from Lua 5.4 on DER32")
     check_cmd("repository priority: der32-hello comes from core (1.0)",

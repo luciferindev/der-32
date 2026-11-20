@@ -65,7 +65,7 @@ build_port() {
 	    sd=$w/src/$(ls "$w/src")
 	echo "==> $repo/$name $ver-$rel ($arch)"
 	(cd "$sd" && env -i PATH="$PATH" HOME="$w" \
-	    CC="$CROSSCC --sysroot=$SYSROOT" CFLAGS="-O2 -DPKGVERSION=\\\"$ver\\\"" \
+	    CC="$CROSSCC --sysroot=$SYSROOT" CFLAGS="-O2 -DPKGVERSION=\"$ver\"" \
 	    SRCDIR="$sd" DESTDIR="$w/dest" PREFIX=/usr/local PORTDIR="$port" \
 	    PKGNAME="$name" PKGVERSION="$ver" UPKG_ARCH="$ARCH" LC_ALL=C \
 	    sh -e "$port/build") > "$w/build.log" 2>&1 ||

@@ -4,10 +4,10 @@
 #
 # The ISO carries the same root tree as the disk image (it reuses the work
 # tree that "make image" leaves in out/obj), booted from cd9660 via El
-# Torito (bootxx_cd9660 -> /boot -> /netbsd).  The root is read-only; a
-# small /etc/rc front end union-mounts tmpfs over /etc, /var, /root and
-# /usr/local, then runs the normal BSD rc, so the live system boots to
-# multi-user and upkg can install packages for the session.
+# Torito (bootxx_cd9660 -> /boot -> /netbsd).  The root is read-only; the
+# rc.d script der32live (ordered right after rc.d/root) copies into tmpfs
+# /etc, /var, /root and /usr/local, so the stock BSD rc boots the live
+# system to multi-user and upkg can install packages for the session.
 #
 set -eu
 
@@ -40,21 +40,42 @@ kernfs		/kern		kernfs	rw,noauto		0 0
 procfs		/proc		procfs	rw,noauto		0 0
 EOF
 
-mv "$R/etc/rc" "$R/etc/rc.multiuser"
-cat > "$R/etc/rc" <<'EOF'
+cat > "$R/etc/rc.d/der32live" <<'EOF'
 #!/bin/sh
 #
-# DER/32 live ISO front end for /etc/rc.  The root filesystem is a
-# read-only CD: give the system writable tmpfs layers, then continue with
-# the normal BSD rc (now /etc/rc.multiuser).
+# PROVIDE: der32live
+# REQUIRE: root
+# BEFORE:  sysctl devpubd lvm ipfilter ip6addrctl ipsec mountcritremote network npf_boot npf pf_boot
 #
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-export PATH
-mount -t tmpfs tmpfs /tmp
-for d in /etc /var /root /usr/local; do
-	mount -t tmpfs -o union tmpfs "$d"
-done
-exec /bin/sh /etc/rc.multiuser "$@"
+# DER/32 live ISO: the root filesystem is a read-only CD.  Right after
+# rc.d/root (which runs "umount -a"), give the system writable tmpfs
+# layers: /tmp, and in-memory copies of /etc, /var, /root and /usr/local.
+# (MNT_UNION only merges lookups -- existing files would stay read-only --
+# so each directory is copied into its own tmpfs.)
+
+$_rc_subr_loaded . /etc/rc.subr
+
+name="der32live"
+start_cmd="der32live_start"
+stop_cmd=":"
+
+der32live_start()
+{
+	mount_tmpfs -m 1777 tmpfs /tmp
+	for d in /etc /var /root /usr/local; do
+		s=/tmp/.der32live$d
+		mkdir -p "$s"
+		(cd "$d" && pax -rw -pe . "$s")
+		mount_tmpfs tmpfs "$d"
+		(cd "$s" && pax -rw -pe . "$d")
+		rm -rf "$s"
+	done
+	rm -rf /tmp/.der32live
+	echo "DER/32 live: writable tmpfs layers on /tmp /etc /var /root /usr/local"
+}
+
+load_rc_config $name
+run_rc_command "$1"
 EOF
 
 cat > "$R/boot.cfg" <<EOF
@@ -68,7 +89,7 @@ EOF
 
 {
 	cat "$IMGOBJ/work.spec"
-	echo "./etc/rc.multiuser type=file uname=root gname=wheel mode=0644"
+	echo "./etc/rc.d/der32live type=file uname=root gname=wheel mode=0555"
 	echo "./boot.cfg type=file uname=root gname=wheel mode=0644"
 } > "$W/iso.spec"
 

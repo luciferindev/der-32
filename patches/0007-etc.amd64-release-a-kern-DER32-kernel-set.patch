@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 18:44:58 -0700
+Subject: [PATCH 7/7] etc.amd64: release a kern-DER32 kernel set
+
+List DER32 first in KERNEL_SETS so release builds produce kern-DER32
+alongside the upstream kernel sets.
+---
+ etc/etc.amd64/Makefile.inc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/etc/etc.amd64/Makefile.inc b/etc/etc.amd64/Makefile.inc
+index 8851261afa85b20a8e632fcfd868c20958ab5189..3566462a481f8f24b4ca90744b0387304fe3259d 100644
+--- a/etc/etc.amd64/Makefile.inc
++++ b/etc/etc.amd64/Makefile.inc
+@@ -6,7 +6,8 @@
+ # If you change the list of distributed kernels, don't forget
+ # to update the release documentation in distrib/notes/common/contents
+ 
+-KERNEL_SETS=		GENERIC
++KERNEL_SETS=		DER32
++KERNEL_SETS+=		GENERIC
+ KERNEL_SETS+=		GENERIC_KASLR
+ KERNEL_SETS+=		XEN3_DOM0 XEN3_DOMU
+ # KERNEL_SETS+=		GENERIC_USERMODE

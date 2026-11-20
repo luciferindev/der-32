@@ -29,7 +29,8 @@ t_upkg() {
 }
 
 ck() {	# ck "description" command...
-	if "$@" >/dev/null 2>&1; then echo "  ok   $1"; else echo "  FAIL $1"; FAIL=1; fi
+	d=$1; shift
+	if "$@" >/dev/null 2>&1; then echo "  ok   $d"; else echo "  FAIL $d"; FAIL=1; fi
 }
 
 t_build() {
@@ -38,7 +39,7 @@ t_build() {
 	ck "toolchain built"              test -x "$OUT/tools/bin/nbmake-amd64"
 	ck "DER32 kernel compiled"        test -f "$KERNEL"
 	ck "kernel ostype is DER32" \
-	    grep -q 'const char ostype\[\] = "DER32";' "$KERNEL/../vers.c"
+	    grep -q 'const char ostype\[\] = "DER32";' "$(dirname "$KERNEL")/vers.c"
 	ck "kernel version string is DER/32" \
 	    sh -c "strings '$KERNEL' | grep -q '^DER/32 $DER32_RELEASE GENESIS (DER32)'"
 	ck "kernel has kern.der32 sysctl code" \
@@ -48,8 +49,8 @@ t_build() {
 	ck "userland: upkg in base"       test -f "$OUT/destdir/usr/sbin/upkg"
 	ck "userland: /etc/release is DER/32" \
 	    sh -c "head -1 '$OUT/destdir/etc/release' | grep -q '^DER/32 '"
-	ck "release sets: base"           test -f "$OUT/release/amd64/binary/sets/base.tgz"
-	ck "release sets: kern-DER32"     test -f "$OUT/release/amd64/binary/sets/kern-DER32.tgz"
+	ck "release sets: base"           test -f "$OUT/release/amd64/binary/sets/base.tar.xz"
+	ck "release sets: kern-DER32"     test -f "$OUT/release/amd64/binary/sets/kern-DER32.tar.xz"
 	ck "bootable image exists"        test -f "$IMG"
 	ck "image has an MBR boot signature" \
 	    sh -c "[ \"\$(od -An -tx1 -j510 -N2 '$IMG' | tr -d ' ')\" = 55aa ]"

@@ -12,7 +12,7 @@ evidence in `devlog.md`), **partial**, **planned**.
 | build scripts with environment detection and logs | done |
 | cross toolchain | done |
 | DER32 kernel | done |
-| bootable image, QEMU boot | see devlog.md |
+| bootable image, QEMU boot | done (38/38 in-system checks) |
 
 ## Milestone 1 — Independent identity
 
@@ -20,8 +20,8 @@ evidence in `devlog.md`), **partial**, **planned**.
 |---|---|
 | `kern.ostype` = DER32, DER/32 version string, `kern.der32.*` | done |
 | `/etc/release`, motd, getty banner, hostname | done |
-| DER32 kernel in installation media | see devlog.md |
-| identity verified through the running system | see devlog.md |
+| DER32 kernel in installation media | done (image + live ISO) |
+| identity verified through the running system | done |
 
 ## Milestone 2 — upkg foundation
 
@@ -41,10 +41,10 @@ evidence in `devlog.md`), **partial**, **planned**.
 
 | item | status |
 |---|---|
-| upkg in the base image (`/usr/sbin/upkg`, `upkg.8`, set lists) | see devlog.md |
+| upkg in the base image (`/usr/sbin/upkg`, `upkg.8`, set lists) | done |
 | official test repositories | done (`make repo`) |
 | real native packages (Lua 5.4.7, der32-hello) | done (cross-built) |
-| installation + upgrade inside QEMU | see devlog.md |
+| installation + upgrade inside QEMU | done |
 
 ## Milestone 4 — Independent distribution
 
@@ -55,7 +55,7 @@ evidence in `devlog.md`), **partial**, **planned**.
 | maintained patch series | done (`patches/`, `scripts/patches.sh`) |
 | repository publication tooling | done (`upkg keygen/create/index`, `mkrepo.sh`) |
 | security update procedure | planned (see below) |
-| 0.1 Genesis release artifacts | see devlog.md |
+| 0.1 Genesis release artifacts | done as development builds (image, ISO, sets); not yet signed with a release key |
 
 ## Known limitations and next steps
 

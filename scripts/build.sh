@@ -125,6 +125,10 @@ do_sets() {
 	need_patches
 	run_logged sets nbbuild sets
 	run_logged releasekernel nbbuild releasekernel=DER32
+	run_logged kernset nbmake -C "$SRC/etc" KERNEL_SETS=DER32 \
+	    BUILD_KERNELS= EXTRA_KERNELS= kernset-DER32
+	[ -f "$OUT/release/$MACHINE/binary/sets/kern-DER32.tar.xz" ] ||
+	    die "kern-DER32 set was not produced"
 }
 
 do_repo() {

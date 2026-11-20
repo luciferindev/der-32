@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 16:41:40 -0700
-Subject: [PATCH 4/5] distrib/amd64: DER/32 bootable disk image
+Subject: [PATCH 4/7] distrib/amd64: DER/32 bootable disk image
 
 Builds der32-<release>-amd64.img from the release sets and kern-DER32 with
 the stock Makefile.bootimage: MBR + FFS root, serial console on com0,
 getty on tty00, hostname der32, DHCP, and DER/32 upkg directories.
 ---
- distrib/amd64/der32image/Makefile      | 57 ++++++++++++++++++++++++++
- distrib/amd64/der32image/rc.conf.der32 |  6 +++
+ distrib/amd64/der32image/Makefile      | 56 ++++++++++++++++++++++++++
+ distrib/amd64/der32image/rc.conf.der32 |  7 ++++
  distrib/amd64/der32image/root.hash     |  1 +
  distrib/amd64/der32image/spec.der32    |  7 ++++
  distrib/amd64/der32image/ttys          | 20 +++++++++
@@ -21,10 +21,10 @@ getty on tty00, hostname der32, DHCP, and DER/32 upkg directories.
 
 diff --git a/distrib/amd64/der32image/Makefile b/distrib/amd64/der32image/Makefile
 new file mode 100644
-index 0000000000000000000000000000000000000000..cfe4e2facc26e8a71c61e30020e21deb29c6d7bc
+index 0000000000000000000000000000000000000000..e0875d6e9b4ace2de9ab49fc3bba3b146f291ee2
 --- /dev/null
 +++ b/distrib/amd64/der32image/Makefile
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,56 @@
 +#	$DER32: Makefile,v 0.1 2026/11/19 $
 +#
 +# DER/32 bootable disk image for amd64 (raw, MBR + FFSv1 root, serial
@@ -77,23 +77,23 @@ index 0000000000000000000000000000000000000000..cfe4e2facc26e8a71c61e30020e21deb
 +	${TOOL_AWK} -F: -v OFS=: -v h="$$hash" \
 +	    '$$1 == "root" { $$2 = h } { print }' \
 +	    ${NETBSDSRCDIR}/etc/master.passwd > ${PWWORK}/etc/master.passwd
-+	${TOOL_PWD_MKDB} -V 0 -p -d ${PWWORK} ${PWWORK}/etc/master.passwd
++	${TOOL_PWD_MKDB} -p -d ${PWWORK} ${PWWORK}/etc/master.passwd
 +
-+CLEANDIRFILES+=	${PWWORK}
 +
-+.include "${.CURDIR}/../liveimage/Makefile.liveimage"
++.include "${NETBSDSRCDIR}/distrib/common/bootimage/Makefile.liveimage"
 diff --git a/distrib/amd64/der32image/rc.conf.der32 b/distrib/amd64/der32image/rc.conf.der32
 new file mode 100644
-index 0000000000000000000000000000000000000000..e1310c9adb186c4c7041a5fa518415c6bb57e3ab
+index 0000000000000000000000000000000000000000..9116eab7dcec305db001664b8552a7fdae0dc9d0
 --- /dev/null
 +++ b/distrib/amd64/der32image/rc.conf.der32
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,7 @@
 +# DER/32 image defaults (appended to /etc/rc.conf by the image build)
 +dhcpcd=YES
 +dhcpcd_flags="-q"
 +update_motd=YES
 +ntpd=NO
 +sshd=NO
++postfix=NO		# Postfix is not part of the Genesis profile (MKPOSTFIX=no)
 diff --git a/distrib/amd64/der32image/root.hash b/distrib/amd64/der32image/root.hash
 new file mode 100644
 index 0000000000000000000000000000000000000000..df15f4f1bb035809998292fc1f96c7479f95248d

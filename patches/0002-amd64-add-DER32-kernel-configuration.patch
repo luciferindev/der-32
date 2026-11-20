@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 16:41:39 -0700
-Subject: [PATCH 2/5] amd64: add DER32 kernel configuration
+Subject: [PATCH 2/7] amd64: add DER32 kernel configuration
 
 Derived from GENERIC by inclusion; keeps every GENERIC driver so the kernel
 boots on QEMU/KVM and real hardware.  DER/32-specific deltas go here.

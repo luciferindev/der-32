@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 16:52:48 -0700
+Subject: [PATCH 6/7] usr.sbin: build upkg in the base system
+
+Hook usr.sbin/upkg into SUBDIR and list /usr/sbin/upkg, upkg.8 (and its
+cat/html/debug variants) in the base, man and debug sets.
+---
+ distrib/sets/lists/base/mi  | 1 +
+ distrib/sets/lists/debug/mi | 1 +
+ distrib/sets/lists/man/mi   | 3 +++
+ usr.sbin/Makefile           | 2 +-
+ 4 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/distrib/sets/lists/base/mi b/distrib/sets/lists/base/mi
+index 1a7203d077083731590ad0fa18828d2458196408..47d3a939ee6426a4d9b0fbca2bbc7aca35ca51b9 100644
+--- a/distrib/sets/lists/base/mi
++++ b/distrib/sets/lists/base/mi
+@@ -1827,6 +1827,7 @@
+ ./usr/sbin/unbound-control-setup		base-netutil-bin	unbound
+ ./usr/sbin/unlink				base-sysutil-bin
+ ./usr/sbin/update				base-obsolete		obsolete
++./usr/sbin/upkg				base-pkgutil-bin
+ ./usr/sbin/usbdevs				base-sysutil-bin
+ ./usr/sbin/user					base-sysutil-bin
+ ./usr/sbin/useradd				base-sysutil-bin
+diff --git a/distrib/sets/lists/debug/mi b/distrib/sets/lists/debug/mi
+index f451da78814ce5532b2d7d6db69df8b68b2192ad..fc614a34e54533f062c94c6eb48fd0ed60115431 100644
+--- a/distrib/sets/lists/debug/mi
++++ b/distrib/sets/lists/debug/mi
+@@ -1372,6 +1372,7 @@
+ ./usr/libdata/debug/usr/sbin/unbound-control.debug	base-netutil-debug	debug,unbound
+ ./usr/libdata/debug/usr/sbin/unbound.debug	base-netutil-debug	debug,unbound
+ ./usr/libdata/debug/usr/sbin/unlink.debug	comp-sysutil-debug	debug
++./usr/libdata/debug/usr/sbin/upkg.debug		comp-pkgutil-debug	debug
+ ./usr/libdata/debug/usr/sbin/usbdevs.debug	comp-sysutil-debug	debug
+ ./usr/libdata/debug/usr/sbin/user.debug		comp-sysutil-debug	debug
+ ./usr/libdata/debug/usr/sbin/uuchk.debug	comp-obsolete		obsolete,compatfile
+diff --git a/distrib/sets/lists/man/mi b/distrib/sets/lists/man/mi
+index 30ffded04cae8a5859be4e28a46be43df09134e3..e58425a34738ab14dc0d28c751770f263a04998d 100644
+--- a/distrib/sets/lists/man/mi
++++ b/distrib/sets/lists/man/mi
+@@ -3425,6 +3425,7 @@
+ ./usr/share/man/cat8/unlink.0			man-sysutil-catman	.cat
+ ./usr/share/man/cat8/update.0			man-obsolete		obsolete
+ ./usr/share/man/cat8/usbd.0			man-obsolete		obsolete
++./usr/share/man/cat8/upkg.0			man-pkgutil-catman	.cat
+ ./usr/share/man/cat8/usbdevs.0			man-sysutil-catman	.cat
+ ./usr/share/man/cat8/user.0			man-sysutil-catman	.cat
+ ./usr/share/man/cat8/useradd.0			man-sysutil-catman	.cat
+@@ -6550,6 +6551,7 @@
+ ./usr/share/man/html8/unbound-control.html	man-netutil-htmlman	html,unbound
+ ./usr/share/man/html8/unbound.html		man-netutil-htmlman	html,unbound
+ ./usr/share/man/html8/unlink.html		man-sysutil-htmlman	html
++./usr/share/man/html8/upkg.html		man-pkgutil-htmlman	html
+ ./usr/share/man/html8/usbdevs.html		man-sysutil-htmlman	html
+ ./usr/share/man/html8/user.html			man-sysutil-htmlman	html
+ ./usr/share/man/html8/useradd.html		man-sysutil-htmlman	html
+@@ -10026,6 +10028,7 @@
+ ./usr/share/man/man8/unlink.8			man-sysutil-man		.man
+ ./usr/share/man/man8/update.8			man-obsolete		obsolete
+ ./usr/share/man/man8/usbd.8			man-obsolete		obsolete
++./usr/share/man/man8/upkg.8			man-pkgutil-man		.man
+ ./usr/share/man/man8/usbdevs.8			man-sysutil-man		.man
+ ./usr/share/man/man8/user.8			man-sysutil-man		.man
+ ./usr/share/man/man8/useradd.8			man-sysutil-man		.man
+diff --git a/usr.sbin/Makefile b/usr.sbin/Makefile
+index 3bc88ee36e3b0347e82933aef40ddf81ce5134e8..fc9d4a4693b0133dfdf76c52210f9941b53266e9 100644
+--- a/usr.sbin/Makefile
++++ b/usr.sbin/Makefile
+@@ -28,7 +28,7 @@ SUBDIR=	ac accton acpitools altq apm apmd arp autofs \
+ 	sliplogin spray \
+ 	srtconfig sti sunlabel sysinst syslogd \
+ 	tadpolectl tcpdchk tcpdmatch tcpdrop timed tpctl tprof traceroute trpt \
+-	unlink usbdevs user \
++	unlink upkg usbdevs user \
+ 	videomode vipw veriexecgen vnconfig \
+ 	wakeonlan wg-keygen wg-userspace wgconfig wiconfig wlanctl \
+ 	wsconscfg wsfontload wsmoused wsmuxctl \

@@ -107,8 +107,86 @@ truth value as "different segment types", so every comparison returned
 lookup did not match. Source extraction was rejecting its own rewritten
 absolute paths.
 
-## In progress
+## 2026-11-19 — Milestones 0, 1 and 3: bootable DER/32
 
-* `build.sh distribution` (userland) is running.
-* Next: hook `usr.sbin/upkg` into SUBDIR and the set lists, `build.sh
-  sets` + `releasekernel=DER32`, `make repo`, image, QEMU boot test, ISO.
+**Userland.** `build.sh distribution`: verified, exit 0, `checkflist`
+clean. Issues fixed on the way:
+* `MKKERBEROS=no` breaks BIND's libdns on this branch: its `config.h`
+  hard-codes `HAVE_GSSAPI`, so `gssapi/gssapi.h` is not found. Kerberos is
+  re-enabled (the upstream default) rather than patching BIND.
+* The build environment restarted twice and killed the build. Recovery
+  procedure: delete every `out/obj` and `out/destdir` file written in the
+  last minutes before the kill (half-written outputs), then resume with
+  `-u`.
+
+**upkg in base.** `/usr/sbin/upkg` is built by the base system
+(`usr.sbin/upkg` reachover, in SUBDIR and in the base/man/debug set
+lists). It is a NetBSD 10.2 PIE linked against base `libarchive.so.5`,
+`libsqlite3.so.1`, `libfetch.so.4`, `libssl.so.15` and `libcrypto.so.15`.
+
+**Release sets.** `build.sh sets`, `releasekernel=DER32`, and
+`etc/Makefile kernset-DER32` (DER32 added to amd64 `KERNEL_SETS` by
+patch 0007) produce `kern-DER32.tar.xz`.
+
+**Test repositories.** `make repo` cross-builds `der32-hello` 1.0 and 1.1
+and **Lua 5.4.7** (upstream tag v5.4.7, commit `1ab3208a1f`, distfile
+SHA-256 `19885f2b…6a1c`). `file(1)` reports each binary as
+"ELF 64-bit … for NetBSD 10.2". Each repository's INDEX is signed with the
+DER/32 test key.
+
+**Images.**
+```
+f8f6c6df713fcec9e0d03e34fcd9f035c3c74106ca39be685f5a5b67c39e7a2d  der32-0.1-amd64.img  (2 GiB raw, MBR 55aa)
+aa1f65edcc9d76915919c20bb4b5457f2bacbe22022c9fa1b8ba8b693091310a  der32-0.1-amd64.iso  (524 MiB live)
+```
+Fixed: `rc.d/postfix` is enabled by NetBSD defaults but Postfix is not
+built (`postfix=NO` in the image). On the ISO, `rc.d/root` runs
+`umount -a`, which removed early overlays, and NetBSD's MNT_UNION only
+merges lookups (existing files stayed read-only). The fix is
+`rc.d/der32live`, ordered after `root`, which copies /etc, /var, /root
+and /usr/local into tmpfs.
+
+**QEMU boot test** (`scripts/test.sh qemu`; TCG, IDE disk, e1000;
+transcript `out/logs/qemu-test.log`): **38 passed, 0 failed.** It boots to
+getty in about 20 s and logs in over the serial console:
+
+```
+DER/32 UNIX Operating System
+Release 0.1 — Genesis
+
+der32/amd64 (tty00)
+
+login: root
+Password:
+DER/32 0.1 GENESIS (DER32) #1: Thu Nov 19 17:37:09 MST 2026
+...
+# uname -s
+DER32
+# upkg --version
+upkg 0.1
+```
+
+Verified on the running system: `uname -s/-m/-v`, `kern.ostype`,
+`kern.der32.release`=0.1, `kern.der32.codename`=Genesis,
+`kern.osrelease`=10.2_STABLE, `/etc/release`, hostname; BSD init as
+pid 1; FFS root; POSIX sh; filesystem operations; the standard hierarchy;
+native `cc` (gcc 10.5); DHCP on wm0 and a ping to the gateway. upkg:
+sync with signature verification; search; install of `lua-hello` pulling
+`lua` as a dependency; packaged Lua 5.4.7 runs, and the base system's own
+`/usr/bin/lua` 5.4.6 is untouched (base/third-party separation);
+priority (core 1.0) and explicit `community/der32-hello` upgrade to 1.1;
+removal of a required package refused; `upkg check`; a **native source
+build inside DER/32 as `nobody`**; remove + autoremove; clean
+`shutdown -p`.
+
+**Live ISO** (`qemu-test.py …iso`): **25 passed, 0 failed.** It covers
+the cd9660 root, tmpfs layers, identity, network and an upkg install.
+
+**Artifact checks** (`scripts/test.sh build`): 13/13.
+**upkg suite**: 133/133.
+
+## Outstanding
+
+See `roadmap.md`, "Known limitations". The main items are pkgsrc
+`OPSYS` mapping, a VGA-console image, an installer, replacing the
+default root password, release signing keys and reproducible timestamps.
