@@ -101,7 +101,29 @@ run_logged() {
 	fi
 }
 
+# Modern host compilers reject parts of the toolchain sources NetBSD
+# builds on the host (old GNU make, binutils, gcc): GCC >= 14 turns
+# incompatible-pointer-types, implicit-function-declaration, implicit-int
+# and int-conversion into errors, and GCC >= 15 defaults to C23.  Pin the
+# host tools to gnu17 and demote exactly those errors back to warnings.
+# This affects only programs built for the build host, never DER/32.
+host_cflags() {
+	hcc=${HOST_CC:-cc}
+	flags="-O"
+	for f in -std=gnu17 -Wno-error=incompatible-pointer-types \
+	    -Wno-error=implicit-function-declaration -Wno-error=implicit-int \
+	    -Wno-error=int-conversion -Wno-error=return-mismatch; do
+		if echo 'int x;' | $hcc $f -Werror -x c -c -o /dev/null - \
+		    >/dev/null 2>&1; then
+			flags="$flags $f"
+		fi
+	done
+	echo "$flags"
+}
+
 nbbuild() {
+	: "${HOST_CFLAGS:=$(host_cflags)}"
+	export HOST_CFLAGS
 	cd "$SRC"
 	MAKECONF=$ROOT/conf/mk.conf ./build.sh -U -u -N1 -j"$JOBS" -m "$MACHINE" \
 	    -O "$OUT/obj" -T "$OUT/tools" -D "$OUT/destdir" -R "$OUT/release" "$@"

@@ -123,6 +123,12 @@ must stay pinned to the upstream commit (`.gitmodules` sets
 
 ## Troubleshooting
 
+* **GCC 14+ host (current Arch)**: errors like `passing argument 2 of
+  'ar_scan' from incompatible pointer type` in `tools/gmake`. GCC 14 made
+  some old warnings into errors and GCC 15 defaults to C23. `build.sh`
+  probes the host compiler and builds the *host tools* with `-std=gnu17`
+  and those errors demoted to warnings. To override, set `HOST_CFLAGS`.
+
 * **`Failed to make depend ... CC=false`**: see `MKGCC` above.
 * **Interrupted build**: re-run the same `make` target, since `-u`
   resumes. If you see "unknown type" errors in generated headers, a
