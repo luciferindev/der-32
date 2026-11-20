@@ -124,6 +124,17 @@ host_cflags() {
 nbbuild() {
 	: "${HOST_CFLAGS:=$(host_cflags)}"
 	export HOST_CFLAGS
+	# GNU tools record their CFLAGS at configure time, and -u never
+	# reconfigures them: when the host flags change (or predate this
+	# stamp), start the host tools over so the new flags take effect.
+	stamp=$OUT/.host-cflags
+	if [ -d "$OUT/obj/tools" ] &&
+	    [ "$(cat "$stamp" 2>/dev/null)" != "${HOST_CC:-cc} $HOST_CFLAGS" ]; then
+		echo "    host compiler flags changed: rebuilding host tools from scratch"
+		rm -rf "$OUT/obj/tools"
+	fi
+	mkdir -p "$OUT"
+	echo "${HOST_CC:-cc} $HOST_CFLAGS" > "$stamp"
 	cd "$SRC"
 	MAKECONF=$ROOT/conf/mk.conf ./build.sh -U -u -N1 -j"$JOBS" -m "$MACHINE" \
 	    -O "$OUT/obj" -T "$OUT/tools" -D "$OUT/destdir" -R "$OUT/release" "$@"
