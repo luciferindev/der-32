@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DER/32 :: Derivative 32 :: a NetBSD-derived UNIX</title>
 <meta name="description" content="DER/32 (Derivative 32) is a small, bootable NetBSD-derived UNIX operating system for amd64 with its own package manager, upkg.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23223f73'/><text x='1' y='12' font-family='monospace' font-size='10' fill='%23ffcc33'>D/</text></svg>">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
 <style>
 body { margin: 0; background: #5a6f8c url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><rect width='4' height='4' fill='%235a6f8c'/><rect width='1' height='1' fill='%23526681'/></svg>"); font: 12px/1.45 Verdana, Tahoma, "DejaVu Sans", Arial, sans-serif; color: #000; }
 #wrap { max-width: 960px; margin: 12px auto; background: #fff; border: 1px solid #1d2f4f; }
@@ -14,8 +15,9 @@ code, pre, tt { font-family: "Courier New", Courier, monospace; font-size: 12px;
 
 /* header */
 #head { display: flex; align-items: center; gap: 18px; padding: 10px 14px; background: linear-gradient(#2c4f8c, #16305c); border-bottom: 3px solid #ffcc33; }
-#head pre { margin: 0; background: #000; color: #ffb000; padding: 6px 8px; font-size: 10px; line-height: 1.15; border: 2px inset #8899bb; }
-#head .eye { color: #33ff33; }
+#head img { flex: none; background: #fff; border-radius: 50%; padding: 3px; box-shadow: 2px 2px 0 #000; }
+.mascot pre { margin: 0; background: #000; color: #ffb000; padding: 6px 8px; font-size: 10px; line-height: 1.15; border: 2px inset #8899bb; }
+.mascot .eye { color: #33ff33; }
 #head h1 { margin: 0; font: bold 30px/1 Georgia, "Times New Roman", serif; color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
 #head h1 span { color: #ffcc33; }
 #head p { margin: 6px 0 0; color: #c8d6f0; font-size: 11px; }
@@ -79,15 +81,7 @@ table.idx td.c a { font-family: "Courier New", monospace; font-size: 11px; }
 <div id="wrap">
 
 <div id="head">
-<pre aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
-               .-&#x27;  \________/  &#x27;-.
-             .&#x27;      |      |      &#x27;.
-   .---.    /--------&#x27;      &#x27;-------\
-  /     \  |      /  &#x27;-.__.-&#x27;  \     |
- |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
-  &#x27;-.________________________________ __)
-             |  |               |  |
-             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
 <div>
   <h1>DER<span>/</span>32</h1>
   <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
@@ -135,8 +129,17 @@ upkg 0.1</pre>
     <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
   </ul></div></div>
 
-  <div class="box"><h3>:: Mascot</h3><div class="in" style="text-align:center">
-    <small>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
   </div></div>
 </div>
 

@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/art/genesis.png" alt="Genesis the tortoise, the DER/32 mascot" width="280"></p>
+<p align="center"><img src="docs/art/logo.png" alt="DER/32 logo: Genesis the tortoise in a bowler hat" width="200"></p>
 
 # DER/32
 
@@ -32,7 +32,7 @@ login:
 ## Mascot
 
 Meet **Genesis**, the DER/32 tortoise: slow, steady, carries its house on
-its back. Run `derfetch` on DER/32 to see Genesis beside your system info. The original drawing is in [`docs/art/genesis.png`](docs/art/genesis.png).
+its back. Run `derfetch` on DER/32 to see Genesis beside your system info. The logo, Genesis in a bowler hat, is [`docs/art/logo.png`](docs/art/logo.png); the original drawing is [`docs/art/genesis.png`](docs/art/genesis.png).
 A fastfetch logo version is in [`share/fastfetch/`](share/fastfetch/README.md):
 
 ```
