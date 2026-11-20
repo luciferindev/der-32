@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheat sheet :: DER/32</title>
+<meta name="description" content="DER/32 command cheat sheet: upkg, pkgin, rc.d services, networking, users, building.">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="DER/32 news" href="rss.xml">
+</head>
+<body>
+<div id="wrap">
+
+<div id="head">
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
+<div>
+  <h1>DER<span>/</span>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
+
+<div id="tabs">
+  <a href="index.html">Home</a>
+  <a href="index.html#news">News</a>
+  <a href="index.html#install">Download &amp; Build</a>
+  <a href="faq.html">FAQ</a>
+  <a class="on" href="cheatsheet.html">Cheat sheet</a>
+  <a href="man.html">Man pages</a>
+  <a href="index.html#history">History</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="index.html#news">Latest news</a></li>
+    <li><a href="index.html#install">Get DER/32</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="cheatsheet.html">Cheat sheet</a></li>
+    <li><a href="man.html">Man pages</a></li>
+    <li><a href="index.html#history">History</a></li>
+    <li><a href="index.html#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+<div class="post"><div class="t"><span class="ico">!</span> DER/32 cheat sheet</div><div class="meta">Sticky &middot; Forum: HOWTOs</div><div class="b"><p>The commands you'll want in the first hour. Print it out and tape it to your monitor. Jump to: <a href="#c-upkg">upkg</a> &middot; <a href="#c-pkgin">pkgin</a> &middot; <a href="#c-sys">system</a> &middot; <a href="#c-svc">services</a> &middot; <a href="#c-net">network</a> &middot; <a href="#c-users">users</a> &middot; <a href="#c-build">building</a></p></div></div>
+<a id="c-upkg"></a>
+<div class="post"><div class="t"><span class="ico">P</span> upkg: DER/32 packages</div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>upkg sync</td><td>fetch and verify every enabled repository index</td></tr>
+<tr><td>upkg search lua</td><td>search package names and descriptions</td></tr>
+<tr><td>upkg info lua</td><td>installed and repository information</td></tr>
+<tr><td>upkg install lua-hello</td><td>install with dependencies (<tt>-n</tt>: dry run)</td></tr>
+<tr><td>upkg install core/lua</td><td>take the package from one repository only</td></tr>
+<tr><td>upkg install &#x27;lua&gt;=5.4&#x27;</td><td>version constraint: <tt>&lt; &lt;= = &gt;= &gt;</tt></td></tr>
+<tr><td>upkg upgrade</td><td>upgrade everything that has a newer version</td></tr>
+<tr><td>upkg remove lua-hello</td><td>remove (refused if something depends on it)</td></tr>
+<tr><td>upkg remove -c lua</td><td>remove together with its dependents</td></tr>
+<tr><td>upkg autoremove</td><td>drop dependencies nothing needs any more</td></tr>
+<tr><td>upkg list -e</td><td>explicitly installed packages (<tt>-d</tt>: dependencies)</td></tr>
+<tr><td>upkg list -f lua</td><td>files owned by a package</td></tr>
+<tr><td>upkg check</td><td>verify installed files against their checksums</td></tr>
+<tr><td>upkg build der32-hello</td><td>build a package from a recipe in <tt>ports/</tt></td></tr>
+<tr><td>upkg repo list</td><td>repositories, priorities, enabled state</td></tr>
+<tr><td>upkg repo add web URL -p 90</td><td>add a repository with priority 90</td></tr>
+<tr><td>upkg recover</td><td>finish or undo an interrupted transaction</td></tr>
+</table><p>Full reference: <a href="man-upkg.8.html">upkg(8)</a>.</p></div></div>
+<a id="c-pkgin"></a>
+<div class="post"><div class="t"><span class="ico">P</span> pkgin: NetBSD binary packages <small>(in testing)</small></div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>pkg_add pkgin</td><td>one-time bootstrap from cdn.NetBSD.org</td></tr>
+<tr><td>pkgin update</td><td>refresh the package list</td></tr>
+<tr><td>pkgin search vim</td><td>search</td></tr>
+<tr><td>pkgin install vim git</td><td>install with dependencies, into <tt>/usr/pkg</tt></td></tr>
+<tr><td>pkgin upgrade</td><td>upgrade installed packages</td></tr>
+<tr><td>pkgin remove vim</td><td>remove</td></tr>
+<tr><td>pkgin autoremove</td><td>remove orphaned dependencies</td></tr>
+<tr><td>pkgin list</td><td>installed packages</td></tr>
+<tr><td>pkg_info</td><td>installed packages, the low-level way</td></tr>
+</table></div></div>
+<a id="c-sys"></a>
+<div class="post"><div class="t"><span class="ico">S</span> System</div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>derfetch</td><td>system info and the tortoise (<tt>-l</tt> no logo, <tt>-n</tt> no colour)</td></tr>
+<tr><td>uname -a</td><td>kernel name, release, version</td></tr>
+<tr><td>sysctl kern.der32</td><td>DER/32 release name and codename</td></tr>
+<tr><td>cat /etc/release</td><td>release and build information</td></tr>
+<tr><td>dmesg | less</td><td>kernel boot messages: what hardware was found</td></tr>
+<tr><td>top</td><td>processes</td></tr>
+<tr><td>df -h</td><td>disk space</td></tr>
+<tr><td>sysctl hw.physmem64</td><td>installed memory, in bytes</td></tr>
+<tr><td>shutdown -p now</td><td>power off</td></tr>
+<tr><td>shutdown -r now</td><td>reboot</td></tr>
+<tr><td>certctl rehash</td><td>rebuild <tt>/etc/openssl/certs</tt> (HTTPS trust)</td></tr>
+</table></div></div>
+<a id="c-svc"></a>
+<div class="post"><div class="t"><span class="ico">S</span> Services (rc.d)</div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>vi /etc/rc.conf</td><td>turn services on and off: <tt>sshd=YES</tt></td></tr>
+<tr><td>service sshd start</td><td>start a service now (also <tt>stop</tt>, <tt>restart</tt>, <tt>status</tt>)</td></tr>
+<tr><td>service -l</td><td>list every rc.d script</td></tr>
+<tr><td>service sshd onestart</td><td>start once without enabling it in rc.conf</td></tr>
+<tr><td>ls /etc/rc.d</td><td>the service scripts themselves</td></tr>
+</table></div></div>
+<a id="c-net"></a>
+<div class="post"><div class="t"><span class="ico">N</span> Network</div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>ifconfig -a</td><td>interfaces and addresses</td></tr>
+<tr><td>service dhcpcd restart</td><td>redo DHCP on every interface</td></tr>
+<tr><td>route -n show</td><td>routing table</td></tr>
+<tr><td>cat /etc/resolv.conf</td><td>DNS servers (written by dhcpcd)</td></tr>
+<tr><td>ping -c 3 netbsd.org</td><td>check connectivity</td></tr>
+<tr><td>ftp https://example.org/file</td><td>download a file (base has no curl or wget)</td></tr>
+</table></div></div>
+<a id="c-users"></a>
+<div class="post"><div class="t"><span class="ico">U</span> Users</div><div class="b"><table class="ref"><tr><th>Command</th><th>What it does</th></tr>
+<tr><td>passwd</td><td>change your password (do this first as root)</td></tr>
+<tr><td>useradd -m -G wheel alice</td><td>add a user with a home directory, allowed to <tt>su</tt></td></tr>
+<tr><td>passwd alice</td><td>set their password</td></tr>
+<tr><td>su -</td><td>become root (users in group wheel only)</td></tr>
+<tr><td>userdel -r alice</td><td>remove a user and their home</td></tr>
+</table></div></div>
+<a id="c-build"></a>
+<div class="post"><div class="t"><span class="ico">B</span> Building DER/32 (on the Linux host)</div><div class="b"><table class="ref"><tr><th>Target</th><th>What it does</th></tr>
+<tr><td>make check</td><td>check the host for required tools</td></tr>
+<tr><td>make release</td><td>tools, kernel, world, sets, disk image</td></tr>
+<tr><td>make iso</td><td>live ISO</td></tr>
+<tr><td>make qemu</td><td>boot the image here, serial console (exit: Ctrl-A X)</td></tr>
+<tr><td>SNAPSHOT=1 make qemu</td><td>boot without keeping any disk changes</td></tr>
+<tr><td>make test</td><td>every test suite</td></tr>
+<tr><td>make test-upkg</td><td>only the upkg suite (fast, no NetBSD build needed)</td></tr>
+<tr><td>make kernel</td><td>just the DER32 kernel</td></tr>
+<tr><td>scripts/patches.sh status</td><td>pinned NetBSD commit and patch state</td></tr>
+<tr><td>make clean</td><td>remove build output</td></tr>
+</table></div></div>
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3">BSD<br>LICENSED</span>
+  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6">systemd<br>FREE</span>
+  <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>upkg(8) :: DER/32</title>
+<meta name="description" content="upkg(8): DER/32 package manager">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="DER/32 news" href="rss.xml">
+</head>
+<body>
+<div id="wrap">
+
+<div id="head">
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
+<div>
+  <h1>DER<span>/</span>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
+
+<div id="tabs">
+  <a href="index.html">Home</a>
+  <a href="index.html#news">News</a>
+  <a href="index.html#install">Download &amp; Build</a>
+  <a href="faq.html">FAQ</a>
+  <a href="cheatsheet.html">Cheat sheet</a>
+  <a class="on" href="man.html">Man pages</a>
+  <a href="index.html#history">History</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="index.html#news">Latest news</a></li>
+    <li><a href="index.html#install">Get DER/32</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="cheatsheet.html">Cheat sheet</a></li>
+    <li><a href="man.html">Man pages</a></li>
+    <li><a href="index.html#history">History</a></li>
+    <li><a href="index.html#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+<div class="post"><div class="t"><span class="ico">M</span> upkg(8) &mdash; DER/32 package manager</div><div class="b"><p class="crumb"><a href="man.html">Man pages</a> &raquo; upkg(8)</p><div class="man"><table class="head">
+  <tr>
+    <td class="head-ltitle">UPKG(8)</td>
+    <td class="head-vol">System Manager's Manual</td>
+    <td class="head-rtitle">UPKG(8)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<code class="Nm">upkg</code> &#x2014;
+<div class="Nd">DER/32 Unix package manager</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">upkg</code></td>
+    <td>[<code class="Fl">-v</code>] [<code class="Fl">-r</code>
+      <var class="Ar">root</var>] <var class="Ar">command</var>
+      [<var class="Ar">arguments</var>]</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<code class="Nm">upkg</code> installs, removes and upgrades third-party software
+  on DER/32. Packages come from any number of configured repositories, each
+  published with an Ed25519-signed index; every package archive is verified
+  against the SHA-256 digest recorded in that signed index before anything is
+  installed. Packages install below <span class="Pa">/usr/local</span> by
+  default; the base system is never modified by <code class="Nm">upkg</code>.
+<p class="Pp">The global options are:</p>
+<dl class="Bl-tag">
+  <dt><a class="permalink" href="#r"><code class="Fl" id="r">-r</code></a>
+    <var class="Ar">root</var></dt>
+  <dd>Operate on the system rooted at <var class="Ar">root</var> instead of
+      <span class="Pa">/</span>. Configuration, the database and the installed
+      files are all taken relative to <var class="Ar">root</var>.</dd>
+  <dt><a class="permalink" href="#v"><code class="Fl" id="v">-v</code></a></dt>
+  <dd>Print debugging output.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="COMMANDS"><a class="permalink" href="#COMMANDS">COMMANDS</a></h1>
+<dl class="Bl-tag">
+  <dt><a class="permalink" href="#sync"><code class="Cm" id="sync">sync</code></a></dt>
+  <dd>Download every enabled repository's <span class="Pa">INDEX</span> and
+      <span class="Pa">INDEX.sig</span>, verify the signature against the
+      trusted keys in <span class="Pa">/etc/upkg/keys</span>, and refuse indexes
+      that name a different repository or are older than the copy already
+    held.</dd>
+  <dt><a class="permalink" href="#install"><code class="Cm" id="install">install</code></a>
+    [<code class="Fl">-n</code>]
+    [<code class="Fl">-</code><code class="Fl">-asdeps</code>]
+    [<code class="Fl">-</code><code class="Fl">-nodeps</code>]
+    [<code class="Fl">-</code><code class="Fl">-allow-unsigned</code>]
+    <var class="Ar">package ...</var></dt>
+  <dd>Install packages and their dependencies. A <var class="Ar">package</var>
+      is <var class="Ar">name</var>,
+      <var class="Ar">repo</var>/<var class="Ar">name</var> (take it from that
+      repository only),
+      <var class="Ar">name</var>[&lt;,&lt;=,=,&gt;=,&gt;<var class="Ar">version</var>]
+      or the path of a local <span class="Pa">.upkg</span> file (which requires
+      <code class="Fl">-</code><code class="Fl">-allow-unsigned</code>).
+      <code class="Fl">-n</code> only prints the transaction.</dd>
+  <dt><a class="permalink" href="#remove"><code class="Cm" id="remove">remove</code></a>
+    [<code class="Fl">-n</code>] [<code class="Fl">-c</code>]
+    <var class="Ar">package ...</var></dt>
+  <dd>Remove packages. Removal of a package another package depends on is
+      refused unless <code class="Fl">-c</code> is given, in which case the
+      dependents are removed as well.</dd>
+  <dt><a class="permalink" href="#autoremove"><code class="Cm" id="autoremove">autoremove</code></a>
+    [<code class="Fl">-n</code>]</dt>
+  <dd>Remove packages that were installed only as dependencies and are no longer
+      required.</dd>
+  <dt><a class="permalink" href="#upgrade"><code class="Cm" id="upgrade">upgrade</code></a>
+    [<code class="Fl">-n</code>]</dt>
+  <dd>Upgrade every installed package for which a repository offers a newer
+      version.</dd>
+  <dt><a class="permalink" href="#search"><code class="Cm" id="search">search</code></a>
+    <var class="Ar">query</var></dt>
+  <dd>Search package names and descriptions.</dd>
+  <dt><a class="permalink" href="#info"><code class="Cm" id="info">info</code></a>
+    <var class="Ar">package</var></dt>
+  <dd>Show installed and repository information.</dd>
+  <dt><a class="permalink" href="#list"><code class="Cm" id="list">list</code></a>
+    [<code class="Fl">-e</code> | <code class="Fl">-d</code>]
+    [<code class="Fl">-f</code> <var class="Ar">package</var>]</dt>
+  <dd>List installed packages (<code class="Fl">-e</code>:
+      <span class="No">explicitly installed only,</span>
+      <code class="Fl">-d</code>: <span class="No">dependencies only</span>), or
+      the files owned by <var class="Ar">package</var>.</dd>
+  <dt><a class="permalink" href="#check"><code class="Cm" id="check">check</code></a>
+    [<var class="Ar">package ...</var>]</dt>
+  <dd>Verify installed files against the checksums in the database.</dd>
+  <dt><a class="permalink" href="#build"><code class="Cm" id="build">build</code></a>
+    [<code class="Fl">-o</code> <var class="Ar">output</var>]
+    <var class="Ar">port</var></dt>
+  <dd>Build a package from the source recipe <var class="Ar">port</var> (a
+      directory, or a name looked up in <var class="Ar">portsdir</var>). When
+      run as root the build runs as the unprivileged
+      <var class="Ar">build_user</var>. Recipes are only ever executed on
+      explicit request.</dd>
+  <dt><a class="permalink" href="#repo_list"><code class="Cm" id="repo_list">repo
+    list</code></a> |
+    <a class="permalink" href="#add"><code class="Cm" id="add">add</code></a>
+    <var class="Ar">name url</var> [<code class="Fl">-p</code>
+    <var class="Ar">prio</var>] [<code class="Fl">-k</code>
+    <var class="Ar">key</var>]
+    [<code class="Fl">-</code><code class="Fl">-disabled</code>] | remove
+    <var class="Ar">name</var> | <var class="Ar">enable</var>
+    <var class="Ar">name</var> | <var class="Ar">disable</var>
+    <var class="Ar">name</var> | <var class="Ar">priority</var>
+    <var class="Ar">name n</var></dt>
+  <dd>Manage repositories.</dd>
+  <dt><a class="permalink" href="#keygen"><code class="Cm" id="keygen">keygen</code></a>
+    <var class="Ar">prefix</var></dt>
+  <dd>Create <var class="Ar">prefix</var>.key and
+      <var class="Ar">prefix</var>.pub.</dd>
+  <dt><a class="permalink" href="#create"><code class="Cm" id="create">create</code></a>
+    <code class="Fl">-i</code> <var class="Ar">PKGINFO</var>
+    <code class="Fl">-d</code> <var class="Ar">stagedir</var>
+    [<code class="Fl">-o</code> <var class="Ar">file</var>]</dt>
+  <dd>Create a package from a staging directory.</dd>
+  <dt><a class="permalink" href="#index"><code class="Cm" id="index">index</code></a>
+    <code class="Fl">-n</code> <var class="Ar">repo</var>
+    <code class="Fl">-k</code> <var class="Ar">keyfile</var>
+    <var class="Ar">dir</var></dt>
+  <dd>Write and sign <var class="Ar">dir</var>/INDEX.</dd>
+  <dt><a class="permalink" href="#recover"><code class="Cm" id="recover">recover</code></a></dt>
+  <dd>Complete or undo an interrupted transaction. This also happens
+      automatically before any command that modifies the system.</dd>
+  <dt><a class="permalink" href="#vercmp"><code class="Cm" id="vercmp">vercmp</code></a>
+    <var class="Ar">a b</var></dt>
+  <dd>Print -1, 0 or 1.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="FILES"><a class="permalink" href="#FILES">FILES</a></h1>
+<dl class="Bl-tag Bl-compact">
+  <dt><span class="Pa">/etc/upkg/upkg.conf</span></dt>
+  <dd>options: <code class="Cm">arch</code>, <code class="Cm">prefixes</code>,
+      <code class="Cm">portsdir</code>, <code class="Cm">builddir</code>,
+      <code class="Cm">build_user</code>, <code class="Cm">ca_file</code>,
+      <code class="Cm">allow_http</code></dd>
+  <dt><span class="Pa">/etc/upkg/repos.conf</span></dt>
+  <dd>repositories: <code class="Cm">url</code>,
+      <code class="Cm">priority</code>, <code class="Cm">enabled</code>,
+      <code class="Cm">key</code></dd>
+  <dt><span class="Pa">/etc/upkg/keys/</span></dt>
+  <dd>trusted Ed25519 public keys</dd>
+  <dt><span class="Pa">/var/lib/upkg/upkg.db</span></dt>
+  <dd>installed package database</dd>
+  <dt><span class="Pa">/var/lib/upkg/journal</span></dt>
+  <dd>transaction journal</dd>
+  <dt><span class="Pa">/var/cache/upkg/</span></dt>
+  <dd>downloaded packages and distfiles</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXIT_STATUS"><a class="permalink" href="#EXIT_STATUS">EXIT
+  STATUS</a></h1>
+The <code class="Nm">upkg</code> utility exits&#x00A0;0 on success,
+  and&#x00A0;&gt;0 if an error occurs.
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXAMPLES"><a class="permalink" href="#EXAMPLES">EXAMPLES</a></h1>
+<div class="Bd Bd-indent">
+<pre>
+# upkg repo add core https://example.org/der32/core -p 100
+# upkg sync
+# upkg install core/curl
+# upkg remove curl &amp;&amp; upkg autoremove
+</pre>
+</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<a class="Xr" href="man-pkg_add.1.html">pkg_add(1)</a>,
+  <a class="Xr" href="man-hier.7.html">hier(7)</a>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="HISTORY"><a class="permalink" href="#HISTORY">HISTORY</a></h1>
+<code class="Nm">upkg</code> first appeared in DER/32 0.1
+  &#x201C;Genesis&#x201D;.
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">November 19, 2026</td>
+    <td class="foot-os">NetBSD 10.2</td>
+  </tr>
+</table>
+</div></div></div>
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3">BSD<br>LICENSED</span>
+  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6">systemd<br>FREE</span>
+  <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ :: DER/32</title>
+<meta name="description" content="Frequently asked questions about DER/32: hardware, installing, packages, build problems.">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="DER/32 news" href="rss.xml">
+</head>
+<body>
+<div id="wrap">
+
+<div id="head">
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
+<div>
+  <h1>DER<span>/</span>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
+
+<div id="tabs">
+  <a href="index.html">Home</a>
+  <a href="index.html#news">News</a>
+  <a href="index.html#install">Download &amp; Build</a>
+  <a class="on" href="faq.html">FAQ</a>
+  <a href="cheatsheet.html">Cheat sheet</a>
+  <a href="man.html">Man pages</a>
+  <a href="index.html#history">History</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="index.html#news">Latest news</a></li>
+    <li><a href="index.html#install">Get DER/32</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="cheatsheet.html">Cheat sheet</a></li>
+    <li><a href="man.html">Man pages</a></li>
+    <li><a href="index.html#history">History</a></li>
+    <li><a href="index.html#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+<div class="post"><div class="t"><span class="ico">!</span> Frequently Asked Questions</div><div class="meta">Sticky &middot; Forum: General</div><div class="b">
+<p>Read this before posting a bug. Everything here applies to <b>DER/32 0.1 &ldquo;Genesis&rdquo;</b>.</p>
+<p>Jump to: <a href="#general">General</a> &middot; <a href="#hardware">Hardware</a> &middot;
+<a href="#using">Using it</a> &middot; <a href="#packages">Packages</a> &middot;
+<a href="#build">Build problems</a> &middot; <a href="#contrib">Contributing</a></p></div></div>
+<a id="general"></a><h3 class="crumb">:: General</h3>
+<div class="qa"><div class="q">Is DER/32 a Linux distro?</div><div class="a"><p>No. The kernel and the userland come from NetBSD: BSD libc, BSD make, BSD init and rc.d, POSIX <tt>sh</tt>, FFS. Linux is only the <i>build host</i>. You cross-compile DER/32 from Linux the same way NetBSD can be cross-built from almost anything.</p></div></div>
+<div class="qa"><div class="q">Is it GNU-free?</div><div class="a"><p>No, and that's on purpose. Like NetBSD, the base system ships GCC and binutils as its compiler toolchain. Everything else in base is BSD-licensed.</p></div></div>
+<div class="qa"><div class="q">Why not just run NetBSD?</div><div class="a"><p>For a production machine, you probably should. DER/32 is a derivative: it pins one <tt>netbsd-10</tt> commit, adds a small patch series (its own identity, kernel config, images, <tt>upkg</tt>, <tt>derfetch</tt>) and a slimmer build profile. If you want a hackable BSD where every change from upstream fits in a handful of reviewable patches, that's what it's for.</p></div></div>
+<div class="qa"><div class="q">Why does <tt>uname -s</tt> say DER32 but <tt>uname -r</tt> says 10.2?</div><div class="a"><p>The system name is DER/32's own. The release number is NetBSD's, kept on purpose so kernel modules, binary packages and anything else that checks the ABI version keep working. DER/32's own release is in <tt>sysctl kern.der32</tt>.</p></div></div>
+<a id="hardware"></a><h3 class="crumb">:: Hardware</h3>
+<div class="qa"><div class="q">Will it run on my machine?</div><div class="a"><p>DER/32 uses NetBSD 10's <tt>GENERIC</tt> kernel configuration, so it has the same drivers as NetBSD 10 on amd64. NetBSD's hardware lists are the best guide. So far, Genesis has only been tested in QEMU. Reports from real hardware are welcome on the <a href="https://github.com/luciferindev/der-32/issues">bug tracker</a>.</p></div></div>
+<div class="qa"><div class="q">What are the requirements?</div><div class="a"><p>An x86-64 CPU. The automated tests boot with 1&nbsp;GiB of RAM and 2 CPUs. The disk image is 2&nbsp;GiB and the live ISO about 525&nbsp;MiB. The live ISO copies <tt>/etc</tt>, <tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> into RAM, so give it some headroom.</p></div></div>
+<div class="qa"><div class="q">I only see a blank screen / no login on my monitor.</div><div class="a"><p>The Genesis images use a <b>serial console</b> (<tt>com0</tt>, getty on <tt>tty00</tt>). In QEMU that's your terminal. On real hardware you need a serial cable, or the VGA-console image variant that is being worked on in <a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>.</p></div></div>
+<div class="qa"><div class="q">How do I install it to a disk?</div><div class="a"><p>There is no installer yet. The disk image is a complete system, so writing it to a disk works, but <b>this erases the target disk</b>. Triple-check the device name first:</p><div class="term"><span class="p">$</span> lsblk  <span class="c"># find the right disk first</span>
+<span class="p">$</span> sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress</div><p>A real installer is on the <a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap</a>.</p></div></div>
+<a id="using"></a><h3 class="crumb">:: Using it</h3>
+<div class="qa"><div class="q">What's the login?</div><div class="a"><p><tt>root</tt>, password <tt>der32</tt>. Change it right away with <tt>passwd</tt>. A first-boot password prompt is planned.</p></div></div>
+<div class="qa"><div class="q">How do I get out of QEMU?</div><div class="a"><p>Press <b>Ctrl-A</b>, then <b>X</b>. To shut down cleanly first, run <tt>shutdown -p now</tt> inside DER/32.</p></div></div>
+<div class="qa"><div class="q">Is networking on?</div><div class="a"><p>Yes. <tt>dhcpcd</tt> runs at boot and configures every interface. In QEMU, user-mode networking gives the guest outbound access. SSH is off by default: set <tt>sshd=YES</tt> in <tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>.</p></div></div>
+<div class="qa"><div class="q">Where's X11 / a desktop?</div><div class="a"><p>The Genesis build profile leaves X11 out. DER/32 0.1 is a console system.</p></div></div>
+<div class="qa"><div class="q">How do I change the system's settings?</div><div class="a"><p>The NetBSD way: <tt>/etc/rc.conf</tt> for services, <tt>/etc/sysctl.conf</tt> for kernel tunables, <tt>/etc/fstab</tt> for mounts. See the <a href="cheatsheet.html">cheat sheet</a>.</p></div></div>
+<a id="packages"></a><h3 class="crumb">:: Packages</h3>
+<div class="qa"><div class="q">upkg or pkgin, which one do I use?</div><div class="a"><p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories into <tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. The two never touch each other's files. pkgin support is <i>in testing</i> and lands with the next build.</p></div></div>
+<div class="qa"><div class="q">Will NetBSD binaries run on DER/32?</div><div class="a"><p>They should. DER/32 keeps the NetBSD 10 ABI: same libc, same syscalls, same <tt>kern.osrelease</tt>.</p></div></div>
+<div class="qa"><div class="q">Does upkg run install scripts?</div><div class="a"><p>Never. A package is files plus metadata, and that's all upkg installs. Index signatures are Ed25519, package checksums are SHA-256, and an interrupted transaction is completed or rolled back on the next run. Details are in <a href="man-upkg.8.html">upkg(8)</a>.</p></div></div>
+<div class="qa"><div class="q">How do I make my own package?</div><div class="a"><p>Write a recipe under <tt>ports/&lt;category&gt;/&lt;name&gt;/</tt>: a <tt>RECIPE</tt> file and a <tt>build</tt> script, then run <tt>upkg build &lt;name&gt;</tt>. Look at <tt>ports/core/lua</tt> for a real example, and <a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a> for the format.</p></div></div>
+<a id="build"></a><h3 class="crumb">:: Build problems</h3>
+<div class="qa"><div class="q"><tt>make</tt> stops right away without an error message.</div><div class="a"><p>You're on an old checkout: early versions of the scripts failed silently on a fresh clone. Run <tt>git pull</tt> and <tt>git submodule update --init</tt>, then try again.</p></div></div>
+<div class="qa"><div class="q">The tools build fails in <tt>gmake</tt> / <tt>ar.c</tt> with GCC 14 or newer.</div><div class="a"><p>GCC 14+ defaults to C23 and turns old C warnings into errors, which breaks NetBSD's bundled host tools. Current DER/32 probes the compiler and passes the right flags, and it rebuilds the host tools automatically when those flags change. Run <tt>git pull</tt> and <tt>make release</tt> again. You don't need to delete <tt>out/</tt>.</p></div></div>
+<div class="qa"><div class="q">How much disk does a build need?</div><div class="a"><p>About 20&nbsp;GB: the NetBSD source tree is around 3&nbsp;GB and <tt>out/</tt> around 14&nbsp;GB after a full release build.</p></div></div>
+<div class="qa"><div class="q">Can I resume a build that stopped?</div><div class="a"><p>Yes. Just run the same <tt>make</tt> target again. Builds are incremental (<tt>build.sh -u</tt>).</p></div></div>
+<a id="contrib"></a><h3 class="crumb">:: Contributing</h3>
+<div class="qa"><div class="q">How do I change something in the OS itself?</div><div class="a"><p>DER/32 never edits the NetBSD tree in place. Make your change inside <tt>src/</tt> on the <tt>der32</tt> branch, commit it there, then regenerate the patch series:</p><div class="term"><span class="p">$</span> scripts/patches.sh status  <span class="c"># pinned commit and patch state</span>
+<span class="p">$</span> scripts/patches.sh apply   <span class="c"># pinned NetBSD + patches/ on branch der32</span>
+<span class="p">$</span> scripts/patches.sh export  <span class="c"># write your commits back to patches/</span></div><p>Then open a <a href="https://github.com/luciferindev/der-32/pulls">pull request</a> with the new or changed file in <tt>patches/</tt>.</p></div></div>
+<div class="qa"><div class="q">What's the license?</div><div class="a"><p>DER/32's own code is BSD-2-Clause. NetBSD code keeps its original licences and notices. See <a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>.</p></div></div>
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3">BSD<br>LICENSED</span>
+  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6">systemd<br>FREE</span>
+  <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
+</body>
+</html>
