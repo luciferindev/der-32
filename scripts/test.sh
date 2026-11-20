@@ -47,6 +47,7 @@ t_build() {
 	ck "userland: /bin/sh"            test -f "$OUT/destdir/bin/sh"
 	ck "userland: libc"               test -f "$OUT/destdir/usr/lib/libc.so"
 	ck "userland: upkg in base"       test -f "$OUT/destdir/usr/sbin/upkg"
+	ck "userland: derfetch in base"   test -f "$OUT/destdir/usr/bin/derfetch"
 	ck "userland: /etc/release is DER/32" \
 	    sh -c "head -1 '$OUT/destdir/etc/release' | grep -q '^DER/32 '"
 	ck "release sets: base"           test -f "$OUT/release/amd64/binary/sets/base.tar.xz"

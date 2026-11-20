@@ -187,6 +187,14 @@ try:
               "ping -c 2 -w 10 10.0.2.2 >/dev/null && echo up", want="up",
               timeout=60)
 
+    print("== derfetch")
+    out = check_cmd("derfetch shows the DER/32 release from kern.der32",
+                    "derfetch -n", rx=r"OS: DER/32 0\.1 Genesis amd64")
+    check("derfetch shows the DER32 kernel and NetBSD base",
+          re.search(r"Kernel: DER32 #\d+", out) is not None and
+          re.search(r"Base: NetBSD 10\.", out) is not None, out[-200:])
+    check("derfetch draws Genesis", "'-.__.-'" in out, out[:200])
+
     print("== upkg")
     check_cmd("upkg --version", "upkg --version", want="upkg 0.1")
     if ISO:
@@ -215,6 +223,8 @@ try:
     check_cmd("explicit selection community/der32-hello upgrades to 1.1",
               "upkg install community/der32-hello >/dev/null && der32-hello",
               rx=r"^der32-hello 1\.1:")
+    check_cmd("derfetch counts upkg packages", "derfetch -n -l | grep Packages",
+              rx=r"Packages: [1-9]\d* \(upkg\)")
     check_cmd("upkg check verifies installed files", "upkg check",
               rx=r"all installed files verified")
     check_cmd("upkg list", "upkg list", rx=r"lua\s+5\.4\.7-1\s+\(dependency\)")

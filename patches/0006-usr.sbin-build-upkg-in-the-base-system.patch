@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 16:52:48 -0700
-Subject: [PATCH 6/7] usr.sbin: build upkg in the base system
+Subject: [PATCH 6/8] usr.sbin: build upkg in the base system
 
 Hook usr.sbin/upkg into SUBDIR and list /usr/sbin/upkg, upkg.8 (and its
 cat/html/debug variants) in the base, man and debug sets.

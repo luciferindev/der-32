@@ -1,0 +1,56 @@
+.\"	$DER32: derfetch.1,v 0.1 2026/11/19 $
+.\"
+.\" Copyright (c) 2026 The DER/32 Project.  All rights reserved.
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd November 19, 2026
+.Dt DERFETCH 1
+.Os
+.Sh NAME
+.Nm derfetch
+.Nd show system information next to Genesis the tortoise
+.Sh SYNOPSIS
+.Nm
+.Op Fl lnV
+.Sh DESCRIPTION
+.Nm
+prints the DER/32 mascot, Genesis the tortoise, beside a summary of the
+running system: the DER/32 release from the
+.Va kern.der32
+sysctl tree, the NetBSD base release, the kernel configuration and build,
+uptime, the number of packages installed by
+.Xr upkg 8 ,
+shell, terminal, CPU, memory and root filesystem usage.
+.Pp
+The options are:
+.Bl -tag -width Ds
+.It Fl l
+Do not print the logo.
+.It Fl n
+Do not use color.
+Color is also off when standard output is not a terminal or
+.Ev NO_COLOR
+is set.
+.It Fl V
+Print the version and exit.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width NO_COLOR
+.It Ev NO_COLOR
+Disable color.
+.It Ev UPKG_ROOT
+Count packages in the upkg database below this root.
+.El
+.Sh FILES
+.Bl -tag -width /var/lib/upkg/upkg.db -compact
+.It Pa /var/lib/upkg/upkg.db
+installed package database, read-only
+.El
+.Sh SEE ALSO
+.Xr uname 1 ,
+.Xr sysctl 7 ,
+.Xr upkg 8
+.Sh HISTORY
+.Nm
+first appeared in DER/32 0.1
+.Dq Genesis .

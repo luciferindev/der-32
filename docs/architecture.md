@@ -14,6 +14,7 @@ DER32/
 ├── src/              git submodule: pristine NetBSD at UPSTREAM_COMMIT,
 │                     with patches/ applied on the local branch "der32"
 ├── upkg/             upkg sources (C), tests, man page
+├── derfetch/         derfetch(1) sources (C), man page
 ├── ports/            source recipes for "upkg build"
 ├── repos/            documentation of the official repositories
 ├── conf/             build configuration (mk.conf) and default /etc/upkg
@@ -112,6 +113,15 @@ Components:
 | `txn.c` | locking, journal, atomic commit, crash recovery |
 | `ops.c` | dependency resolution, conflicts, install/remove/upgrade |
 | `build.c` | source recipes, unprivileged builds |
+
+## derfetch
+
+`/usr/bin/derfetch` is a small C program in base (reachover
+`src/usr.bin/derfetch`). It prints Genesis the tortoise beside system
+information read from the running kernel: `kern.der32.*`, `uname(3)`,
+`kern.boottime`, `machdep.cpu_brand`, `vm.uvmexp2`, `statvfs(2)`. The
+package count comes from the upkg database, opened read-only. It links
+only libsqlite3 and libc.
 
 ## Build pipeline
 

@@ -32,7 +32,7 @@ login:
 ## Mascot
 
 Meet **Genesis**, the DER/32 tortoise: slow, steady, carries its house on
-its back. The original drawing is in [`docs/art/genesis.png`](docs/art/genesis.png).
+its back. Run `derfetch` on DER/32 to see Genesis beside your system info. The original drawing is in [`docs/art/genesis.png`](docs/art/genesis.png).
 A fastfetch logo version is in [`share/fastfetch/`](share/fastfetch/README.md):
 
 ```
@@ -85,6 +85,7 @@ formats, the trust model and the transaction design.
 |---|---|
 | `UPSTREAM`, `src/`, `patches/` | pinned NetBSD + the DER/32 patch series |
 | `upkg/` | package manager (C), test suite, man page |
+| `derfetch/` | `derfetch(1)`: system info next to Genesis, in base |
 | `ports/` | source recipes (`upkg build`) |
 | `repos/` | repository tiers: core, extra, community |
 | `conf/` | build profile (`mk.conf`) and default `/etc/upkg` |

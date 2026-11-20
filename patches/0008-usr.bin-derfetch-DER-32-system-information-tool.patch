@@ -1,0 +1,275 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 19:59:50 -0700
+Subject: [PATCH 8/8] usr.bin/derfetch: DER/32 system information tool
+
+Reachover Makefile for ../derfetch (top level of the DER/32 tree), hooked
+into SUBDIR and listed in the base, man and debug sets.
+---
+ distrib/sets/lists/base/mi  |  1 +
+ distrib/sets/lists/debug/mi |  1 +
+ distrib/sets/lists/man/mi   |  3 ++
+ usr.bin/Makefile            |  2 +-
+ usr.bin/derfetch/.depend    | 77 +++++++++++++++++++++++++++++++++++++
+ usr.bin/derfetch/Makefile   | 18 +++++++++
+ usr.bin/derfetch/derfetch.d | 77 +++++++++++++++++++++++++++++++++++++
+ 7 files changed, 178 insertions(+), 1 deletion(-)
+ create mode 100644 usr.bin/derfetch/.depend
+ create mode 100644 usr.bin/derfetch/Makefile
+ create mode 100644 usr.bin/derfetch/derfetch.d
+
+diff --git a/distrib/sets/lists/base/mi b/distrib/sets/lists/base/mi
+index 47d3a939ee6426a4d9b0fbca2bbc7aca35ca51b9..745f751004b45181410acc26881581c3e31fec09 100644
+--- a/distrib/sets/lists/base/mi
++++ b/distrib/sets/lists/base/mi
+@@ -588,6 +588,7 @@
+ ./usr/bin/db					base-util-bin
+ ./usr/bin/dc					base-util-bin
+ ./usr/bin/delv					base-bind-bin
++./usr/bin/derfetch				base-util-bin
+ ./usr/bin/deroff				base-util-bin
+ ./usr/bin/diff					base-util-bin
+ ./usr/bin/diff3					base-util-bin
+diff --git a/distrib/sets/lists/debug/mi b/distrib/sets/lists/debug/mi
+index fc614a34e54533f062c94c6eb48fd0ed60115431..67eabbb1e4be906d9c89faaf78164410627e8dbf 100644
+--- a/distrib/sets/lists/debug/mi
++++ b/distrib/sets/lists/debug/mi
+@@ -538,6 +538,7 @@
+ ./usr/libdata/debug/usr/bin/db.debug		comp-util-debug		debug
+ ./usr/libdata/debug/usr/bin/dc.debug		comp-util-debug		debug
+ ./usr/libdata/debug/usr/bin/delv.debug		comp-bind-bin		debug
++./usr/libdata/debug/usr/bin/derfetch.debug	comp-util-debug		debug
+ ./usr/libdata/debug/usr/bin/deroff.debug	comp-util-debug		debug
+ ./usr/libdata/debug/usr/bin/diff.debug		comp-util-debug		debug
+ ./usr/libdata/debug/usr/bin/diff3.debug		comp-util-debug		debug
+diff --git a/distrib/sets/lists/man/mi b/distrib/sets/lists/man/mi
+index e58425a34738ab14dc0d28c751770f263a04998d..97b05b10e27f5178908c42ce6ee47a200ef21a53 100644
+--- a/distrib/sets/lists/man/mi
++++ b/distrib/sets/lists/man/mi
+@@ -137,6 +137,7 @@
+ ./usr/share/man/cat1/dc.0			man-util-catman		.cat
+ ./usr/share/man/cat1/dd.0			man-util-catman		.cat
+ ./usr/share/man/cat1/delv.0			man-netutil-catman	.cat
++./usr/share/man/cat1/derfetch.0		man-util-catman		.cat
+ ./usr/share/man/cat1/deroff.0			man-util-catman		.cat
+ ./usr/share/man/cat1/df.0			man-util-catman		.cat
+ ./usr/share/man/cat1/diff.0			man-util-catman		.cat
+@@ -3634,6 +3635,7 @@
+ ./usr/share/man/html1/dc.html			man-util-htmlman	html
+ ./usr/share/man/html1/dd.html			man-util-htmlman	html
+ ./usr/share/man/html1/delv.html			man-netutil-htmlman	html
++./usr/share/man/html1/derfetch.html		man-util-htmlman	html
+ ./usr/share/man/html1/deroff.html		man-util-htmlman	html
+ ./usr/share/man/html1/df.html			man-util-htmlman	html
+ ./usr/share/man/html1/diff.html			man-util-htmlman	html
+@@ -6742,6 +6744,7 @@
+ ./usr/share/man/man1/dc.1			man-util-man		.man
+ ./usr/share/man/man1/dd.1			man-util-man		.man
+ ./usr/share/man/man1/delv.1			man-netutil-man		.man
++./usr/share/man/man1/derfetch.1			man-util-man		.man
+ ./usr/share/man/man1/deroff.1			man-util-man		.man
+ ./usr/share/man/man1/df.1			man-util-man		.man
+ ./usr/share/man/man1/diff.1			man-util-man		.man
+diff --git a/usr.bin/Makefile b/usr.bin/Makefile
+index a04a3f31e9061c18e3ad251ed9e144f39d5d06a1..b340e17b362e7146b18204f2c19a471c77126a1a 100644
+--- a/usr.bin/Makefile
++++ b/usr.bin/Makefile
+@@ -8,7 +8,7 @@ SUBDIR= aiomixer apply asa at audio audiocfg \
+ 	bzip2 bzip2recover c11 c89 c99 cal calendar cap_mkdb cdplay \
+ 	checknr chflags chpass cksum cmp cleantags col colcrt colrm \
+ 	column comm compress config crunch csplit ctags cut cvslatest \
+-	dc deroff db dirname du \
++	dc derfetch deroff db dirname du \
+ 	eject elf2aout elf2ecoff env error expand extattr \
+ 	false fdformat fgen fincore find finger flock fmt fold fpr from \
+ 	fsplit fstat ftp gcore genassym gencat getaddrinfo getconf getent \
+diff --git a/usr.bin/derfetch/.depend b/usr.bin/derfetch/.depend
+new file mode 100644
+index 0000000000000000000000000000000000000000..7d82bcfb8c4097545543e1f1dba5e9e203d4c157
+--- /dev/null
++++ b/usr.bin/derfetch/.depend
+@@ -0,0 +1,77 @@
++derfetch.d derfetch.ln derfetch.o: /home/claude/der-32/src/../derfetch/derfetch.c \
++ /home/claude/der-32/out/destdir/usr/include/sys/param.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/null.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/inttypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/stdint.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/cdefs.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/cdefs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/cdefs_elf.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_types.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_mwgwtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_mwgwtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_const.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/wchar_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_fmtio.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/featuretest.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/types.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/endian.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/endian.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/endian_machdep.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/bswap.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/byte_swap.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/bswap.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/fd_set.h \
++ /home/claude/der-32/out/destdir/usr/include/pthread_types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/syslimits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/param.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/limits.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/signal.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/sigtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/siginfo.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/signal.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/trap.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/trap.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/mcontext.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/frame_regs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/ucontext.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/statvfs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/fstypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/time.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/timespec.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/select.h \
++ /home/claude/der-32/out/destdir/usr/include/time.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/idtype.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/utsname.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/sysctl.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/proc.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/lwp.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_param.h \
++ /home/claude/der-32/out/destdir/usr/include/stddef.h \
++ /home/claude/der-32/out/destdir/usr/include/stdbool.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_extern.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/vmmeter.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/queue.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_prot.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_pmap.h \
++ /home/claude/der-32/out/destdir/usr/include/pwd.h \
++ /home/claude/der-32/out/destdir/usr/include/stdarg.h \
++ /home/claude/der-32/out/destdir/usr/include/stdio.h \
++ /home/claude/der-32/out/destdir/usr/include/stdlib.h \
++ /home/claude/der-32/out/destdir/usr/include/string.h \
++ /home/claude/der-32/out/destdir/usr/include/strings.h \
++ /home/claude/der-32/out/destdir/usr/include/unistd.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/unistd.h \
++ /home/claude/der-32/out/destdir/usr/include/sqlite3.h
+diff --git a/usr.bin/derfetch/Makefile b/usr.bin/derfetch/Makefile
+new file mode 100644
+index 0000000000000000000000000000000000000000..4c5effea6ca2d88e09016c47e06ddb4755b6c058
+--- /dev/null
++++ b/usr.bin/derfetch/Makefile
+@@ -0,0 +1,18 @@
++#	$DER32: Makefile,v 0.1 2026/11/19 $
++#
++# Reachover Makefile: derfetch is developed in the top-level DER/32
++# derfetch/ directory and built into the base system here.
++
++.include <bsd.own.mk>
++
++DERFETCHDIR=	${NETBSDSRCDIR}/../derfetch
++.PATH:		${DERFETCHDIR}
++
++PROG=		derfetch
++MAN=		derfetch.1
++WARNS=		5
++
++LDADD+=		-lsqlite3
++DPADD+=		${LIBSQLITE3}
++
++.include <bsd.prog.mk>
+diff --git a/usr.bin/derfetch/derfetch.d b/usr.bin/derfetch/derfetch.d
+new file mode 100644
+index 0000000000000000000000000000000000000000..2f2c9944a0fb6f820d1423614a402608067c2edf
+--- /dev/null
++++ b/usr.bin/derfetch/derfetch.d
+@@ -0,0 +1,77 @@
++derfetch.o: /home/claude/der-32/src/../derfetch/derfetch.c \
++ /home/claude/der-32/out/destdir/usr/include/sys/param.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/null.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/inttypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/stdint.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/cdefs.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/cdefs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/cdefs_elf.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_types.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_mwgwtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_mwgwtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_int_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_const.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/wchar_limits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/int_fmtio.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/featuretest.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/types.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/common_ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/ansi.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/endian.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/endian.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/endian_machdep.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/bswap.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/byte_swap.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/bswap.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/fd_set.h \
++ /home/claude/der-32/out/destdir/usr/include/pthread_types.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/syslimits.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/param.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/limits.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/signal.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/sigtypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/siginfo.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/signal.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/trap.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/trap.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/mcontext.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/frame_regs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/ucontext.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/statvfs.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/fstypes.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/time.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/timespec.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/select.h \
++ /home/claude/der-32/out/destdir/usr/include/time.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/idtype.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/utsname.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/sysctl.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/proc.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/lwp.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_param.h \
++ /home/claude/der-32/out/destdir/usr/include/stddef.h \
++ /home/claude/der-32/out/destdir/usr/include/stdbool.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_extern.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/vmmeter.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/queue.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/mutex.h \
++ /home/claude/der-32/out/destdir/usr/include/amd64/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/x86/lock.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_prot.h \
++ /home/claude/der-32/out/destdir/usr/include/uvm/uvm_pmap.h \
++ /home/claude/der-32/out/destdir/usr/include/pwd.h \
++ /home/claude/der-32/out/destdir/usr/include/stdarg.h \
++ /home/claude/der-32/out/destdir/usr/include/stdio.h \
++ /home/claude/der-32/out/destdir/usr/include/stdlib.h \
++ /home/claude/der-32/out/destdir/usr/include/string.h \
++ /home/claude/der-32/out/destdir/usr/include/strings.h \
++ /home/claude/der-32/out/destdir/usr/include/unistd.h \
++ /home/claude/der-32/out/destdir/usr/include/sys/unistd.h \
++ /home/claude/der-32/out/destdir/usr/include/sqlite3.h

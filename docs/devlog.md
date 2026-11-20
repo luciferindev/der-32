@@ -185,6 +185,25 @@ the cd9660 root, tmpfs layers, identity, network and an upkg install.
 **Artifact checks** (`scripts/test.sh build`): 13/13.
 **upkg suite**: 133/133.
 
+## 2026-11-19 — derfetch in base
+
+`/usr/bin/derfetch` (C, about 400 lines, `derfetch/`, reachover
+`src/usr.bin/derfetch`, patch 0008, in the base/man/debug sets) prints
+Genesis the tortoise beside information from the running kernel. Built
+with WARNS=5 `-Werror` by the DER/32 toolchain; it links only
+libsqlite3 and libc. Issue fixed: NetBSD's MAXHOSTNAMELEN (256) tripped
+`-Wformat-truncation` on the title buffer.
+
+Verified in QEMU (`derfetch -n` on the booted image):
+```
+OS: DER/32 0.1 Genesis amd64
+Base: NetBSD 10.2_STABLE
+Kernel: DER32 #1
+Packages: 0 (upkg)
+```
+The package count follows upkg after installs. Disk image test 42/42,
+live ISO 28/28, artifact checks 14/14.
+
 ## Outstanding
 
 See `roadmap.md`, "Known limitations". The main items are pkgsrc
