@@ -56,6 +56,8 @@ table.idx td { border-top: 1px solid #c3cbdb; padding: 5px 6px; vertical-align: 
 table.idx tr:nth-child(even) td { background: #eef1f7; }
 table.idx td.fi { width: 18px; text-align: center; }
 table.idx td small { color: #555; }
+table.idx td.when { white-space: nowrap; font-family: "Courier New", monospace; font-size: 11px; color: #16305c; width: 1%; }
+table.idx td.c a { font-family: "Courier New", monospace; font-size: 11px; }
 
 /* badges */
 #badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 8px; border-top: 1px solid #c3cbdb; background: #e8ebf2; }
@@ -97,6 +99,7 @@ table.idx td small { color: #555; }
   <a href="#news">News</a>
   <a href="#install">Download &amp; Build</a>
   <a href="#packages">Packages</a>
+  <a href="#history">History</a>
   <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
   <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
   <a href="https://github.com/luciferindev/der-32">Source</a>
@@ -110,6 +113,7 @@ table.idx td small { color: #555; }
     <li><a href="#news">Latest news</a></li>
     <li><a href="#install">Get DER/32</a></li>
     <li><a href="#packages">Packages</a></li>
+    <li><a href="#history">History</a></li>
     <li><a href="#boards">Documentation</a></li>
     <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
     <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
@@ -216,6 +220,44 @@ login: <span class="w">root</span>
       version constraints and journaled transactions that survive a power cut. It never runs install scripts.</p>
     </div>
   </div>
+
+  <a id="history"></a>
+  <div class="post">
+    <div class="t"><span class="ico">H</span> History: where DER/32 comes from</div>
+    <div class="meta">Sticky &middot; Topic: General</div>
+    <div class="b">
+      <p>DER/32 is the newest branch on a very old tree. Each line below inherits from the one above it:</p>
+      <div class="term"><span class="w">1969</span>  UNIX            <span class="c"># Ken Thompson and Dennis Ritchie, Bell Labs</span>
+  |
+<span class="w">1978</span>  BSD             <span class="c"># UC Berkeley's add-ons to UNIX, later a full system</span>
+  |
+<span class="w">1991</span>  Net/2           <span class="c"># Berkeley's release with the AT&amp;T code taken out</span>
+  |
+<span class="w">1992</span>  386BSD          <span class="c"># Bill and Lynne Jolitz port it to the PC</span>
+  |
+<span class="w">1993</span>  NetBSD          <span class="c"># "of course it runs NetBSD"</span>
+  |
+<span class="w">2024</span>  NetBSD 10       <span class="c"># the branch DER/32 tracks (netbsd-10)</span>
+  |
+<span class="w">2026</span>  <span class="p">DER/32 0.1</span>      <span class="c"># Derivative 32, "Genesis"</span></div>
+      <p>DER/32 doesn't fork NetBSD. It pins an exact <tt>netbsd-10</tt> commit and keeps everything of its own
+      in a short patch series on top, so the upstream code stays as upstream wrote it.</p>
+      <p><b>Genesis was built in a single day, November 19, 2026.</b> Here is how that day went, from the commit log (times are Mountain Time):</p>
+    </div>
+  </div>
+
+  <table class="idx">
+    <tr><th>Time</th><th>What happened</th><th>Commit</th></tr>
+    <tr><td class="when">16:51</td><td><b>Day zero.</b> The NetBSD tree is pinned and the identity patches written, so the kernel answers <tt>DER32</tt>. upkg 0.1 and the build scripts land in the same commit.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/9cf58a0">9cf58a0</a></td></tr>
+    <tr><td class="when">18:46</td><td><b>First boot.</b> The disk image and the live ISO boot to the Genesis login prompt in QEMU, upkg joins the base system, and the boot tests pass.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/8eef58f">8eef58f</a></td></tr>
+    <tr><td class="when">19:50</td><td><b>A mascot.</b> After rounds of rejected logos, the tortoise is hand-drawn and becomes the official ASCII logo.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/923316b">923316b</a></td></tr>
+    <tr><td class="when">20:32</td><td><b>derfetch(1)</b> joins the base system to draw the tortoise next to your specs.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/cd42cfb">cd42cfb</a></td></tr>
+    <tr><td class="when">20:34</td><td>The first build on a real Arch box fails silently. Fixed: the scripts now work on a fresh clone.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/1340fdc">1340fdc</a></td></tr>
+    <tr><td class="when">21:09</td><td>GCC 14+ defaults to C23 and breaks NetBSD's old host tools. Fixed with compiler-flag probing.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/4fd6b87">4fd6b87</a></td></tr>
+    <tr><td class="when">21:46</td><td>A resumed build still had the stale flags. Fixed: host tools now rebuild when the flags change. The Arch build gets through the toolchain.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/eddc21e">eddc21e</a></td></tr>
+    <tr><td class="when">22:53</td><td><b>A website.</b> This one, first clean and minimal.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/ca54a21">ca54a21</a></td></tr>
+    <tr><td class="when">23:33</td><td>&hellip;then it got the treatment you're looking at now.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/480da9b">480da9b</a></td></tr>
+  </table>
 
   <a id="boards"></a>
   <table class="idx">
