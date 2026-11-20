@@ -3,56 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DER/32 — a NetBSD-derived UNIX</title>
+<title>DER/32 :: Derivative 32 :: a NetBSD-derived UNIX</title>
 <meta name="description" content="DER/32 (Derivative 32) is a small, bootable NetBSD-derived UNIX operating system for amd64 with its own package manager, upkg.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23111'/><text x='1' y='12' font-family='monospace' font-size='10' fill='%23e8b04a'>D/</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23223f73'/><text x='1' y='12' font-family='monospace' font-size='10' fill='%23ffcc33'>D/</text></svg>">
 <style>
-:root {
-  --bg: #0e0e0c; --fg: #d8d4c8; --dim: #8a867a; --rule: #2a2924;
-  --amber: #e8b04a; --green: #7fbf6a; --code: #16160f;
-}
-* { box-sizing: border-box; }
-html { background: var(--bg); color: var(--fg); }
-body { margin: 0; font: 15px/1.6 ui-monospace, "JetBrains Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace; }
-main { max-width: 76ch; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
-a { color: var(--amber); text-decoration: none; border-bottom: 1px solid #e8b04a55; }
-a:hover { border-bottom-color: var(--amber); }
-h1, h2 { font-weight: 700; letter-spacing: .02em; }
-h1 { font-size: 1.15rem; margin: 0; }
-h2 { font-size: 1rem; color: var(--amber); margin: 2.75rem 0 .75rem; text-transform: uppercase; }
-h2::before { content: "## "; color: var(--dim); }
-p { margin: .6rem 0; }
-.dim { color: var(--dim); }
-pre { margin: 0; overflow-x: auto; }
-.art { color: var(--amber); font-size: 14px; line-height: 1.2; padding: 1.5rem 0 1rem; }
-.eye { color: var(--green); }
-.console { background: var(--code); border: 1px solid var(--rule); padding: 1rem 1.1rem; border-radius: 3px; }
-.console .p { color: var(--green); user-select: none; }
-.console .c { color: var(--dim); }
-.banner { color: var(--fg); }
-nav { display: flex; gap: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: .9rem; }
-nav .name { color: var(--fg); border: 0; font-weight: 700; margin-right: auto; }
-dl { display: grid; grid-template-columns: 11ch 1fr; gap: .45rem 1.25rem; margin: 0; }
-dt { color: var(--green); }
-dd { margin: 0; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-th, td { text-align: left; padding: .35rem .75rem .35rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { color: var(--dim); font-weight: 400; }
-footer { margin-top: 3.5rem; border-top: 1px solid var(--rule); padding-top: 1rem; color: var(--dim); font-size: 13px; }
-@media (max-width: 560px) { .art { font-size: 10px; } dl { grid-template-columns: 1fr; } dd { margin-bottom: .6rem; } }
+body { margin: 0; background: #5a6f8c url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><rect width='4' height='4' fill='%235a6f8c'/><rect width='1' height='1' fill='%23526681'/></svg>"); font: 12px/1.45 Verdana, Tahoma, "DejaVu Sans", Arial, sans-serif; color: #000; }
+#wrap { max-width: 960px; margin: 12px auto; background: #fff; border: 1px solid #1d2f4f; }
+a { color: #0033aa; } a:visited { color: #663399; } a:hover { color: #cc3300; }
+code, pre, tt { font-family: "Courier New", Courier, monospace; font-size: 12px; }
+
+/* header */
+#head { display: flex; align-items: center; gap: 18px; padding: 10px 14px; background: linear-gradient(#2c4f8c, #16305c); border-bottom: 3px solid #ffcc33; }
+#head pre { margin: 0; background: #000; color: #ffb000; padding: 6px 8px; font-size: 10px; line-height: 1.15; border: 2px inset #8899bb; }
+#head .eye { color: #33ff33; }
+#head h1 { margin: 0; font: bold 30px/1 Georgia, "Times New Roman", serif; color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
+#head h1 span { color: #ffcc33; }
+#head p { margin: 6px 0 0; color: #c8d6f0; font-size: 11px; }
+
+/* tab bar */
+#tabs { background: #d4dbe8; border-bottom: 1px solid #8a98b3; padding: 4px 8px 0; display: flex; flex-wrap: wrap; gap: 2px; }
+#tabs a { display: block; padding: 3px 12px; background: linear-gradient(#fdfdfd, #c9d1df); border: 1px solid #8a98b3; border-bottom: 0; color: #1d2f4f; font-weight: bold; font-size: 11px; text-decoration: none; }
+#tabs a.on { background: #fff; position: relative; top: 1px; }
+#ticker { background: #ffffcc; border-bottom: 1px solid #c9c98a; padding: 3px 8px; font-size: 11px; color: #663300; }
+
+/* layout */
+#cols { display: grid; grid-template-columns: 190px 1fr; gap: 10px; padding: 10px; }
+.box { border: 1px solid #6b7fa3; margin-bottom: 10px; background: #f3f5f9; }
+.box h3 { margin: 0; padding: 3px 6px; font-size: 11px; color: #fff; background: linear-gradient(#5a7bb5, #34558f); border-bottom: 1px solid #23396a; }
+.box .in { padding: 6px 8px; }
+.box ul { margin: 0; padding-left: 16px; }
+.box li { margin: 2px 0; }
+.box pre { background: #000; color: #c0c0c0; padding: 6px; margin: 4px 0; overflow-x: auto; font-size: 11px; }
+
+/* posts */
+.post { border: 1px solid #6b7fa3; margin-bottom: 12px; }
+.post .t { background: linear-gradient(#e8edf6, #c7d2e6); border-bottom: 1px solid #6b7fa3; padding: 4px 8px; font-weight: bold; font-size: 13px; color: #16305c; }
+.post .t img, .post .t .ico { vertical-align: middle; }
+.post .meta { background: #eef1f7; border-bottom: 1px dotted #9aa8c2; padding: 2px 8px; font-size: 10px; color: #555; }
+.post .b { padding: 8px 10px; }
+.post .b p { margin: 6px 0; }
+.post .f { border-top: 1px dotted #9aa8c2; padding: 3px 8px; font-size: 10px; text-align: right; background: #f7f8fb; }
+.ico { display: inline-block; width: 14px; height: 14px; background: #ffcc33; border: 1px solid #996600; font: bold 10px/14px Verdana; text-align: center; color: #663300; }
+.term { white-space: pre; font-family: "Courier New", Courier, monospace; font-size: 12px; line-height: 1.35; background: #000; color: #c0c0c0; padding: 8px 10px; border: 2px inset #999; overflow-x: auto; margin: 6px 0; }
+.term .p { color: #55ff55; } .term .c { color: #8888ff; } .term .w { color: #fff; font-weight: bold; }
+.quote { border: 1px solid #aab; background: #f6f6ee; padding: 6px 8px; margin: 6px 0; font-size: 11px; }
+.quote b { display: block; font-size: 10px; color: #555; margin-bottom: 2px; }
+
+/* forum-index table */
+table.idx { width: 100%; border-collapse: collapse; border: 1px solid #6b7fa3; margin-bottom: 12px; }
+table.idx th { background: linear-gradient(#5a7bb5, #34558f); color: #fff; font-size: 11px; text-align: left; padding: 4px 6px; }
+table.idx td { border-top: 1px solid #c3cbdb; padding: 5px 6px; vertical-align: top; }
+table.idx tr:nth-child(even) td { background: #eef1f7; }
+table.idx td.fi { width: 18px; text-align: center; }
+table.idx td small { color: #555; }
+
+/* badges */
+#badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 8px; border-top: 1px solid #c3cbdb; background: #e8ebf2; }
+.b88 { width: 88px; height: 31px; box-sizing: border-box; border: 1px solid #000; font: bold 9px/1.05 Verdana, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; padding: 1px 2px; }
+.b88:visited { color: inherit; }
+.b1 { background: linear-gradient(#ff9900, #cc5500); color: #fff; }
+.b2 { background: #000; color: #33ff33; font-family: "Courier New", monospace; }
+.b3 { background: linear-gradient(#fff, #c9d1df); color: #16305c; }
+.b4 { background: #16305c; color: #ffcc33; }
+.b5 { background: linear-gradient(#ffffcc, #e8e888); color: #663300; }
+.b6 { background: #fff; color: #cc0000; border-color: #cc0000; }
+#foot { text-align: center; font-size: 10px; color: #444; padding: 8px 10px 12px; background: #e8ebf2; }
+.blink { animation: blink 1s steps(1) infinite; } @keyframes blink { 50% { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .blink { animation: none; } }
+@media (max-width: 700px) { #cols { grid-template-columns: 1fr; } #side { order: 2; } #head { flex-direction: column; align-items: flex-start; } }
 </style>
 </head>
 <body>
-<main>
-<nav>
-  <a class="name" href="./">DER/32</a>
-  <a href="#install">install</a>
-  <a href="#packages">packages</a>
-  <a href="https://github.com/luciferindev/der-32/tree/main/docs">docs</a>
-  <a href="https://github.com/luciferindev/der-32">source</a>
-</nav>
+<div id="wrap">
 
-<pre class="art" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+<div id="head">
+<pre aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
                .-&#x27;  \________/  &#x27;-.
              .&#x27;      |      |      &#x27;.
    .---.    /--------&#x27;      &#x27;-------\
@@ -61,71 +86,164 @@ footer { margin-top: 3.5rem; border-top: 1px solid var(--rule); padding-top: 1re
   &#x27;-.________________________________ __)
              |  |               |  |
              &#x27;--&#x27;               &#x27;--&#x27;</pre>
+<div>
+  <h1>DER<span>/</span>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
 
-<h1>DER/32 — Derivative 32</h1>
-<p>A small, bootable UNIX for amd64, derived from NetBSD 10. BSD make,
-BSD init, POSIX sh, FFS, and a package manager of its own.
-<span class="dim">Release 0.1 “Genesis”.</span></p>
+<div id="tabs">
+  <a class="on" href="./">Home</a>
+  <a href="#news">News</a>
+  <a href="#install">Download &amp; Build</a>
+  <a href="#packages">Packages</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+<div id="ticker"><b class="blink">NEW!</b> DER/32 0.1 &ldquo;Genesis&rdquo; boots. NetBSD binary packages via <tt>pkgin</tt> are in testing. The tortoise is official.</div>
 
-<pre class="console"><span class="banner">DER/32 UNIX Operating System
-Release 0.1 — Genesis
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="#news">Latest news</a></li>
+    <li><a href="#install">Get DER/32</a></li>
+    <li><a href="#packages">Packages</a></li>
+    <li><a href="#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <small>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+
+  <div class="post">
+    <div class="t"><span class="ico">!</span> Welcome to DER/32</div>
+    <div class="b">
+      <p><b>DER/32</b> (&ldquo;Derivative 32&rdquo;) is a small, bootable UNIX for amd64, derived from NetBSD 10.
+      It's BSD all the way down: BSD make, BSD init and rc.d, POSIX <tt>sh</tt>, FFS. On top of that it has its
+      own package manager, <b>upkg</b>, written in C.</p>
+      <p>There's no systemd, no GUI installer and no telemetry. You get a serial console, a login prompt and a tortoise.</p>
+      <div class="term"><span class="w">DER/32 UNIX Operating System
+Release 0.1 &mdash; Genesis</span>
 
 der32/amd64 (tty00)
 
-login: </span>root
-<span class="p">der32# </span>uname -s
-DER32
-<span class="p">der32# </span>upkg --version
-upkg 0.1</pre>
+login: <span class="w">root</span>
+<span class="p">der32#</span> derfetch</div>
+    </div>
+  </div>
 
-<h2>What it is</h2>
-<dl>
-  <dt>base</dt><dd>NetBSD <code>netbsd-10</code> (10.2), kept as a pinned upstream plus a short, reviewable patch series. Same ABI, same drivers.</dd>
-  <dt>identity</dt><dd>Real, not cosmetic: the kernel reports <code>DER32</code>, and <code>kern.der32.*</code> sysctls carry the release.</dd>
-  <dt>upkg</dt><dd>A package manager in C. Multiple repositories with priorities, Ed25519-signed indexes, SHA-256 checksums, dependency resolution, journaled transactions that survive interruption, and no install scripts. Everything goes under <code>/usr/local</code>.</dd>
-  <dt>pkgsrc</dt><dd>NetBSD's binary packages install unmodified under <code>/usr/pkg</code>, through <code>pkg_add</code> and <code>pkgin</code>.</dd>
-  <dt>derfetch</dt><dd>System info in the base system, with the tortoise.</dd>
-  <dt>build</dt><dd>Cross-built from Linux (Arch is the reference host) with NetBSD's <code>build.sh</code>. No root needed.</dd>
-</dl>
+  <a id="news"></a>
+  <div class="post">
+    <div class="t"><span class="ico">N</span> In testing: NetBSD binary packages on DER/32</div>
+    <div class="meta">Posted by <b>luciferindev</b> on Thursday, November 19, 2026 &middot; Topic: Packages</div>
+    <div class="b">
+      <p>DER/32 keeps the NetBSD 10 ABI, so NetBSD's own pkgsrc binary packages install unmodified
+      under <tt>/usr/pkg</tt>, alongside upkg's <tt>/usr/local</tt>. The next build ships an
+      <tt>/etc/pkg_install.conf</tt> that points <tt>pkg_add</tt> at cdn.NetBSD.org. It's being tested now:</p>
+      <div class="term"><span class="p">der32#</span> pkg_add pkgin
+<span class="p">der32#</span> pkgin update
+<span class="p">der32#</span> pkgin install vim git</div>
+      <div class="quote"><b>FAQ: But <tt>uname -s</tt> says DER32?</b><tt>pkg_add</tt> checks the package's
+      OS against a compile-time constant, not against <tt>uname</tt>. Your packages won't notice.</div>
+    </div>
+    <div class="f"><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">Read more...</a></div>
+  </div>
 
-<h2 id="install">Build &amp; boot</h2>
-<p>You need about 20 GB of disk, a C compiler, and QEMU to try it.</p>
-<pre class="console"><span class="p">$ </span>git clone --recurse-submodules https://github.com/luciferindev/der-32
-<span class="p">$ </span>cd der-32
-<span class="p">$ </span>make release      <span class="c"># tools, kernel, world, sets, disk image</span>
-<span class="p">$ </span>make iso          <span class="c"># live ISO</span>
-<span class="p">$ </span>make qemu         <span class="c"># boot it on a serial console</span>
-<span class="p">$ </span>make test         <span class="c"># upkg suite, build checks, booted-system checks</span></pre>
-<p>Images land in <code>out/images/</code>. The default login is <code>root</code> / <code>der32</code>, and
-<a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">docs/building.md</a> has the details.
-Prebuilt images, when published, are on the
-<a href="https://github.com/luciferindev/der-32/releases">releases page</a>.</p>
+  <div class="post">
+    <div class="t"><span class="ico">N</span> DER/32 0.1 &ldquo;Genesis&rdquo; boots</div>
+    <div class="meta">Posted by <b>luciferindev</b> on Thursday, November 19, 2026 &middot; Topic: Releases</div>
+    <div class="b">
+      <p>The first development release builds from a clean clone on Arch Linux and boots to a login prompt,
+      both as a disk image and as a live ISO. The automated test suites check the upkg package manager,
+      the build and the booted system.</p>
+      <p>The kernel reports <tt>DER32</tt> and carries its release in <tt>kern.der32.*</tt> sysctls.
+      NetBSD's <tt>kern.osrelease</tt> is kept, so kernel modules and binaries stay compatible.</p>
+    </div>
+    <div class="f"><a href="https://github.com/luciferindev/der-32/blob/main/docs/devlog.md">Read the devlog...</a></div>
+  </div>
 
-<h2 id="packages">Packages</h2>
-<pre class="console"><span class="c"># DER/32 repositories (signed)</span>
-<span class="p">der32# </span>upkg sync
-<span class="p">der32# </span>upkg install lua-hello
-<span class="c"># NetBSD binary packages</span>
-<span class="p">der32# </span>pkg_add pkgin &amp;&amp; pkgin update
-<span class="p">der32# </span>pkgin install vim git</pre>
-<table>
-  <tr><th></th><th>upkg</th><th>pkg_add / pkgin</th></tr>
-  <tr><td>prefix</td><td>/usr/local</td><td>/usr/pkg</td></tr>
-  <tr><td>source</td><td>DER/32 repositories, ports/</td><td>cdn.NetBSD.org, x86_64/10.2</td></tr>
-  <tr><td>trust</td><td>signed index + checksums</td><td>HTTPS</td></tr>
-</table>
-<p><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">docs/packages.md</a> covers the formats, the trust model and how the two package managers coexist.</p>
+  <a id="install"></a>
+  <div class="post">
+    <div class="t"><span class="ico">?</span> HOWTO: Build and boot DER/32</div>
+    <div class="meta">Sticky &middot; Topic: Installation</div>
+    <div class="b">
+      <p>You need a Linux host (Arch is the reference), a C compiler, about 20&nbsp;GB of disk, and QEMU.
+      No root required.</p>
+      <div class="term"><span class="p">$</span> git clone --recurse-submodules https://github.com/luciferindev/der-32
+<span class="p">$</span> cd der-32
+<span class="p">$</span> make release   <span class="c"># tools, kernel, world, sets, disk image</span>
+<span class="p">$</span> make iso       <span class="c"># live ISO</span>
+<span class="p">$</span> make qemu      <span class="c"># boot it on a serial console</span>
+<span class="p">$</span> make test      <span class="c"># run the test suites</span></div>
+      <p>Images land in <tt>out/images/</tt>. Log in as <tt>root</tt>, password <tt>der32</tt>, and change it.
+      Prebuilt images will go on the <a href="https://github.com/luciferindev/der-32/releases">releases page</a>.</p>
+    </div>
+  </div>
 
-<h2>Status</h2>
-<p>Genesis is a development release. The disk image and the live ISO boot to a login prompt and pass the automated checks.
-Known gaps (a VGA console image, an installer, a first-boot password prompt) are tracked in
-<a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">docs/roadmap.md</a>.</p>
+  <a id="packages"></a>
+  <div class="post">
+    <div class="t"><span class="ico">?</span> HOWTO: upkg in one minute</div>
+    <div class="meta">Sticky &middot; Topic: Packages</div>
+    <div class="b">
+      <div class="term"><span class="p">der32#</span> upkg sync                     <span class="c"># verify signed indexes</span>
+<span class="p">der32#</span> upkg install lua-hello        <span class="c"># pulls lua as a dependency</span>
+<span class="p">der32#</span> upkg install community/der32-hello
+<span class="p">der32#</span> upkg remove lua               <span class="c"># refused: lua-hello needs it</span></div>
+      <p>upkg handles multiple repositories with priorities, Ed25519-signed indexes, SHA-256 checksums,
+      version constraints and journaled transactions that survive a power cut. It never runs install scripts.</p>
+    </div>
+  </div>
 
-<footer>
-DER/32 is built from NetBSD sources, © The NetBSD Foundation and contributors, under the BSD licences they carry.
-DER/32's own code is in <a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>.
-NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
-</footer>
-</main>
+  <a id="boards"></a>
+  <table class="idx">
+    <tr><th></th><th>Documentation</th><th>What's in it</th></tr>
+    <tr><td class="fi"><span class="ico">D</span></td><td><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md"><b>Building</b></a></td><td><small>Host requirements, make targets, build profile, troubleshooting</small></td></tr>
+    <tr><td class="fi"><span class="ico">D</span></td><td><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md"><b>Architecture</b></a></td><td><small>The patch series, system identity, how the image and ISO are made</small></td></tr>
+    <tr><td class="fi"><span class="ico">D</span></td><td><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md"><b>Packages</b></a></td><td><small>upkg formats and trust model, ports, NetBSD binary packages</small></td></tr>
+    <tr><td class="fi"><span class="ico">D</span></td><td><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md"><b>Roadmap</b></a></td><td><small>What's done, what's missing, what's next</small></td></tr>
+    <tr><td class="fi"><span class="ico">D</span></td><td><a href="https://github.com/luciferindev/der-32/blob/main/docs/devlog.md"><b>Devlog</b></a></td><td><small>How Genesis got built, bug by bug</small></td></tr>
+  </table>
+
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3">BSD<br>LICENSED</span>
+  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6">systemd<br>FREE</span>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
 </body>
 </html>
