@@ -31,8 +31,11 @@ if lsblk -nr -o MOUNTPOINT "$dev" | grep -q '[^[:space:]]'; then
     die "target or one of its partitions is mounted; unmount everything first"
 fi
 # Reject disks backing active swap even when not mounted.
-if lsblk -nr -o NAME "$dev" | while IFS= read -r name; do
-    [ -z "$name" ] || grep -q "^[[:space:]]*/dev/$name[[:space:]]" /proc/swaps 2>/dev/null
+if lsblk -nrpo NAME "$dev" | while IFS= read -r name; do
+    [ -z "$name" ] && continue
+    if awk -v path="$name" 'NR > 1 && $1 == path { found=1 } END { exit !found }' /proc/swaps; then
+        exit 0
+    fi
 done; then
     die "target or one of its partitions is active swap"
 fi
