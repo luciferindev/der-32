@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DER/32 — a NetBSD-derived UNIX</title>
+<meta name="description" content="DER/32 (Derivative 32) is a small, bootable NetBSD-derived UNIX operating system for amd64 with its own package manager, upkg.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23111'/><text x='1' y='12' font-family='monospace' font-size='10' fill='%23e8b04a'>D/</text></svg>">
+<style>
+:root {
+  --bg: #0e0e0c; --fg: #d8d4c8; --dim: #8a867a; --rule: #2a2924;
+  --amber: #e8b04a; --green: #7fbf6a; --code: #16160f;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--fg); }
+body { margin: 0; font: 15px/1.6 ui-monospace, "JetBrains Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace; }
+main { max-width: 76ch; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: var(--amber); text-decoration: none; border-bottom: 1px solid #e8b04a55; }
+a:hover { border-bottom-color: var(--amber); }
+h1, h2 { font-weight: 700; letter-spacing: .02em; }
+h1 { font-size: 1.15rem; margin: 0; }
+h2 { font-size: 1rem; color: var(--amber); margin: 2.75rem 0 .75rem; text-transform: uppercase; }
+h2::before { content: "## "; color: var(--dim); }
+p { margin: .6rem 0; }
+.dim { color: var(--dim); }
+pre { margin: 0; overflow-x: auto; }
+.art { color: var(--amber); font-size: 14px; line-height: 1.2; padding: 1.5rem 0 1rem; }
+.eye { color: var(--green); }
+.console { background: var(--code); border: 1px solid var(--rule); padding: 1rem 1.1rem; border-radius: 3px; }
+.console .p { color: var(--green); user-select: none; }
+.console .c { color: var(--dim); }
+.banner { color: var(--fg); }
+nav { display: flex; gap: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: .9rem; }
+nav .name { color: var(--fg); border: 0; font-weight: 700; margin-right: auto; }
+dl { display: grid; grid-template-columns: 11ch 1fr; gap: .45rem 1.25rem; margin: 0; }
+dt { color: var(--green); }
+dd { margin: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: .35rem .75rem .35rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--dim); font-weight: 400; }
+footer { margin-top: 3.5rem; border-top: 1px solid var(--rule); padding-top: 1rem; color: var(--dim); font-size: 13px; }
+@media (max-width: 560px) { .art { font-size: 10px; } dl { grid-template-columns: 1fr; } dd { margin-bottom: .6rem; } }
+</style>
+</head>
+<body>
+<main>
+<nav>
+  <a class="name" href="./">DER/32</a>
+  <a href="#install">install</a>
+  <a href="#packages">packages</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">docs</a>
+  <a href="https://github.com/luciferindev/der-32">source</a>
+</nav>
+
+<pre class="art" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+
+<h1>DER/32 — Derivative 32</h1>
+<p>A small, bootable UNIX for amd64, derived from NetBSD 10. BSD make,
+BSD init, POSIX sh, FFS, and a package manager of its own.
+<span class="dim">Release 0.1 “Genesis”.</span></p>
+
+<pre class="console"><span class="banner">DER/32 UNIX Operating System
+Release 0.1 — Genesis
+
+der32/amd64 (tty00)
+
+login: </span>root
+<span class="p">der32# </span>uname -s
+DER32
+<span class="p">der32# </span>upkg --version
+upkg 0.1</pre>
+
+<h2>What it is</h2>
+<dl>
+  <dt>base</dt><dd>NetBSD <code>netbsd-10</code> (10.2), kept as a pinned upstream plus a short, reviewable patch series. Same ABI, same drivers.</dd>
+  <dt>identity</dt><dd>Real, not cosmetic: the kernel reports <code>DER32</code>, and <code>kern.der32.*</code> sysctls carry the release.</dd>
+  <dt>upkg</dt><dd>A package manager in C. Multiple repositories with priorities, Ed25519-signed indexes, SHA-256 checksums, dependency resolution, journaled transactions that survive interruption, and no install scripts. Everything goes under <code>/usr/local</code>.</dd>
+  <dt>pkgsrc</dt><dd>NetBSD's binary packages install unmodified under <code>/usr/pkg</code>, through <code>pkg_add</code> and <code>pkgin</code>.</dd>
+  <dt>derfetch</dt><dd>System info in the base system, with the tortoise.</dd>
+  <dt>build</dt><dd>Cross-built from Linux (Arch is the reference host) with NetBSD's <code>build.sh</code>. No root needed.</dd>
+</dl>
+
+<h2 id="install">Build &amp; boot</h2>
+<p>You need about 20 GB of disk, a C compiler, and QEMU to try it.</p>
+<pre class="console"><span class="p">$ </span>git clone --recurse-submodules https://github.com/luciferindev/der-32
+<span class="p">$ </span>cd der-32
+<span class="p">$ </span>make release      <span class="c"># tools, kernel, world, sets, disk image</span>
+<span class="p">$ </span>make iso          <span class="c"># live ISO</span>
+<span class="p">$ </span>make qemu         <span class="c"># boot it on a serial console</span>
+<span class="p">$ </span>make test         <span class="c"># upkg suite, build checks, booted-system checks</span></pre>
+<p>Images land in <code>out/images/</code>. The default login is <code>root</code> / <code>der32</code>, and
+<a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">docs/building.md</a> has the details.
+Prebuilt images, when published, are on the
+<a href="https://github.com/luciferindev/der-32/releases">releases page</a>.</p>
+
+<h2 id="packages">Packages</h2>
+<pre class="console"><span class="c"># DER/32 repositories (signed)</span>
+<span class="p">der32# </span>upkg sync
+<span class="p">der32# </span>upkg install lua-hello
+<span class="c"># NetBSD binary packages</span>
+<span class="p">der32# </span>pkg_add pkgin &amp;&amp; pkgin update
+<span class="p">der32# </span>pkgin install vim git</pre>
+<table>
+  <tr><th></th><th>upkg</th><th>pkg_add / pkgin</th></tr>
+  <tr><td>prefix</td><td>/usr/local</td><td>/usr/pkg</td></tr>
+  <tr><td>source</td><td>DER/32 repositories, ports/</td><td>cdn.NetBSD.org, x86_64/10.2</td></tr>
+  <tr><td>trust</td><td>signed index + checksums</td><td>HTTPS</td></tr>
+</table>
+<p><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">docs/packages.md</a> covers the formats, the trust model and how the two package managers coexist.</p>
+
+<h2>Status</h2>
+<p>Genesis is a development release. The disk image and the live ISO boot to a login prompt and pass the automated checks.
+Known gaps (a VGA console image, an installer, a first-boot password prompt) are tracked in
+<a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">docs/roadmap.md</a>.</p>
+
+<footer>
+DER/32 is built from NetBSD sources, © The NetBSD Foundation and contributors, under the BSD licences they carry.
+DER/32's own code is in <a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>.
+NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</footer>
+</main>
+</body>
+</html>
