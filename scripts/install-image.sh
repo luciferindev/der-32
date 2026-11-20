@@ -36,7 +36,7 @@ if lsblk -nrpo NAME "$dev" | while IFS= read -r name; do
     if awk -v path="$name" 'NR > 1 && $1 == path { found=1 } END { exit !found }' /proc/swaps; then
         exit 0
     fi
-done; then
+done; exit 1; then
     die "target or one of its partitions is active swap"
 fi
 
