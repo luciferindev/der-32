@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/art/genesis.png" alt="Genesis the tortoise, the DER/32 mascot" width="280"></p>
+
 # DER/32
 
 **DER/32** ("Derivative 32") is a NetBSD-derived Unix operating system for
@@ -26,6 +28,24 @@ login:
   Ed25519-signed indexes, SHA-256 verified packages, dependency resolution,
   conflict detection, repository priorities, crash-safe transactions on
   SQLite, and unprivileged source builds.
+
+## Mascot
+
+Meet **Genesis**, the DER/32 tortoise: slow, steady, carries its house on
+its back. The original drawing is in [`docs/art/genesis.png`](docs/art/genesis.png).
+A fastfetch logo version is in [`share/fastfetch/`](share/fastfetch/README.md):
+
+```
+                   _.-''''''-._
+               .-'  \________/  '-.
+             .'      |      |      '.
+   .---.    /--------'      '-------\
+  /     \  |      /  '-.__.-'  \     |
+ |  --   '-|_____/______________\____|_.
+  '-.________________________________ __)
+             |  |               |  |
+             '--'               '--'
+```
 
 ## Build
 
@@ -69,6 +89,7 @@ formats, the trust model and the transaction design.
 | `repos/` | repository tiers: core, extra, community |
 | `conf/` | build profile (`mk.conf`) and default `/etc/upkg` |
 | `scripts/` | build, image, ISO, repository, QEMU and test drivers |
+| `share/fastfetch/` | fastfetch logo + config (Genesis) |
 | `docs/` | [architecture](docs/architecture.md), [building](docs/building.md), [packages](docs/packages.md), [roadmap](docs/roadmap.md), [development log](docs/devlog.md) |
 
 ## Status

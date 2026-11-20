@@ -1,0 +1,16 @@
+// fastfetch configuration for DER/32: Genesis the tortoise.
+// Install:  mkdir -p ~/.config/fastfetch
+//           cp der32.txt config.jsonc ~/.config/fastfetch/
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "~/.config/fastfetch/der32.txt",
+        "color": { "1": "white", "2": "yellow" },
+        "padding": { "right": 2 }
+    },
+    "modules": [
+        "title", "separator", "os", "kernel", "uptime", "packages",
+        "shell", "terminal", "cpu", "memory", "disk", "break", "colors"
+    ]
+}
