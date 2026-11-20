@@ -5,8 +5,8 @@ site/index.html is edited by hand.  This script takes its <head>, header,
 sidebar and footer and builds the other pages around them, so every page
 shares one layout:
 
-    faq.html  cheatsheet.html  man.html  man-upkg.8.html  man-derfetch.1.html
-    rss.xml   404.html
+    install.html  faq.html  cheatsheet.html  man.html  man-upkg.8.html
+    man-derfetch.1.html  slow.html  404.html  rss.xml  robots.txt  humans.txt
 
 Man pages are rendered from upkg/doc/upkg.8 and derfetch/derfetch.1 with
 mandoc (out/tools/bin/nbmandoc from the build, or a host mandoc).
@@ -28,7 +28,7 @@ GH = "https://github.com/luciferindev/der-32"
 TABS = [
     ("index.html", "Home"),
     ("index.html#news", "News"),
-    ("index.html#install", "Download &amp; Build"),
+    ("install.html", "Install"),
     ("faq.html", "FAQ"),
     ("cheatsheet.html", "Cheat sheet"),
     ("man.html", "Man pages"),
@@ -131,9 +131,10 @@ faq = [
 
     '<a id="general"></a><h3 class="crumb">:: General</h3>',
     qa("Is DER/32 a Linux distro?",
-       "<p>No. The kernel and the userland come from NetBSD: BSD libc, BSD make, BSD init and rc.d, "
-       "POSIX <tt>sh</tt>, FFS. Linux is only the <i>build host</i>. You cross-compile DER/32 from Linux "
-       "the same way NetBSD can be cross-built from almost anything.</p>"),
+       "<p>No. A distro is a kernel plus a pile of packages that someone hopes will get along. DER/32 is one "
+       "operating system: the kernel and the userland come from one NetBSD source tree, with BSD libc, BSD make, "
+       "BSD init and rc.d, POSIX <tt>sh</tt> and FFS. Linux is only the <i>build host</i>. It's very good at "
+       "compiling BSD.</p>"),
     qa("Is it GNU-free?",
        "<p>No, and that's on purpose. Like NetBSD, the base system ships GCC and binutils as its compiler "
        "toolchain. Everything else in base is BSD-licensed.</p>"),
@@ -142,6 +143,10 @@ faq = [
        "<tt>netbsd-10</tt> commit, adds a small patch series (its own identity, kernel config, images, "
        "<tt>upkg</tt>, <tt>derfetch</tt>) and a slimmer build profile. If you want a hackable BSD where "
        "every change from upstream fits in a handful of reviewable patches, that's what it's for.</p>"),
+    qa("Isn't this basically MINIX?",
+       "<p>No. MINIX is a microkernel teaching system, and these days it mostly lives inside Intel's "
+       "Management Engine, where you can't log in to it. DER/32 is a monolithic BSD kernel that you can. "
+       "(Tanenbaum and Torvalds argued about this in 1992. The tortoise abstained.)</p>"),
     qa("Why does <tt>uname -s</tt> say DER32 but <tt>uname -r</tt> says 10.2?",
        "<p>The system name is DER/32's own. The release number is NetBSD's, kept on purpose so kernel "
        "modules, binary packages and anything else that checks the ABI version keep working. DER/32's "
@@ -163,11 +168,8 @@ faq = [
        "In QEMU that's your terminal. On real hardware you need a serial cable, or the VGA-console "
        f'image variant that is being worked on in <a href="{GH}/pull/1">pull request #1</a>.</p>'),
     qa("How do I install it to a disk?",
-       "<p>There is no installer yet. The disk image is a complete system, so writing it to a disk "
-       "works, but <b>this erases the target disk</b>. Triple-check the device name first:</p>"
-       + term("$ lsblk  # find the right disk first\n$ sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress")
-       + "<p>A real installer is on the "
-       f'<a href="{GH}/blob/main/docs/roadmap.md">roadmap</a>.</p>'),
+       '<p>See the <a href="install.html">install guide</a>. Short version: there\'s no installer yet. '
+       "You write the disk image to a disk, and that <b>erases the disk</b>.</p>"),
 
     '<a id="using"></a><h3 class="crumb">:: Using it</h3>',
     qa("What's the login?",
@@ -195,6 +197,8 @@ faq = [
     qa("Will NetBSD binaries run on DER/32?",
        "<p>They should. DER/32 keeps the NetBSD 10 ABI: same libc, same syscalls, same "
        "<tt>kern.osrelease</tt>.</p>"),
+    qa("Does upkg have Super Cow Powers?",
+       "<p>No. Ask it about cows and find out what it has instead.</p>"),
     qa("Does upkg run install scripts?",
        "<p>Never. A package is files plus metadata, and that's all upkg installs. Index signatures are "
        "Ed25519, package checksums are SHA-256, and an interrupted transaction is completed or rolled back "
@@ -358,12 +362,117 @@ page("man.html", "Man pages", "man.html",
      + f'\n<table class="idx"><tr><th></th><th>Page</th><th>Description</th></tr>\n{rows}\n</table>',
      "DER/32 manual pages: upkg(8), derfetch(1).")
 
+# ---------------------------------------------------------------- install guide
+
+inst = [
+    post("Install guide", """
+<p>DER/32 0.1 doesn't have an installer. There's no wizard, no partition editor and no screen asking you to
+pick from twelve desktop environments. The disk image <i>is</i> the installed system: you boot it in a VM, or
+write it to a disk.</p>
+<p>Pick one: <a href="#vm">A. QEMU (recommended)</a> &middot; <a href="#live">B. live ISO</a> &middot;
+<a href="#metal">C. real hardware</a>. Then do <a href="#after">the first-boot checklist</a>.</p>
+<div class="quote"><b>Before you start</b>Prebuilt images aren't published yet, so you build them first. That
+takes a Linux host with about 20&nbsp;GB free and a C compiler, and an hour or two the first time.
+Arch is the reference host.</div>""", meta="Sticky &middot; Forum: Installation", icon="!"),
+
+    post("Step 0: build the images", term("""
+$ git clone --recurse-submodules https://github.com/luciferindev/der-32
+$ cd der-32
+$ make check  # are the host tools there?
+$ make release  # disk image: out/images/der32-0.1-amd64.img
+$ make iso  # live ISO: out/images/der32-0.1-amd64.iso""")
+         + "<p>A stopped build resumes where it left off: run the same command again. Stuck? "
+           'See <a href="faq.html#build">build problems</a>.</p>', icon="0"),
+
+    post("A. Run it in QEMU (recommended)", "<p>This is how DER/32 is developed and tested.</p>"
+         + term("""
+$ sudo pacman -S qemu-base  # Arch; other distros: install qemu-system-x86_64
+$ make qemu  # boots a working copy of the image on this terminal""")
+         + "<p>Your changes persist in <tt>out/images/der32-run.img</tt>, so the release image stays clean. "
+           "Delete that file to start over. Useful knobs:</p>"
+         + ref([("MEM=2048 make qemu", "more RAM (default 1024 MiB)"),
+                ("SMP=4 make qemu", "more CPUs (default 2)"),
+                ("SNAPSHOT=1 make qemu", "throw away every change on exit"),
+                ("Ctrl-A, then X", "quit QEMU (run <tt>shutdown -p now</tt> first)")],
+               head=("Do this", "To get")), icon="A", anchor="vm"),
+
+    post("B. Boot the live ISO", "<p>The live ISO runs from read-only media and keeps <tt>/etc</tt>, "
+         "<tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> in RAM, so nothing survives a reboot. "
+         "That's ideal for a look around.</p>"
+         + term("""
+$ qemu-system-x86_64 -accel kvm -cpu host -m 1024 \\
+    -cdrom out/images/der32-0.1-amd64.iso -boot d \\
+    -display none -serial stdio""")
+         + "<p>Drop <tt>-accel kvm -cpu host</tt> if you have no <tt>/dev/kvm</tt>. The ISO is built as "
+           "a CD image. Booting it from a USB stick hasn't been tested.</p>", icon="B", anchor="live"),
+
+    post("C. Real hardware", """
+<div class="quote"><b>Read this twice</b>Writing the image <b>destroys everything on the target disk</b>.
+And Genesis talks to a <b>serial port</b>, not your monitor: without a serial cable you'll see the
+bootloader and then nothing. A VGA-console image is in the works in
+<a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>. Real hardware hasn't been
+tested yet.</div>"""
+         + term("""
+$ lsblk -o NAME,SIZE,MODEL  # identify the target disk. Twice.
+$ sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress
+$ sync""")
+         + "<p>Boot it with the BIOS / legacy boot option (the image has an MBR, not UEFI). Connect at "
+           "9600 baud. On the Linux side: <tt>screen /dev/ttyUSB0 9600</tt>.</p>"
+           "<p>The image's filesystem is 2&nbsp;GiB, whatever the size of the disk. Growing it isn't "
+           "documented yet.</p>", icon="C", anchor="metal"),
+
+    post("After the first boot", "<p>Log in as <tt>root</tt> with password <tt>der32</tt>. Then:</p>"
+         + term("""
+der32# passwd  # first. Seriously.
+der32# echo 'hostname=tortoise' >> /etc/rc.conf
+der32# hostname tortoise
+der32# ln -sf /usr/share/zoneinfo/America/Boise /etc/localtime  # your zone
+der32# useradd -m -G wheel alice  # a user who may su to root
+der32# passwd alice
+der32# upkg sync  # DER/32 packages
+der32# derfetch  # admire the tortoise""")
+         + "<p>Want SSH? Add <tt>sshd=YES</tt> to <tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>. "
+           'More commands are on the <a href="cheatsheet.html">cheat sheet</a>. Your Linux muscle memory mostly '
+           "works, and where it doesn't, <tt>man</tt> works.</p>", icon="!", anchor="after"),
+]
+page("install.html", "Install guide", "install.html", "\n".join(inst),
+     "How to install DER/32: build the images, run it in QEMU, boot the live ISO, or write it to a disk.")
+
+# ---------------------------------------------------------------- slow lane (secret)
+
+def pre_art(lines):
+    return html.escape("\n".join(lines))
+
+ART = [l.replace("$1", "").replace("$2", "")
+       for l in open(os.path.join(ROOT, "share/fastfetch/der32.txt")).read().rstrip("\n").split("\n")]
+HARE = ['  zZz', '   (\\_/)', '   (-.-)', '  o(_(")(")']
+page("slow.html", "The slow lane", "", post(
+    "You found the slow lane",
+    "<p>The hare had a head start, a faster kernel, and a new distro every weekend. Watch.</p>"
+    '<div class="track"><pre class="finish">F\nI\nN\nI\nS\nH</pre>'
+    f'<pre class="hare">{pre_art(HARE)}</pre>'
+    f'<pre class="runner">{pre_art(ART)}</pre></div>'
+    "<p>Slow and steady boots the kernel. More hidden things live on a running DER/32 system. "
+    "Start with <tt>upkg tortoise</tt>.</p>"
+    '<p><a href="index.html">&laquo; Back to the fast lane</a></p>', icon="T"))
+
+open(os.path.join(SITE, "robots.txt"), "w").write(
+    "# Tortoises welcome. Hares, see below.\n"
+    "User-agent: *\nAllow: /\n\n"
+    "User-agent: hare\nDisallow: /\n")
+open(os.path.join(SITE, "humans.txt"), "w").write(
+    "/* TEAM */\n  Project: luciferindev\n  Mascot: Genesis (tortoise, bowler hat)\n"
+    "  Site: https://github.com/luciferindev/der-32\n\n"
+    "/* SITE */\n  Standards: HTML5, CSS\n  JavaScript: none\n  Best viewed in: lynx\n"
+    "  Built with: a text editor and a tortoise's patience\n")
+print("wrote site/robots.txt site/humans.txt")
+
 # ---------------------------------------------------------------- 404
 
 page("404.html", "Not found", "", post(
     "404: No such file or directory",
     term("der32# cat /this/page\ncat: /this/page: No such file or directory\nder32# _")
-    + '<p>That page isn\'t here. Try the <a href="index.html">front page</a>, the '
+    + '<p>Genesis looked everywhere. Slowly. That page isn\'t here. Try the <a href="index.html">front page</a>, the '
       '<a href="faq.html">FAQ</a> or the <a href="cheatsheet.html">cheat sheet</a>.</p>', icon="!"),
     # GitHub Pages serves 404.html at whatever path was asked for.
     base="/der-32/")

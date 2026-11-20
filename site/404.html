@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+    ___
+  _|___|_       You're reading the page source.
+   .---.        Good. That's the UNIX way.
+  /     \       
+ |  --   '-.    Some things on DER/32 are hidden in plain sight:
+  '-.______)      $ upkg tortoise
+                  $ upkg moo
+                  $ derfetch          (on 19 November)
+                  and the slash in the title is not just a slash.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -17,7 +28,7 @@
 <div id="head">
 <img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
 <div>
-  <h1>DER<span>/</span>32</h1>
+  <h1>DER<a class="slash" href="slow.html" title="">/</a>32</h1>
   <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
 </div>
 </div>
@@ -25,7 +36,7 @@
 <div id="tabs">
   <a href="index.html">Home</a>
   <a href="index.html#news">News</a>
-  <a href="index.html#install">Download &amp; Build</a>
+  <a href="install.html">Install</a>
   <a href="faq.html">FAQ</a>
   <a href="cheatsheet.html">Cheat sheet</a>
   <a href="man.html">Man pages</a>
@@ -40,7 +51,7 @@
 <div id="side">
   <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
     <li><a href="index.html#news">Latest news</a></li>
-    <li><a href="index.html#install">Get DER/32</a></li>
+    <li><a href="install.html">Install guide</a></li>
     <li><a href="faq.html">FAQ</a></li>
     <li><a href="cheatsheet.html">Cheat sheet</a></li>
     <li><a href="man.html">Man pages</a></li>
@@ -83,17 +94,18 @@ upkg 0.1</pre>
 <div id="main">
 <div class="post"><div class="t"><span class="ico">!</span> 404: No such file or directory</div><div class="b"><div class="term"><span class="p">der32#</span> cat /this/page
 cat: /this/page: No such file or directory
-<span class="p">der32#</span> _</div><p>That page isn't here. Try the <a href="index.html">front page</a>, the <a href="faq.html">FAQ</a> or the <a href="cheatsheet.html">cheat sheet</a>.</p></div></div>
+<span class="p">der32#</span> _</div><p>Genesis looked everywhere. Slowly. That page isn't here. Try the <a href="index.html">front page</a>, the <a href="faq.html">FAQ</a> or the <a href="cheatsheet.html">cheat sheet</a>.</p></div></div>
 </div>
 </div>
 
 <div id="badges">
   <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
   <span class="b88 b2">upkg 0.1<br>$ _</span>
-  <span class="b88 b3">BSD<br>LICENSED</span>
-  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
-  <span class="b88 b5">NO<br>JAVASCRIPT</span>
-  <span class="b88 b6">systemd<br>FREE</span>
+  <span class="b88 b3" title="Do what you like. Keep the notice.">BSD<br>LICENSED</span>
+  <span class="b88 b4" title="Or w3m. We don't judge.">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5" title="Not one line. View source if you don't believe us.">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6" title="journalctl: not found">systemd<br>FREE</span>
+  <span class="b88 b3" title="*Except the copy inside your CPU's management engine. That one isn't ours.">MINIX<br>FREE*</span>
   <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
 </div>
 <div id="foot">

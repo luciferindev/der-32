@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!--
+    ___
+  _|___|_       You're reading the page source.
+   .---.        Good. That's the UNIX way.
+  /     \       
+ |  --   '-.    Some things on DER/32 are hidden in plain sight:
+  '-.______)      $ upkg tortoise
+                  $ upkg moo
+                  $ derfetch          (on 19 November)
+                  and the slash in the title is not just a slash.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install guide :: DER/32</title>
+<meta name="description" content="How to install DER/32: build the images, run it in QEMU, boot the live ISO, or write it to a disk.">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="DER/32 news" href="rss.xml">
+</head>
+<body>
+<div id="wrap">
+
+<div id="head">
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
+<div>
+  <h1>DER<a class="slash" href="slow.html" title="">/</a>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
+
+<div id="tabs">
+  <a href="index.html">Home</a>
+  <a href="index.html#news">News</a>
+  <a class="on" href="install.html">Install</a>
+  <a href="faq.html">FAQ</a>
+  <a href="cheatsheet.html">Cheat sheet</a>
+  <a href="man.html">Man pages</a>
+  <a href="index.html#history">History</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="index.html#news">Latest news</a></li>
+    <li><a href="install.html">Install guide</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="cheatsheet.html">Cheat sheet</a></li>
+    <li><a href="man.html">Man pages</a></li>
+    <li><a href="index.html#history">History</a></li>
+    <li><a href="index.html#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
+               .-&#x27;  \________/  &#x27;-.
+             .&#x27;      |      |      &#x27;.
+   .---.    /--------&#x27;      &#x27;-------\
+  /     \  |      /  &#x27;-.__.-&#x27;  \     |
+ |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
+  &#x27;-.________________________________ __)
+             |  |               |  |
+             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+<div class="post"><div class="t"><span class="ico">!</span> Install guide</div><div class="meta">Sticky &middot; Forum: Installation</div><div class="b">
+<p>DER/32 0.1 doesn't have an installer. There's no wizard, no partition editor and no screen asking you to
+pick from twelve desktop environments. The disk image <i>is</i> the installed system: you boot it in a VM, or
+write it to a disk.</p>
+<p>Pick one: <a href="#vm">A. QEMU (recommended)</a> &middot; <a href="#live">B. live ISO</a> &middot;
+<a href="#metal">C. real hardware</a>. Then do <a href="#after">the first-boot checklist</a>.</p>
+<div class="quote"><b>Before you start</b>Prebuilt images aren't published yet, so you build them first. That
+takes a Linux host with about 20&nbsp;GB free and a C compiler, and an hour or two the first time.
+Arch is the reference host.</div></div></div>
+<div class="post"><div class="t"><span class="ico">0</span> Step 0: build the images</div><div class="b"><div class="term"><span class="p">$</span> git clone --recurse-submodules https://github.com/luciferindev/der-32
+<span class="p">$</span> cd der-32
+<span class="p">$</span> make check  <span class="c"># are the host tools there?</span>
+<span class="p">$</span> make release  <span class="c"># disk image: out/images/der32-0.1-amd64.img</span>
+<span class="p">$</span> make iso  <span class="c"># live ISO: out/images/der32-0.1-amd64.iso</span></div><p>A stopped build resumes where it left off: run the same command again. Stuck? See <a href="faq.html#build">build problems</a>.</p></div></div>
+<a id="vm"></a>
+<div class="post"><div class="t"><span class="ico">A</span> A. Run it in QEMU (recommended)</div><div class="b"><p>This is how DER/32 is developed and tested.</p><div class="term"><span class="p">$</span> sudo pacman -S qemu-base  <span class="c"># Arch; other distros: install qemu-system-x86_64</span>
+<span class="p">$</span> make qemu  <span class="c"># boots a working copy of the image on this terminal</span></div><p>Your changes persist in <tt>out/images/der32-run.img</tt>, so the release image stays clean. Delete that file to start over. Useful knobs:</p><table class="ref"><tr><th>Do this</th><th>To get</th></tr>
+<tr><td>MEM=2048 make qemu</td><td>more RAM (default 1024 MiB)</td></tr>
+<tr><td>SMP=4 make qemu</td><td>more CPUs (default 2)</td></tr>
+<tr><td>SNAPSHOT=1 make qemu</td><td>throw away every change on exit</td></tr>
+<tr><td>Ctrl-A, then X</td><td>quit QEMU (run <tt>shutdown -p now</tt> first)</td></tr>
+</table></div></div>
+<a id="live"></a>
+<div class="post"><div class="t"><span class="ico">B</span> B. Boot the live ISO</div><div class="b"><p>The live ISO runs from read-only media and keeps <tt>/etc</tt>, <tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> in RAM, so nothing survives a reboot. That's ideal for a look around.</p><div class="term"><span class="p">$</span> qemu-system-x86_64 -accel kvm -cpu host -m 1024 \
+    -cdrom out/images/der32-0.1-amd64.iso -boot d \
+    -display none -serial stdio</div><p>Drop <tt>-accel kvm -cpu host</tt> if you have no <tt>/dev/kvm</tt>. The ISO is built as a CD image. Booting it from a USB stick hasn't been tested.</p></div></div>
+<a id="metal"></a>
+<div class="post"><div class="t"><span class="ico">C</span> C. Real hardware</div><div class="b">
+<div class="quote"><b>Read this twice</b>Writing the image <b>destroys everything on the target disk</b>.
+And Genesis talks to a <b>serial port</b>, not your monitor: without a serial cable you'll see the
+bootloader and then nothing. A VGA-console image is in the works in
+<a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>. Real hardware hasn't been
+tested yet.</div><div class="term"><span class="p">$</span> lsblk -o NAME,SIZE,MODEL  <span class="c"># identify the target disk. Twice.</span>
+<span class="p">$</span> sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress
+<span class="p">$</span> sync</div><p>Boot it with the BIOS / legacy boot option (the image has an MBR, not UEFI). Connect at 9600 baud. On the Linux side: <tt>screen /dev/ttyUSB0 9600</tt>.</p><p>The image's filesystem is 2&nbsp;GiB, whatever the size of the disk. Growing it isn't documented yet.</p></div></div>
+<a id="after"></a>
+<div class="post"><div class="t"><span class="ico">!</span> After the first boot</div><div class="b"><p>Log in as <tt>root</tt> with password <tt>der32</tt>. Then:</p><div class="term"><span class="p">der32#</span> passwd  <span class="c"># first. Seriously.</span>
+<span class="p">der32#</span> echo &#x27;hostname=tortoise&#x27; &gt;&gt; /etc/rc.conf
+<span class="p">der32#</span> hostname tortoise
+<span class="p">der32#</span> ln -sf /usr/share/zoneinfo/America/Boise /etc/localtime  <span class="c"># your zone</span>
+<span class="p">der32#</span> useradd -m -G wheel alice  <span class="c"># a user who may su to root</span>
+<span class="p">der32#</span> passwd alice
+<span class="p">der32#</span> upkg sync  <span class="c"># DER/32 packages</span>
+<span class="p">der32#</span> derfetch  <span class="c"># admire the tortoise</span></div><p>Want SSH? Add <tt>sshd=YES</tt> to <tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>. More commands are on the <a href="cheatsheet.html">cheat sheet</a>. Your Linux muscle memory mostly works, and where it doesn't, <tt>man</tt> works.</p></div></div>
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3" title="Do what you like. Keep the notice.">BSD<br>LICENSED</span>
+  <span class="b88 b4" title="Or w3m. We don't judge.">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5" title="Not one line. View source if you don't believe us.">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6" title="journalctl: not found">systemd<br>FREE</span>
+  <span class="b88 b3" title="*Except the copy inside your CPU's management engine. That one isn't ours.">MINIX<br>FREE*</span>
+  <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
+</body>
+</html>

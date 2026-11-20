@@ -1,0 +1,6 @@
+# Tortoises welcome. Hares, see below.
+User-agent: *
+Allow: /
+
+User-agent: hare
+Disallow: /

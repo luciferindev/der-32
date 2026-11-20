@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+    ___
+  _|___|_       You're reading the page source.
+   .---.        Good. That's the UNIX way.
+  /     \       
+ |  --   '-.    Some things on DER/32 are hidden in plain sight:
+  '-.______)      $ upkg tortoise
+                  $ upkg moo
+                  $ derfetch          (on 19 November)
+                  and the slash in the title is not just a slash.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -16,7 +27,7 @@
 <div id="head">
 <img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
 <div>
-  <h1>DER<span>/</span>32</h1>
+  <h1>DER<a class="slash" href="slow.html" title="">/</a>32</h1>
   <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
 </div>
 </div>
@@ -24,7 +35,7 @@
 <div id="tabs">
   <a href="index.html">Home</a>
   <a href="index.html#news">News</a>
-  <a href="index.html#install">Download &amp; Build</a>
+  <a href="install.html">Install</a>
   <a class="on" href="faq.html">FAQ</a>
   <a href="cheatsheet.html">Cheat sheet</a>
   <a href="man.html">Man pages</a>
@@ -39,7 +50,7 @@
 <div id="side">
   <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
     <li><a href="index.html#news">Latest news</a></li>
-    <li><a href="index.html#install">Get DER/32</a></li>
+    <li><a href="install.html">Install guide</a></li>
     <li><a href="faq.html">FAQ</a></li>
     <li><a href="cheatsheet.html">Cheat sheet</a></li>
     <li><a href="man.html">Man pages</a></li>
@@ -86,16 +97,16 @@ upkg 0.1</pre>
 <a href="#using">Using it</a> &middot; <a href="#packages">Packages</a> &middot;
 <a href="#build">Build problems</a> &middot; <a href="#contrib">Contributing</a></p></div></div>
 <a id="general"></a><h3 class="crumb">:: General</h3>
-<div class="qa"><div class="q">Is DER/32 a Linux distro?</div><div class="a"><p>No. The kernel and the userland come from NetBSD: BSD libc, BSD make, BSD init and rc.d, POSIX <tt>sh</tt>, FFS. Linux is only the <i>build host</i>. You cross-compile DER/32 from Linux the same way NetBSD can be cross-built from almost anything.</p></div></div>
+<div class="qa"><div class="q">Is DER/32 a Linux distro?</div><div class="a"><p>No. A distro is a kernel plus a pile of packages that someone hopes will get along. DER/32 is one operating system: the kernel and the userland come from one NetBSD source tree, with BSD libc, BSD make, BSD init and rc.d, POSIX <tt>sh</tt> and FFS. Linux is only the <i>build host</i>. It's very good at compiling BSD.</p></div></div>
 <div class="qa"><div class="q">Is it GNU-free?</div><div class="a"><p>No, and that's on purpose. Like NetBSD, the base system ships GCC and binutils as its compiler toolchain. Everything else in base is BSD-licensed.</p></div></div>
 <div class="qa"><div class="q">Why not just run NetBSD?</div><div class="a"><p>For a production machine, you probably should. DER/32 is a derivative: it pins one <tt>netbsd-10</tt> commit, adds a small patch series (its own identity, kernel config, images, <tt>upkg</tt>, <tt>derfetch</tt>) and a slimmer build profile. If you want a hackable BSD where every change from upstream fits in a handful of reviewable patches, that's what it's for.</p></div></div>
+<div class="qa"><div class="q">Isn't this basically MINIX?</div><div class="a"><p>No. MINIX is a microkernel teaching system, and these days it mostly lives inside Intel's Management Engine, where you can't log in to it. DER/32 is a monolithic BSD kernel that you can. (Tanenbaum and Torvalds argued about this in 1992. The tortoise abstained.)</p></div></div>
 <div class="qa"><div class="q">Why does <tt>uname -s</tt> say DER32 but <tt>uname -r</tt> says 10.2?</div><div class="a"><p>The system name is DER/32's own. The release number is NetBSD's, kept on purpose so kernel modules, binary packages and anything else that checks the ABI version keep working. DER/32's own release is in <tt>sysctl kern.der32</tt>.</p></div></div>
 <a id="hardware"></a><h3 class="crumb">:: Hardware</h3>
 <div class="qa"><div class="q">Will it run on my machine?</div><div class="a"><p>DER/32 uses NetBSD 10's <tt>GENERIC</tt> kernel configuration, so it has the same drivers as NetBSD 10 on amd64. NetBSD's hardware lists are the best guide. So far, Genesis has only been tested in QEMU. Reports from real hardware are welcome on the <a href="https://github.com/luciferindev/der-32/issues">bug tracker</a>.</p></div></div>
 <div class="qa"><div class="q">What are the requirements?</div><div class="a"><p>An x86-64 CPU. The automated tests boot with 1&nbsp;GiB of RAM and 2 CPUs. The disk image is 2&nbsp;GiB and the live ISO about 525&nbsp;MiB. The live ISO copies <tt>/etc</tt>, <tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> into RAM, so give it some headroom.</p></div></div>
 <div class="qa"><div class="q">I only see a blank screen / no login on my monitor.</div><div class="a"><p>The Genesis images use a <b>serial console</b> (<tt>com0</tt>, getty on <tt>tty00</tt>). In QEMU that's your terminal. On real hardware you need a serial cable, or the VGA-console image variant that is being worked on in <a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>.</p></div></div>
-<div class="qa"><div class="q">How do I install it to a disk?</div><div class="a"><p>There is no installer yet. The disk image is a complete system, so writing it to a disk works, but <b>this erases the target disk</b>. Triple-check the device name first:</p><div class="term"><span class="p">$</span> lsblk  <span class="c"># find the right disk first</span>
-<span class="p">$</span> sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress</div><p>A real installer is on the <a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap</a>.</p></div></div>
+<div class="qa"><div class="q">How do I install it to a disk?</div><div class="a"><p>See the <a href="install.html">install guide</a>. Short version: there's no installer yet. You write the disk image to a disk, and that <b>erases the disk</b>.</p></div></div>
 <a id="using"></a><h3 class="crumb">:: Using it</h3>
 <div class="qa"><div class="q">What's the login?</div><div class="a"><p><tt>root</tt>, password <tt>der32</tt>. Change it right away with <tt>passwd</tt>. A first-boot password prompt is planned.</p></div></div>
 <div class="qa"><div class="q">How do I get out of QEMU?</div><div class="a"><p>Press <b>Ctrl-A</b>, then <b>X</b>. To shut down cleanly first, run <tt>shutdown -p now</tt> inside DER/32.</p></div></div>
@@ -105,6 +116,7 @@ upkg 0.1</pre>
 <a id="packages"></a><h3 class="crumb">:: Packages</h3>
 <div class="qa"><div class="q">upkg or pkgin, which one do I use?</div><div class="a"><p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories into <tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. The two never touch each other's files. pkgin support is <i>in testing</i> and lands with the next build.</p></div></div>
 <div class="qa"><div class="q">Will NetBSD binaries run on DER/32?</div><div class="a"><p>They should. DER/32 keeps the NetBSD 10 ABI: same libc, same syscalls, same <tt>kern.osrelease</tt>.</p></div></div>
+<div class="qa"><div class="q">Does upkg have Super Cow Powers?</div><div class="a"><p>No. Ask it about cows and find out what it has instead.</p></div></div>
 <div class="qa"><div class="q">Does upkg run install scripts?</div><div class="a"><p>Never. A package is files plus metadata, and that's all upkg installs. Index signatures are Ed25519, package checksums are SHA-256, and an interrupted transaction is completed or rolled back on the next run. Details are in <a href="man-upkg.8.html">upkg(8)</a>.</p></div></div>
 <div class="qa"><div class="q">How do I make my own package?</div><div class="a"><p>Write a recipe under <tt>ports/&lt;category&gt;/&lt;name&gt;/</tt>: a <tt>RECIPE</tt> file and a <tt>build</tt> script, then run <tt>upkg build &lt;name&gt;</tt>. Look at <tt>ports/core/lua</tt> for a real example, and <a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a> for the format.</p></div></div>
 <a id="build"></a><h3 class="crumb">:: Build problems</h3>
@@ -123,10 +135,11 @@ upkg 0.1</pre>
 <div id="badges">
   <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
   <span class="b88 b2">upkg 0.1<br>$ _</span>
-  <span class="b88 b3">BSD<br>LICENSED</span>
-  <span class="b88 b4">BEST VIEWED<br>IN LYNX</span>
-  <span class="b88 b5">NO<br>JAVASCRIPT</span>
-  <span class="b88 b6">systemd<br>FREE</span>
+  <span class="b88 b3" title="Do what you like. Keep the notice.">BSD<br>LICENSED</span>
+  <span class="b88 b4" title="Or w3m. We don't judge.">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5" title="Not one line. View source if you don't believe us.">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6" title="journalctl: not found">systemd<br>FREE</span>
+  <span class="b88 b3" title="*Except the copy inside your CPU's management engine. That one isn't ours.">MINIX<br>FREE*</span>
   <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
 </div>
 <div id="foot">

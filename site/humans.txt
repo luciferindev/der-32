@@ -1,0 +1,10 @@
+/* TEAM */
+  Project: luciferindev
+  Mascot: Genesis (tortoise, bowler hat)
+  Site: https://github.com/luciferindev/der-32
+
+/* SITE */
+  Standards: HTML5, CSS
+  JavaScript: none
+  Best viewed in: lynx
+  Built with: a text editor and a tortoise's patience
