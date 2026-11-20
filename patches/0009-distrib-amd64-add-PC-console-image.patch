@@ -5,7 +5,6 @@ Subject: [PATCH 9/9] distrib/amd64: optional VGA/keyboard boot image
 
 Preserve the original serial distribution and add DER32_CONSOLE=pc,
 which uses the PC boot console and a wscons login on ttyE0.
-Also set root profile ownership for first-login setup.
 ---
 
 diff --git a/distrib/amd64/der32image/Makefile b/distrib/amd64/der32image/Makefile
@@ -135,25 +134,6 @@ diff --git a/distrib/amd64/der32image/Makefile b/distrib/amd64/der32image/Makefi
 +
 +
 +.include "${NETBSDSRCDIR}/distrib/common/bootimage/Makefile.liveimage"
-diff --git a/distrib/amd64/der32image/spec.der32 b/distrib/amd64/der32image/spec.der32
---- a/distrib/amd64/der32image/spec.der32
-+++ b/distrib/amd64/der32image/spec.der32
-@@ -1,7 +1,8 @@
--./etc/upkg			type=dir  uname=root gname=wheel mode=0755
--./etc/upkg/keys			type=dir  uname=root gname=wheel mode=0755
--./var/lib			type=dir  uname=root gname=wheel mode=0755
--./var/lib/upkg			type=dir  uname=root gname=wheel mode=0755
--./var/cache			type=dir  uname=root gname=wheel mode=0755
--./var/cache/upkg		type=dir  uname=root gname=wheel mode=0755
--./usr/local			type=dir  uname=root gname=wheel mode=0755
-+./etc/upkg			type=dir  uname=root gname=wheel mode=0755
-+./etc/upkg/keys			type=dir  uname=root gname=wheel mode=0755
-+./var/lib			type=dir  uname=root gname=wheel mode=0755
-+./var/lib/upkg			type=dir  uname=root gname=wheel mode=0755
-+./var/cache			type=dir  uname=root gname=wheel mode=0755
-+./var/cache/upkg		type=dir  uname=root gname=wheel mode=0755
-+./usr/local			type=dir  uname=root gname=wheel mode=0755
-+./root/.profile			type=file uname=root gname=wheel mode=0644
 diff --git a/distrib/amd64/der32image/ttys.pc b/distrib/amd64/der32image/ttys.pc
 new file mode 100644
 --- /dev/null
