@@ -192,8 +192,7 @@ faq = [
     qa("upkg or pkgin, which one do I use?",
        "<p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories into "
        "<tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. "
-       "The two never touch each other's files. pkgin support is <i>in testing</i> and lands with the next "
-       "build.</p>"),
+       "The two never touch each other's files.</p>"),
     qa("Will NetBSD binaries run on DER/32?",
        "<p>They should. DER/32 keeps the NetBSD 10 ABI: same libc, same syscalls, same "
        "<tt>kern.osrelease</tt>.</p>"),
@@ -269,7 +268,7 @@ cs = [
         ("upkg recover", "finish or undo an interrupted transaction"),
     ]) + '<p>Full reference: <a href="man-upkg.8.html">upkg(8)</a>.</p>', icon="P", anchor="c-upkg"),
 
-    post("pkgin: NetBSD binary packages <small>(in testing)</small>", ref([
+    post("pkgin: NetBSD binary packages", ref([
         ("pkg_add pkgin", "one-time bootstrap from cdn.NetBSD.org"),
         ("pkgin update", "refresh the package list"),
         ("pkgin search vim", "search"),
@@ -480,9 +479,9 @@ page("404.html", "Not found", "", post(
 # ---------------------------------------------------------------- RSS
 
 NEWS = [
-    ("In testing: NetBSD binary packages on DER/32", "index.html#news", "Thu, 19 Nov 2026 23:00:00 -0700",
-     "DER/32 keeps the NetBSD 10 ABI, so NetBSD's pkgsrc binary packages can install unmodified under "
-     "/usr/pkg. Support via pkg_add and pkgin is being tested."),
+    ("NetBSD binary packages on DER/32", "index.html#news", "Fri, 20 Nov 2026 00:15:00 -0700",
+     "DER/32 keeps the NetBSD 10 ABI, so NetBSD's pkgsrc binary packages install unmodified under "
+     "/usr/pkg with pkg_add and pkgin, from cdn.NetBSD.org."),
     ("DER/32 0.1 “Genesis” boots", "index.html#news", "Thu, 19 Nov 2026 18:46:00 -0700",
      "The first development release builds on Arch Linux and boots to a login prompt as a disk image and "
      "as a live ISO."),

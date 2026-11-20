@@ -51,7 +51,36 @@ usage(FILE *f)
 "\n"
 "  recover                      complete or undo an interrupted transaction\n"
 "  vercmp a b                   compare two versions (prints -1, 0 or 1)\n"
-"  --version                    print the upkg version\n");
+"  --version                    print the upkg version\n"
+"\n"
+"                               This upkg has Slow Tortoise Powers.\n");
+}
+
+/* Easter egg.  apt has Super Cow Powers; we have a tortoise in a hat. */
+static int
+tortoise(void)
+{
+	static const char *wisdom[] = {
+		"Slow and steady boots the kernel.",
+		"No install scripts were harmed in the making of this package.",
+		"Signed, verified, and in no particular hurry.",
+		"The hare is still compiling LLVM.",
+		"Carry your house on your back. Keep it under /usr/local.",
+		"Every journey of a thousand packages begins with upkg sync.",
+	};
+	fputs(
+"                   _.-''''''-._\n"
+"    ___        .-'  \\________/  '-.\n"
+"  _|___|_    .'      |      |      '.\n"
+"   .---.    /--------'      '-------\\\n"
+"  /     \\  |      /  '-.__.-'  \\     |\n"
+" |  --   '-|_____/______________\\____|_.\n"
+"  '-.________________________________ __)\n"
+"             |  |               |  |\n"
+"             '--'               '--'\n", stdout);
+	printf("\n  \"%s\"\n", wisdom[(size_t)time(NULL) % (sizeof(wisdom) /
+	    sizeof(wisdom[0]))]);
+	return 0;
 }
 
 static void
@@ -534,6 +563,12 @@ main(int argc, char **argv)
 	const char *cmd = argv[0];
 
 	/* commands that need no configuration */
+	if (strcmp(cmd, "tortoise") == 0)
+		return tortoise();
+	if (strcmp(cmd, "moo") == 0) {
+		puts("There are no cows on DER/32. Try 'upkg tortoise'.");
+		return 0;
+	}
 	if (strcmp(cmd, "help") == 0) {
 		usage(stdout);
 		return 0;

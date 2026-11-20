@@ -204,8 +204,42 @@ Packages: 0 (upkg)
 The package count follows upkg after installs. Disk image test 42/42,
 live ISO 28/28, artifact checks 14/14.
 
+## NetBSD binary packages, quips and eggs (patch 0009)
+
+Goal: download real software. NetBSD's own binary packages fit, because
+DER/32 keeps the NetBSD 10 ABI. Findings from the source before writing
+anything:
+
+* `pkg_add` compares a package's `OPSYS` with the compile-time
+  `OPSYS_NAME` ("NetBSD", `pkg_install/dist/lib/lib.h`), not with
+  `uname -s`, so `DER32` does not get in the way. A release mismatch
+  (`10.2` vs `10.2_STABLE`) only warns.
+* pkgsrc records `PKGTOOLS_VERSION=20091115` in packages; base
+  pkg_install is 20210410, so the base `pkg_add` is new enough.
+* pkgin's `$osrelease` strips `_STABLE`, and its NetBSD build ships a
+  `repositories.conf` already naming cdn.NetBSD.org's 10.2 tree.
+* `/etc/openssl/certs` was **empty** in the image and `certctl_init`
+  defaults to NO, so HTTPS could not have verified anything.
+
+Changes: `/etc/pkg_install.conf` with `PKG_PATH` for x86_64/10.2,
+`certctl_init=YES` in the image, a tmpfs `/usr/pkg` on the live ISO
+(the first ISO run failed with "Read-only file system"), derfetch counts
+pkgsrc packages, and `rc.d/motd` appends a random line from
+`/usr/share/misc/der32-quips`. Easter eggs: `upkg tortoise`, `upkg moo`,
+and a hatch-day line in derfetch on 19 November.
+
+The boot tests build a pkgsrc-format package inside the guest with
+`pkg_create`: `pkg_add` refuses it with `OPSYS=Linux` ("was built for a
+platform: Linux/x86_64 10.2 (pkg) vs. NetBSD/x86_64 10.2_STABLE (this
+host)") and installs and runs it with `OPSYS=NetBSD`. Downloading from
+cdn.NetBSD.org itself cannot be tested from the build sandbox (no route
+to that host).
+
+Disk image test 50/50, live ISO 36/36, upkg suite 136/136. Patch series
+re-applied to pristine upstream gives a tree-identical result.
+
 ## Outstanding
 
 See `roadmap.md`, "Known limitations". The main items are pkgsrc
-`OPSYS` mapping, a VGA-console image, an installer, replacing the
+`OPSYS` mapping for source builds, a VGA-console image, an installer, replacing the
 default root password, release signing keys and reproducible timestamps.

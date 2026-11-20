@@ -195,6 +195,39 @@ try:
           re.search(r"Base: NetBSD 10\.", out) is not None, out[-200:])
     check("derfetch draws Genesis", "'-.__.-'" in out, out[:200])
 
+    print("== easter eggs")
+    check_cmd("motd carries a tortoise quip, refreshed at boot",
+              "grep -c '^Tortoise says: ' /etc/motd", want="1")
+    check_cmd("upkg tortoise", "upkg tortoise | grep -c '_|___|_'", want="1")
+
+    print("== NetBSD binary packages (pkg_add)")
+    check_cmd("pkg_add is pointed at cdn.NetBSD.org x86_64/10.2",
+              "pkg_admin config-var PKG_PATH",
+              want="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/10.2/All")
+    check_cmd("CA certificates installed for HTTPS (certctl_init)",
+              "ls /etc/openssl/certs | wc -l", rx=r"^\s*[1-9]\d+$")
+    # Build a pkgsrc-format package in the guest and install it with the
+    # base pkg_add: proves the OPSYS check accepts NetBSD packages although
+    # uname -s says DER32, and rejects other platforms.
+    mkpkg = ("rm -rf /tmp/pk && mkdir -p /tmp/pk/bin && cd /tmp/pk && "
+             "printf '#!/bin/sh\\necho pkgsrc ok\\n' > bin/der32-pkgtest && "
+             "chmod 755 bin/der32-pkgtest && echo bin/der32-pkgtest > plist && "
+             "echo test > c && echo test > d && "
+             "printf 'OPSYS=%s\\nOS_VERSION=10.2\\nMACHINE_ARCH=x86_64\\n"
+             "PKGTOOLS_VERSION=20091115\\n' > bi && "
+             "pkg_create -B bi -c c -d d -f plist -I /usr/pkg -p /tmp/pk "
+             "der32-pkgtest-1.0.tgz && ")
+    check_cmd("pkg_add refuses a package built for another OS",
+              mkpkg % "Linux" + "pkg_add ./der32-pkgtest-1.0.tgz 2>&1",
+              status=1, rx=r"built for a platform")
+    check_cmd("pkg_add installs a NetBSD package on DER/32 into /usr/pkg",
+              mkpkg % "NetBSD" + "pkg_add ./der32-pkgtest-1.0.tgz && "
+              "/usr/pkg/bin/der32-pkgtest", want="pkgsrc ok")
+    check_cmd("derfetch counts pkgsrc packages",
+              "derfetch -n -l | grep Packages", rx=r"\(upkg\), 1 \(pkgsrc\)")
+    check_cmd("pkg_delete removes it", "pkg_delete der32-pkgtest && "
+              "test ! -e /usr/pkg/bin/der32-pkgtest && echo gone", want="gone")
+
     print("== upkg")
     check_cmd("upkg --version", "upkg --version", want="upkg 0.1")
     if ISO:

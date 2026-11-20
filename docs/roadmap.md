@@ -35,7 +35,7 @@ evidence in `devlog.md`), **partial**, **planned**.
 | upgrades, transaction locking, journal + crash recovery, SIGINT handling | done |
 | HTTPS transport (libfetch on DER/32, libcurl on hosts) | done (host-tested; in-OS HTTPS needs a reachable server) |
 | source recipes, unprivileged builds | done |
-| integration tests (133 checks) | done |
+| integration tests (136 upkg checks, 50 disk / 36 live-ISO boot checks) | done |
 
 ## Milestone 3 — System integration
 
@@ -59,11 +59,12 @@ evidence in `devlog.md`), **partial**, **planned**.
 
 ## Known limitations and next steps
 
-* **pkgsrc**: `uname -s` reports `DER32`, so the pkgsrc bootstrap does not
-  recognise the platform. Plan: carry a small pkgsrc patch mapping
-  `OPSYS=DER32` to the NetBSD platform files, then add a `pkgsrc <path>`
-  recipe type to `upkg build`, so pkgsrc can be reused instead of
-  duplicating recipes.
+* **pkgsrc (source)**: `uname -s` reports `DER32`, so building pkgsrc
+  *from source* on DER/32 does not recognise the platform. Plan: carry a
+  small pkgsrc patch mapping `OPSYS=DER32` to the NetBSD platform files,
+  then add a `pkgsrc <path>` recipe type to `upkg build`. NetBSD's
+  *binary* packages already work (see `docs/packages.md`), because
+  `pkg_add` checks the compile-time OS name, not `uname -s`.
 * **Console**: images use the serial console. Add a VGA/`wscons` image
   variant (`console=pc`, getty on `ttyE0`).
 * **Installer**: the raw image is copied to disk with `dd`. A sysinst-

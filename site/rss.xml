@@ -6,11 +6,11 @@
   <description>News from the DER/32 project, a NetBSD-derived UNIX.</description>
   <language>en</language>
   <item>
-    <title>In testing: NetBSD binary packages on DER/32</title>
+    <title>NetBSD binary packages on DER/32</title>
     <link>https://luciferindev.github.io/der-32/index.html#news</link>
     <guid isPermaLink="false">der32-2</guid>
-    <pubDate>Thu, 19 Nov 2026 23:00:00 -0700</pubDate>
-    <description>DER/32 keeps the NetBSD 10 ABI, so NetBSD&#x27;s pkgsrc binary packages can install unmodified under /usr/pkg. Support via pkg_add and pkgin is being tested.</description>
+    <pubDate>Fri, 20 Nov 2026 00:15:00 -0700</pubDate>
+    <description>DER/32 keeps the NetBSD 10 ABI, so NetBSD&#x27;s pkgsrc binary packages install unmodified under /usr/pkg with pkg_add and pkgin, from cdn.NetBSD.org.</description>
   </item>
   <item>
     <title>DER/32 0.1 “Genesis” boots</title>

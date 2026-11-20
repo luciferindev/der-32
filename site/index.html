@@ -44,7 +44,7 @@
   <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
   <a href="https://github.com/luciferindev/der-32">Source</a>
 </div>
-<div id="ticker"><b class="blink">NEW!</b> DER/32 0.1 &ldquo;Genesis&rdquo; boots. NetBSD binary packages via <tt>pkgin</tt> are in testing. The tortoise is official.</div>
+<div id="ticker"><b class="blink">NEW!</b> DER/32 0.1 &ldquo;Genesis&rdquo; boots. NetBSD binary packages install with <tt>pkg_add</tt> and <tt>pkgin</tt>. The tortoise is official.</div>
 
 <div id="cols">
 
@@ -113,17 +113,18 @@ login: <span class="w">root</span>
 
   <a id="news"></a>
   <div class="post">
-    <div class="t"><span class="ico">N</span> In testing: NetBSD binary packages on DER/32</div>
+    <div class="t"><span class="ico">N</span> NetBSD binary packages on DER/32</div>
     <div class="meta">Posted by <b>luciferindev</b> on Thursday, November 19, 2026 &middot; Topic: Packages</div>
     <div class="b">
       <p>DER/32 keeps the NetBSD 10 ABI, so NetBSD's own pkgsrc binary packages install unmodified
-      under <tt>/usr/pkg</tt>, alongside upkg's <tt>/usr/local</tt>. The next build ships an
-      <tt>/etc/pkg_install.conf</tt> that points <tt>pkg_add</tt> at cdn.NetBSD.org. It's being tested now:</p>
+      under <tt>/usr/pkg</tt>, alongside upkg's <tt>/usr/local</tt>. <tt>/etc/pkg_install.conf</tt>
+      points <tt>pkg_add</tt> at cdn.NetBSD.org, and the CA certificates for HTTPS are set up on first boot:</p>
       <div class="term"><span class="p">der32#</span> pkg_add pkgin
 <span class="p">der32#</span> pkgin update
 <span class="p">der32#</span> pkgin install vim git</div>
       <div class="quote"><b>FAQ: But <tt>uname -s</tt> says DER32?</b><tt>pkg_add</tt> checks the package's
-      OS against a compile-time constant, not against <tt>uname</tt>. Your packages won't notice.</div>
+      OS against a compile-time constant, not against <tt>uname</tt>. Your packages won't notice. The boot tests
+      prove it: <tt>pkg_add</tt> installs a NetBSD-built package and refuses one built for Linux.</div>
     </div>
     <div class="f"><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">Read more...</a></div>
   </div>

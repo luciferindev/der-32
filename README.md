@@ -79,6 +79,19 @@ upkg repo add web https://example.org/der32/core -p 90
 See [docs/packages.md](docs/packages.md) for the package and repository
 formats, the trust model and the transaction design.
 
+## NetBSD packages
+
+DER/32 keeps the NetBSD 10 ABI, so NetBSD's own binary packages work
+out of the box under `/usr/pkg`, next to upkg's `/usr/local`:
+
+```
+pkg_add pkgin && pkgin update
+pkgin install vim git fastfetch
+```
+
+`/etc/pkg_install.conf` points at cdn.NetBSD.org's `x86_64/10.2` tree.
+Details and limits are in [docs/packages.md](docs/packages.md#netbsd-binary-packages-pkgsrc).
+
 ## Layout
 
 | path | |

@@ -19,6 +19,7 @@
 #include <uvm/uvm_extern.h>
 #endif
 
+#include <dirent.h>
 #include <pwd.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -31,6 +32,7 @@
 
 #define DERFETCH_VERSION "0.1"
 #define UPKG_DB "/var/lib/upkg/upkg.db"
+#define PKGSRC_DBDIR "/usr/pkg/pkgdb"
 
 /* Genesis, from share/fastfetch/der32.txt; '\1' outline, '\2' eye. */
 static const char *logo[] = {
@@ -180,6 +182,31 @@ do_uptime(void)
 		add("Uptime", "%ld min", m);
 }
 
+/* Installed NetBSD binary packages: one directory per package in pkgdb. */
+static long
+count_pkgsrc(const char *root)
+{
+	char path[MAXPATHLEN], c[MAXPATHLEN];
+	struct dirent *de;
+	DIR *d;
+	long n = 0;
+
+	snprintf(path, sizeof(path), "%s%s", root ? root : "", PKGSRC_DBDIR);
+	if ((d = opendir(path)) == NULL)
+		return 0;
+	while ((de = readdir(d)) != NULL) {
+		if (de->d_name[0] == '.')
+			continue;
+		if ((size_t)snprintf(c, sizeof(c), "%s/%s/+CONTENTS", path,
+		    de->d_name) >= sizeof(c))
+			continue;
+		if (access(c, R_OK) == 0)
+			n++;
+	}
+	closedir(d);
+	return n;
+}
+
 static void
 do_packages(void)
 {
@@ -187,23 +214,41 @@ do_packages(void)
 	sqlite3_stmt *s;
 	const char *root = getenv("UPKG_ROOT");
 	char path[MAXPATHLEN];
-	long n = -1;
+	long n = 0, p;
 
 	snprintf(path, sizeof(path), "%s%s", root ? root : "", UPKG_DB);
-	if (access(path, R_OK) != 0) {
-		add("Packages", "0 (upkg)");
-		return;
+	if (access(path, R_OK) == 0 &&
+	    sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY, NULL) == SQLITE_OK) {
+		if (sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM packages", -1,
+		    &s, NULL) == SQLITE_OK) {
+			if (sqlite3_step(s) == SQLITE_ROW)
+				n = sqlite3_column_int64(s, 0);
+			sqlite3_finalize(s);
+		}
+		sqlite3_close(db);
 	}
-	if (sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY, NULL) == SQLITE_OK &&
-	    sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM packages", -1, &s,
-	    NULL) == SQLITE_OK) {
-		if (sqlite3_step(s) == SQLITE_ROW)
-			n = sqlite3_column_int64(s, 0);
-		sqlite3_finalize(s);
-	}
-	sqlite3_close(db);
-	if (n >= 0)
+	p = count_pkgsrc(root);
+	if (p > 0)
+		add("Packages", "%ld (upkg), %ld (pkgsrc)", n, p);
+	else
 		add("Packages", "%ld (upkg)", n);
+}
+
+/* Genesis hatched on 19 November 2026, the day DER/32 first booted. */
+static void
+do_hatchday(void)
+{
+	time_t now = time(NULL);
+	struct tm *tm = localtime(&now);
+	int age;
+
+	if (tm == NULL || tm->tm_mon != 10 || tm->tm_mday != 19)
+		return;
+	age = tm->tm_year + 1900 - 2026;
+	if (age <= 0)
+		add("Hatch day", "Genesis hatched today. Happy birthday!");
+	else
+		add("Hatch day", "Genesis turns %d today. Happy birthday!", age);
 }
 
 static void
@@ -387,6 +432,7 @@ main(int argc, char **argv)
 	do_cpu();
 	do_memory();
 	do_disk();
+	do_hatchday();
 
 	/* title, rule, then the info lines beside the logo */
 	rows = nlines + 2 > LOGO_LINES ? nlines + 2 : LOGO_LINES;

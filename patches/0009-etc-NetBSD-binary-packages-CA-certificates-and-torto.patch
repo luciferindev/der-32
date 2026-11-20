@@ -1,0 +1,165 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 00:11:30 -0700
+Subject: [PATCH 9/9] etc: NetBSD binary packages, CA certificates, and
+ tortoise quips in motd
+
+/etc/pkg_install.conf (amd64) points pkg_add(1) at cdn.NetBSD.org's
+x86_64/10.2 binary package tree. DER/32 keeps the NetBSD 10 ABI, and
+pkg_add checks a package's OPSYS against its compile-time OPSYS_NAME,
+not uname(3), so NetBSD's packages install under /usr/pkg unmodified.
+
+The disk image enables certctl_init so /etc/openssl/certs is populated
+on first boot; without it HTTPS to the package mirror cannot verify.
+
+rc.d/motd appends one random line from /usr/share/misc/der32-quips,
+prefixed "Tortoise says: ", replacing the previous boot's line.
+---
+ distrib/amd64/der32image/rc.conf.der32 |  1 +
+ distrib/sets/lists/base/mi             |  1 +
+ distrib/sets/lists/etc/md.amd64        |  1 +
+ etc/Makefile                           |  5 +++++
+ etc/etc.amd64/pkg_install.conf         | 20 ++++++++++++++++++++
+ etc/rc.d/motd                          |  7 +++++++
+ share/misc/Makefile                    |  2 +-
+ share/misc/der32-quips                 | 24 ++++++++++++++++++++++++
+ 8 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 etc/etc.amd64/pkg_install.conf
+ create mode 100644 share/misc/der32-quips
+
+diff --git a/distrib/amd64/der32image/rc.conf.der32 b/distrib/amd64/der32image/rc.conf.der32
+index 9116eab7dcec305db001664b8552a7fdae0dc9d0..9009a92f8e108618074e8323426e34884e5a0520 100644
+--- a/distrib/amd64/der32image/rc.conf.der32
++++ b/distrib/amd64/der32image/rc.conf.der32
+@@ -2,6 +2,7 @@
+ dhcpcd=YES
+ dhcpcd_flags="-q"
+ update_motd=YES
++certctl_init=YES	# populate /etc/openssl/certs on first boot (HTTPS)
+ ntpd=NO
+ sshd=NO
+ postfix=NO		# Postfix is not part of the Genesis profile (MKPOSTFIX=no)
+diff --git a/distrib/sets/lists/base/mi b/distrib/sets/lists/base/mi
+index 745f751004b45181410acc26881581c3e31fec09..a0f79dc816539ad55636633043663c469d2e23bf 100644
+--- a/distrib/sets/lists/base/mi
++++ b/distrib/sets/lists/base/mi
+@@ -5107,6 +5107,7 @@
+ ./usr/share/misc/acronyms.comp			base-reference-share	share
+ ./usr/share/misc/ascii				base-reference-share	share
+ ./usr/share/misc/bsd-family-tree		base-reference-share	share
++./usr/share/misc/der32-quips			base-reference-share	share
+ ./usr/share/misc/dot.clang-format		base-reference-share	share
+ ./usr/share/misc/getopt				base-obsolete		obsolete
+ ./usr/share/misc/magic				base-obsolete		obsolete
+diff --git a/distrib/sets/lists/etc/md.amd64 b/distrib/sets/lists/etc/md.amd64
+index 6581f817c5e6c8fcffa35968e2ec7553d9dd726a..ac9f4d621bf40b74fcd2c3919347e1c19e1f6f46 100644
+--- a/distrib/sets/lists/etc/md.amd64
++++ b/distrib/sets/lists/etc/md.amd64
+@@ -1,3 +1,4 @@
+ # $NetBSD: md.amd64,v 1.3 2008/04/30 16:48:53 ad Exp $
+ ./boot.cfg					etc-sys-etc
++./etc/pkg_install.conf				etc-pkgutil-etc
+ ./etc/ttyaction					etc-sys-etc
+diff --git a/etc/Makefile b/etc/Makefile
+index 9a6100e917a29ace338ca1287746e08919ddcee1..1b59cc45062648fb81449d38da315b35ce730ded 100644
+--- a/etc/Makefile
++++ b/etc/Makefile
+@@ -122,6 +122,11 @@ BIN1+=	disktab
+ BIN1+=	etc.${MACHINE}/ld.so.conf
+ .endif
+ 
++# DER/32: point pkg_add(1) at NetBSD's binary package repository.
++.if exists(etc.${MACHINE}/pkg_install.conf)
++BIN1+=	etc.${MACHINE}/pkg_install.conf
++.endif
++
+ .if exists(etc.${MACHINE}/ttyaction)
+ BIN1+=	etc.${MACHINE}/ttyaction
+ .endif
+diff --git a/etc/etc.amd64/pkg_install.conf b/etc/etc.amd64/pkg_install.conf
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b641ae8a05b77b1b37f3886153b0e88b913686f
+--- /dev/null
++++ b/etc/etc.amd64/pkg_install.conf
+@@ -0,0 +1,20 @@
++#	$DER32: pkg_install.conf,v 0.1 2026/11/19 $
++#
++# pkg_install.conf(5) -- configuration for pkg_add(1) and friends.
++#
++# DER/32 keeps the NetBSD 10 ABI, so NetBSD's official pkgsrc binary
++# packages install and run unmodified.  They live under /usr/pkg and are
++# tracked in /usr/pkg/pkgdb, entirely separate from upkg(8), which owns
++# /usr/local.
++#
++# Quick start (as root):
++#	pkg_add pkgin		# apt-like front end, preconfigured for cdn
++#	pkgin update
++#	pkgin search fastfetch
++#	pkgin install vim git
++#
++# The path tracks the NetBSD base release DER/32 0.1 is built from
++# (netbsd-10, 10.2).  TLS verification needs /etc/openssl/certs, which
++# rc.d/certctl_init fills on first boot.
++
++PKG_PATH=https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/10.2/All
+diff --git a/etc/rc.d/motd b/etc/rc.d/motd
+index 61d8cb8dff47f47fd2f7eeda4e3582ae7823ff44..c3931927daa00c8e7374176c9ec731022d1b6cec 100755
+--- a/etc/rc.d/motd
++++ b/etc/rc.d/motd
+@@ -37,6 +37,13 @@ motd_start()
+ 	else
+ 		sed -E '1{/^(NetBSD|DER\/32).*/{d;};};' < /etc/motd >> $T
+ 	fi
++	# DER/32: a fresh quip from the tortoise at every boot.
++	if [ -r /usr/share/misc/der32-quips ]; then
++		sed '/^Tortoise says: /d' < $T > $T.q && mv $T.q $T
++		awk 'BEGIN { srand() } !/^#/ && NF { q[++n] = $0 }
++		    END { if (n) print "Tortoise says: " q[int(rand() * n) + 1] }' \
++		    /usr/share/misc/der32-quips >> $T
++	fi
+ 	cmp -s $T /etc/motd || cp $T /etc/motd
+ 	rm -f $T
+ 	)
+diff --git a/share/misc/Makefile b/share/misc/Makefile
+index 7de00bd182afd50e9f17869e2b37eb3716aa6e59..d51bc7accd95ebffbfc93710c3c414f5d7763399 100644
+--- a/share/misc/Makefile
++++ b/share/misc/Makefile
+@@ -2,7 +2,7 @@
+ #	@(#)Makefile	8.1 (Berkeley) 6/8/93
+ 
+ FILES=	NetBSD.el acronyms acronyms-o acronyms.comp airport ascii \
+-	birthtoken bsd-family-tree \
++	birthtoken bsd-family-tree der32-quips \
+ 	country domains dot.clang-format operator \
+ 	eqnchar flowers indent.pro inter.phone language man.template \
+ 	mdoc.template na.phone na.postal style zipcodes
+diff --git a/share/misc/der32-quips b/share/misc/der32-quips
+new file mode 100644
+index 0000000000000000000000000000000000000000..e311e6c25ca6e87a4c57957b6f39b8f266dc3e3d
+--- /dev/null
++++ b/share/misc/der32-quips
+@@ -0,0 +1,24 @@
++# $DER32: der32-quips,v 0.1 2026/11/19 $
++#
++# One line per quip.  rc.d/motd puts a random one at the end of /etc/motd
++# at every boot, prefixed with "Tortoise says: ".  Add your own.
++#
++No systemd units were harmed in the booting of this system.
++Your init system is a shell script. You are allowed to read it.
++Linux is a kernel. This is an operating system.
++One base system, one source tree, one release. Distro-hopping is not supported.
++/etc/rc.conf is shorter than most YAML files, and it never needed a linter.
++There is one way to configure the network here, and it is documented.
++Tanenbaum called Linux obsolete in 1992. We kept quiet and kept shipping BSD.
++MINIX is the most installed OS on Earth. Most of its users have no idea.
++MINIX lives inside your CPU's management engine. We prefer to live in /usr.
++The man pages on this system were written by people who expect you to read them.
++uname -s says DER32. Nobody had to argue about what to call the kernel.
++Fourteen package managers is a lifestyle. Two that never touch each other's files is a design.
++Slow and steady boots the kernel.
++This system has never asked you to choose a desktop environment during install.
++ifconfig still works here. It never left.
++The hare is still compiling its kernel config. Take your time.
++Every file under / came from one source tree, and you can rebuild it with one command.
++If it breaks, you get to keep both halves, and the source to both of them.
++Try 'upkg tortoise'.

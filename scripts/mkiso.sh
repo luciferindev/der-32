@@ -6,7 +6,7 @@
 # tree that "make image" leaves in out/obj), booted from cd9660 via El
 # Torito (bootxx_cd9660 -> /boot -> /netbsd).  The root is read-only; the
 # rc.d script der32live (ordered right after rc.d/root) copies into tmpfs
-# /etc, /var, /root and /usr/local, so the stock BSD rc boots the live
+# /etc, /var, /root, /usr/local and /usr/pkg, so the stock BSD rc boots the live
 # system to multi-user and upkg can install packages for the session.
 #
 set -eu
@@ -32,6 +32,7 @@ rm -rf "$W"
 mkdir -p "$W"
 cp -a "$TREE" "$W/root"
 R=$W/root
+mkdir -p "$R/usr/pkg"	# mount point for the pkgsrc tmpfs layer
 
 cat > "$R/etc/fstab" <<'EOF'
 # DER/32 live ISO
@@ -50,7 +51,8 @@ cat > "$R/etc/rc.d/der32live" <<'EOF'
 #
 # DER/32 live ISO: the root filesystem is a read-only CD.  Right after
 # rc.d/root (which runs "umount -a"), give the system writable tmpfs
-# layers: /tmp, and in-memory copies of /etc, /var, /root and /usr/local.
+# layers: /tmp, and in-memory copies of /etc, /var, /root, /usr/local
+# and /usr/pkg.
 # (MNT_UNION only merges lookups -- existing files would stay read-only --
 # so each directory is copied into its own tmpfs.)
 
@@ -63,7 +65,7 @@ stop_cmd=":"
 der32live_start()
 {
 	mount_tmpfs -m 1777 tmpfs /tmp
-	for d in /etc /var /root /usr/local; do
+	for d in /etc /var /root /usr/local /usr/pkg; do
 		s=/tmp/.der32live$d
 		mkdir -p "$s"
 		(cd "$d" && pax -rw -pe . "$s")
@@ -72,7 +74,7 @@ der32live_start()
 		rm -rf "$s"
 	done
 	rm -rf /tmp/.der32live
-	echo "DER/32 live: writable tmpfs layers on /tmp /etc /var /root /usr/local"
+	echo "DER/32 live: writable tmpfs layers on /tmp /etc /var /root /usr/local /usr/pkg"
 }
 
 load_rc_config $name
@@ -92,6 +94,7 @@ EOF
 	cat "$IMGOBJ/work.spec"
 	echo "./etc/rc.d/der32live type=file uname=root gname=wheel mode=0555"
 	echo "./boot.cfg type=file uname=root gname=wheel mode=0644"
+	echo "./usr/pkg type=dir uname=root gname=wheel mode=0755"
 } > "$W/iso.spec"
 
 echo "==> El Torito boot block"

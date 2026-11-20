@@ -240,3 +240,47 @@ is unpacked and built as `build_user` (default `nobody`). Recipes run only
 when you explicitly ask for a build, never as a side effect of `sync`.
 `scripts/mkrepo.sh` cross-builds the same recipes for the official test
 repositories.
+
+## NetBSD binary packages (pkgsrc)
+
+DER/32 keeps the NetBSD 10 ABI, so NetBSD's official binary packages
+install unmodified with the base `pkg_add(1)`.
+`/etc/pkg_install.conf` points it at
+
+    https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/10.2/All
+
+Quick start, as root, with networking up (the image runs `dhcpcd`):
+
+```
+pkg_add pkgin              # apt-like front end; its repositories.conf
+                           # already names the cdn.NetBSD.org 10.2 tree
+pkgin update
+pkgin search fastfetch
+pkgin install vim git
+derfetch                   # "Packages: 0 (upkg), N (pkgsrc)"
+```
+
+How the two package managers coexist:
+
+| | upkg | pkg_add / pkgin |
+|---|---|---|
+| packages | DER/32 repositories, `ports/` | NetBSD pkgsrc builds |
+| prefix | `/usr/local` | `/usr/pkg` |
+| database | `/var/lib/upkg/upkg.db` | `/usr/pkg/pkgdb`, `/var/db/pkgin` |
+| trust | Ed25519-signed index + SHA-256 | HTTPS to cdn.NetBSD.org (packages are not signed) |
+| install scripts | never | yes (pkgsrc INSTALL/DEINSTALL) |
+
+Why it works although `uname -s` prints `DER32`: `pkg_add` compares a
+package's `OPSYS` with its compile-time `OPSYS_NAME` ("NetBSD"), not with
+`uname(3)`; the release check uses `uname -r` (`10.2_STABLE`, kept for ABI
+compatibility) and only warns on a mismatch. pkgin's `$osrelease` strips
+the `_STABLE` suffix. Packages record `PKGTOOLS_VERSION=20091115`, well
+below the base pkg_install (20210410).
+
+Limits: the Genesis profile builds no X11 sets, so packages that depend
+on base X11 libraries will not run; use packages that pull in
+`modular-xorg` from pkgsrc instead, or stay on the console. HTTPS needs
+`/etc/openssl/certs`, which `rc.d/certctl_init` fills on first boot
+(`certctl_init=YES` in the image's rc.conf); run `certctl rehash` by hand
+if you disabled it. On the live ISO, `/usr/pkg` lives in RAM like
+`/usr/local`, so packages are gone after a reboot.

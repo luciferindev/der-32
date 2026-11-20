@@ -131,6 +131,14 @@ prefixes = usr/local
 builddir = $T/build
 EOF
 
+echo "== easter eggs"
+check "upkg tortoise draws the tortoise in a hat" \
+    sh -c "'$UPKG_BIN' tortoise | grep -q '_|___|_'"
+check "upkg moo: no cows here" \
+    sh -c "'$UPKG_BIN' moo | grep -q 'no cows'"
+check "help admits to Slow Tortoise Powers" \
+    sh -c "'$UPKG_BIN' help | grep -q 'Slow Tortoise Powers'"
+
 mkpkg core libfoo 1.0 1 file old.txt
 mkpkg core curl 8.0 1 depend "libfoo>=1.0"
 mkpkg core zlib 1.3 1
