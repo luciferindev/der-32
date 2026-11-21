@@ -17,7 +17,12 @@ REL="$ROOT/src/sys/conf/der32.release"
 # exists only once patches/ is applied (a fresh clone has pristine NetBSD)
 [ -f "$REL" ] && . "$REL"
 : "${DER32_RELEASE:=0.1}"
-IMG=${1:-$OUT/images/der32-$DER32_RELEASE-amd64.img}
+case ${QEMU_CONSOLE:-serial} in
+serial) suffix= ;;
+pc) suffix=-pc ;;
+*) echo "QEMU_CONSOLE must be serial or pc" >&2; exit 2 ;;
+esac
+IMG=${1:-$OUT/images/der32-$DER32_RELEASE-amd64$suffix.img}
 
 command -v qemu-system-x86_64 >/dev/null ||
     { echo "qemu-system-x86_64 not found (Arch: pacman -S qemu-base)" >&2; exit 1; }
@@ -26,7 +31,7 @@ command -v qemu-system-x86_64 >/dev/null ||
 if [ -n "${SNAPSHOT:-}" ]; then
 	disk="file=$IMG,format=raw,if=ide,snapshot=on"
 else
-	run=$OUT/images/der32-run.img
+	run=$OUT/images/der32-run$suffix.img
 	[ -f "$run" ] || cp "$IMG" "$run"
 	disk="file=$run,format=raw,if=ide"
 fi
@@ -37,6 +42,12 @@ else
 	accel="-accel tcg"
 fi
 
+if [ "${QEMU_CONSOLE:-serial}" = pc ]; then
+    # Graphical display + emulated PS/2 keyboard for ttyE0/wscons.
+    exec qemu-system-x86_64 $accel -m "${MEM:-1024}" -smp "${SMP:-2}" \
+        -drive "$disk" -netdev user,id=net0 -device e1000,netdev=net0 \
+        -vga std -display default -serial none -monitor none
+fi
 exec qemu-system-x86_64 $accel -m "${MEM:-1024}" -smp "${SMP:-2}" \
     -drive "$disk" \
     -netdev user,id=net0 -device e1000,netdev=net0 \

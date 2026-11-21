@@ -29,6 +29,12 @@ repo:
 image:
 	@$(SH) scripts/build.sh image
 
+image-pc:
+	@$(SH) scripts/build.sh image-pc
+
+install-image:
+	@$(SH) scripts/install-image.sh "$(IMAGE)" "$(DEVICE)"
+
 release:
 	@$(SH) scripts/build.sh release
 
@@ -37,6 +43,9 @@ iso:
 
 qemu:
 	@$(SH) scripts/run-qemu.sh
+
+qemu-pc:
+	@QEMU_CONSOLE=pc $(SH) scripts/run-qemu.sh
 
 upkg:
 	@$(MAKE) -C upkg
@@ -58,4 +67,4 @@ distclean: clean
 	rm -rf out
 
 .PHONY: all check patches tools kernel world sets repo image release iso \
-	qemu upkg test test-upkg test-qemu clean distclean
+	qemu qemu-pc install-image image-pc upkg test test-upkg test-qemu clean distclean

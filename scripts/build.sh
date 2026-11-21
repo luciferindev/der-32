@@ -172,6 +172,8 @@ do_repo() {
 }
 
 do_image() {
+	console=${1:-serial}
+	case "$console" in serial|pc) ;; *) die "unknown console: $console" ;; esac
 	need_patches
 	extra=$OUT/image-extra
 	rm -rf "$extra"
@@ -194,9 +196,11 @@ do_image() {
 	    set -e
 	    "$0" -C "$1" obj
 	    "$0" -C "$1" cleandir
-	    "$0" -C "$1" DER32_EXTRA_DIR="$2" RELEASEDIR="$3" live_image
-	' "$OUT/tools/bin/nbmake-$MACHINE" "$imgdir" "$extra" "$OUT/release"
-	img=$OUT/obj/distrib/$MACHINE/der32image/der32-$DER32_RELEASE-$MACHINE.img
+	    "$0" -C "$1" DER32_CONSOLE="$4" DER32_EXTRA_DIR="$2" RELEASEDIR="$3" live_image
+	' "$OUT/tools/bin/nbmake-$MACHINE" "$imgdir" "$extra" "$OUT/release" "$console"
+	suffix=
+	[ "$console" = pc ] && suffix=-pc
+	img=$OUT/obj/distrib/$MACHINE/der32image/der32-$DER32_RELEASE-$MACHINE$suffix.img
 	[ -f "$img" ] || die "image not produced: $img"
 	mkdir -p "$OUT/images"
 	cp "$img" "$OUT/images/"
@@ -216,7 +220,8 @@ kernel)  do_kernel ;;
 world)   do_world ;;
 sets)    do_sets ;;
 repo)    do_repo ;;
-image)   do_image ;;
+image)   do_image serial ;;
+image-pc) do_image pc ;;
 iso)     do_iso ;;
 release)
 	check_env

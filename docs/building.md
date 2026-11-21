@@ -94,6 +94,54 @@ bs=1M` to install DER/32 on real hardware. The console is serial, so
 attach a terminal to COM1 at 9600 baud. A VGA-console variant is on the
 roadmap.
 
+## VGA/keyboard image (experimental)
+
+The original `make image` and `make qemu` remain serial-only and are
+unchanged. To build a second, BIOS/legacy-boot image for local video and
+keyboard, run:
+
+```sh
+make release
+make image-pc
+make qemu-pc
+```
+
+This creates `out/images/der32-0.1-amd64-pc.img`. The separate
+`DER32_CONSOLE=pc` configuration configures NetBSD's PC boot console
+and enables the `ttyE0` wscons getty, leaving the serial getty disabled
+in this variant. `make qemu-pc` opens a graphical QEMU display and keeps
+a separate `der32-run-pc.img` working copy.
+
+**Status:** this path needs a full NetBSD rebuild, QEMU VGA boot test and
+real-hardware validation. It currently targets legacy BIOS, not UEFI.
+Do not assume that graphics, Wi-Fi, trackpads or NVMe work on every laptop.
+
+## Guarded disk-image installation (Linux host)
+
+**WARNING:** This erases the *entire* selected disk. Back up everything,
+disconnect other removable drives, and identify the drive by model/size
+using `lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS,MODEL` before writing.
+
+```sh
+make image-pc
+sudo sh scripts/install-image.sh out/images/der32-0.1-amd64-pc.img /dev/sdX
+# Or: sudo make install-image IMAGE=out/images/der32-0.1-amd64-pc.img DEVICE=/dev/sdX
+```
+
+The helper refuses partitions, non-block devices, disks with mounted
+partitions or active swap, images larger than the target, or an invalid
+MBR signature. It verifies the `.sha256` sidecar if present and requires
+typing `ERASE /dev/sdX` exactly. The device name above is an example:
+**never paste it without confirming the actual target**.
+
+This copies a complete prepared image; it is **not** a partitioning
+installer, does not resize the root filesystem or create user accounts,
+and does not support UEFI boot. Existing serial automated testing still
+uses the development root password `der32`. On the newly installed
+system run `passwd` immediately after first login, before enabling any
+remote services or using untrusted networks. A proper first-boot password
+wizard remains a release blocker.
+
 ## Patches workflow
 
 ```sh
