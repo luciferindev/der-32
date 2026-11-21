@@ -1,0 +1,14 @@
+upkg-index 1
+repo der32-community
+timestamp 1795238428
+
+name der32-hello
+version 1.1
+release 1
+arch amd64
+description report DER/32 system identity through uname(3) and sysctl(3)
+license BSD-2-Clause
+maintainer DER/32 Project
+filename der32-hello-1.1-1-amd64.upkg
+size 3192
+sha256 91a7d242111de854766140d9807a573b5ee364e9593af749eb4b719ed96c9aaf

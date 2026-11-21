@@ -1,0 +1,12 @@
+name tree
+version 2.1.3
+release 1
+description list the contents of directories in a tree-like format
+license GPL-2.0-only
+maintainer DER/32 Project
+origin https://github.com/Old-Man-Programmer/tree (tag 2.1.3)
+# The distfile is "git archive --format=tar --prefix=tree-2.1.3/ 2.1.3",
+# reproducible byte for byte; scripts/mkrepo.sh makes it from this line:
+#@git https://github.com/Old-Man-Programmer/tree 2.1.3 tree-2.1.3
+source https://luciferindev.github.io/der-32/repo/distfiles/tree-2.1.3.tar
+source_sha256 07ac2b6fcd981231b7e55b1c330caf05da036b6d8cba34744c5abd046458af08

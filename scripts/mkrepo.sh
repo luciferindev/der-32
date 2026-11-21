@@ -36,11 +36,40 @@ mkdir -p "$OUT/keys"
 
 rm -rf "$WORK" "$REPOS"
 mkdir -p "$WORK" "$REPOS/core" "$REPOS/extra" "$REPOS/community" "$REPOS/distfiles"
-cp "$OUT/distfiles/lua-5.4.7.tar" "$REPOS/distfiles/" 2>/dev/null ||
-    die "missing out/distfiles/lua-5.4.7.tar (see docs/building.md)"
+# Distfiles: lua-5.4.7.tar is "git archive" of the upstream v5.4.7 tag,
+# which is byte-for-byte reproducible; fetch it once if it is missing.
+# (The recipe pins its SHA-256, checked below.)
+if [ ! -f "$OUT/distfiles/lua-5.4.7.tar" ]; then
+	echo "==> fetching lua 5.4.7 source (git archive of github.com/lua/lua v5.4.7)"
+	mkdir -p "$OUT/distfiles"
+	t=$(mktemp -d)
+	git clone -q --depth 1 -b v5.4.7 https://github.com/lua/lua "$t/lua" ||
+	    die "cannot fetch lua (network access to github.com needed)"
+	git -C "$t/lua" archive --format=tar --prefix=lua-5.4.7/ v5.4.7 \
+	    > "$OUT/distfiles/lua-5.4.7.tar.tmp"
+	rm -rf "$t"
+	mv "$OUT/distfiles/lua-5.4.7.tar.tmp" "$OUT/distfiles/lua-5.4.7.tar"
+fi
+cp "$OUT/distfiles/lua-5.4.7.tar" "$REPOS/distfiles/"
 
 # recipe_value FILE KEY
 recipe_value() { awk -v k="$2" '$1 == k { sub(/^[^ \t]+[ \t]+/, ""); print; exit }' "$1"; }
+
+# fetch_git_distfile RECIPE FILE: make a distfile from the recipe's
+# "#@git URL REF PREFIX" line as "git archive" of that ref, which is
+# reproducible byte for byte (the recipe's source_sha256 is checked after).
+fetch_git_distfile() {
+	set -- "$1" "$2" $(awk '$1 == "#@git" { print $2, $3, $4; exit }' "$1")
+	[ $# -eq 5 ] || die "${2##*/} missing and $1 has no #@git line"
+	echo "==> fetching ${2##*/} (git archive of $3 $4)"
+	t=$(mktemp -d)
+	git -c advice.detachedHead=false clone -q --depth 1 -b "$4" "$3" "$t/src" ||
+	    die "cannot fetch $3 (network access to github.com needed)"
+	mkdir -p "${2%/*}"
+	git -C "$t/src" archive --format=tar --prefix="$5/" "$4" > "$2.tmp"
+	rm -rf "$t"
+	mv "$2.tmp" "$2"
+}
 
 # build_port REPO PORTDIR [VERSION-OVERRIDE]
 build_port() {
@@ -56,6 +85,8 @@ build_port() {
 	mkdir -p "$w/src" "$w/dest"
 	if [ -n "$src" ]; then
 		f=$OUT/distfiles/${src##*/}
+		[ -f "$f" ] || fetch_git_distfile "$recipe" "$f"
+		cp "$f" "$REPOS/distfiles/"
 		[ "$(sha256sum "$f" | cut -d' ' -f1)" = "$sum" ] ||
 		    die "$name: distfile checksum mismatch"
 		tar -xf "$f" -C "$w/src"
@@ -89,6 +120,8 @@ build_port() {
 build_port core      "$ROOT/ports/core/der32-hello"
 build_port core      "$ROOT/ports/core/lua"
 build_port extra     "$ROOT/ports/extra/lua-hello"
+build_port extra     "$ROOT/ports/extra/tree"
+build_port extra     "$ROOT/ports/extra/nnn"
 # a newer der32-hello in the lowest-priority repository: exercises
 # repository priority and explicit repository selection on DER/32
 build_port community "$ROOT/ports/core/der32-hello" 1.1

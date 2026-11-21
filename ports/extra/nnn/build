@@ -1,0 +1,8 @@
+# nnn: one C file. The base system's curses (wide-character capable) and
+# libedit's readline interface stand in for ncursesw and GNU readline.
+${CC:-cc} ${CFLAGS:--O2} -std=c11 -D_GNU_SOURCE -o nnn src/nnn.c \
+    -lcurses -lterminfo -ledit -lpthread
+mkdir -p "$DESTDIR$PREFIX/bin" "$DESTDIR$PREFIX/man/man1" "$DESTDIR$PREFIX/share/doc/nnn"
+install -m 755 nnn "$DESTDIR$PREFIX/bin/nnn"
+install -m 644 nnn.1 "$DESTDIR$PREFIX/man/man1/nnn.1"
+install -m 644 LICENSE README.md "$DESTDIR$PREFIX/share/doc/nnn/"

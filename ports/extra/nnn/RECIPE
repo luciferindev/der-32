@@ -1,0 +1,12 @@
+name nnn
+version 5.1
+release 1
+description n^3, a fast, small terminal file manager
+license BSD-2-Clause
+maintainer DER/32 Project
+origin https://github.com/jarun/nnn (tag v5.1)
+# The distfile is "git archive --format=tar --prefix=nnn-5.1/ v5.1",
+# reproducible byte for byte; scripts/mkrepo.sh makes it from this line:
+#@git https://github.com/jarun/nnn v5.1 nnn-5.1
+source https://luciferindev.github.io/der-32/repo/distfiles/nnn-5.1.tar
+source_sha256 ae17877ef1b5e20841c54e828b2ed861936a901ea6d8f3c68496d4d2af206024

@@ -1,0 +1,110 @@
+# Build DER/32 from scratch, test it, and publish a GitHub Release with
+# the images.
+#
+#   * push a tag like v0.1-genesis, or
+#   * Actions -> release -> Run workflow (it creates the tag you name).
+#
+# A full build (toolchain, kernel, userland, X11, images) takes two to four
+# hours on a hosted runner; the job allows six.  Package repositories are
+# rebuilt and signed with the runner's own test key for the images; the
+# online repositories on the website are published separately with
+# scripts/publish-repo.sh and the release key.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create"
+        required: true
+        default: "v0.1-genesis"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - name: Free disk space (a build needs about 25 GiB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift \
+            /usr/local/.ghcup /usr/lib/jvm
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          df -h /
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install host tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q build-essential git xz-utils python3 \
+            pkg-config libarchive-dev libsqlite3-dev libssl-dev \
+            libcurl4-openssl-dev qemu-system-x86 qemu-utils ovmf
+
+      - name: Enable KVM for the boot tests
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' |
+            sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+          ls -l /dev/kvm || echo "no KVM: tests run under TCG (slower)"
+
+      - name: Build (make release)
+        run: make release
+
+      - name: Test (upkg suite, build checks, boot tests, installer)
+        run: |
+          make test
+          python3 scripts/install-test.py out/images/der32-*-amd64.iso out/install-test
+
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: out/logs/
+          retention-days: 14
+
+      - name: Compress images
+        run: |
+          cd out/images
+          rm -f der32-run.img *.sha256
+          for f in *.img *.iso; do xz -T0 -6 -k "$f"; done
+          sha256sum *.xz > SHA256SUMS
+          ls -l
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<EOF
+          DER/32 ${TAG#v} built by GitHub Actions from ${GITHUB_SHA}.
+
+          | file | what |
+          |---|---|
+          | \`der32-*-amd64.iso.xz\` | live + install ISO (BIOS and UEFI; VMs, CDs) |
+          | \`der32-*-amd64-install.img.xz\` | USB installer: \`xzcat ... \| sudo dd of=/dev/sdX bs=4M\` |
+          | \`der32-*-amd64.img.xz\` | ready-to-run disk, serial console (QEMU: \`make qemu\`) |
+          | \`der32-*-amd64-pc.img.xz\` | ready-to-run disk, screen console |
+
+          Log in as root with password \`der32\` (the disk images make you
+          choose a new one). To install: boot the ISO or USB image and run
+          \`der32-install\`. Check downloads against SHA256SUMS.
+          EOF
+          gh release view "$TAG" >/dev/null 2>&1 ||
+            gh release create "$TAG" --target "$GITHUB_SHA" \
+              --title "DER/32 ${TAG#v}" --notes-file notes.md --prerelease
+          gh release upload "$TAG" --clobber out/images/*.xz out/images/SHA256SUMS

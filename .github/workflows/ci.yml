@@ -1,0 +1,36 @@
+# Fast checks on every push and pull request: the upkg package manager
+# (host build + its 136-check integration suite), derfetch, the shell
+# and Python scripts.  No NetBSD build: that takes hours
+# and lives in release.yml.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upkg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q build-essential pkg-config \
+            libarchive-dev libsqlite3-dev libssl-dev libcurl4-openssl-dev \
+            xz-utils python3 openssl
+      - name: Build upkg
+        run: make -C upkg
+      - name: upkg integration tests
+        run: make test-upkg
+      - name: derfetch builds warning-free on the host
+        run: cc -Wall -Wextra -Werror -O2 -o /tmp/derfetch derfetch/derfetch.c -lsqlite3 && /tmp/derfetch -n
+      - name: Shell scripts parse
+        run: for f in scripts/*.sh installer/*.sh; do sh -n "$f" || exit 1; done
+      - name: Python scripts parse
+        run: python3 -m py_compile scripts/*.py

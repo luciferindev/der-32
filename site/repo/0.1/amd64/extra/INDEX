@@ -1,0 +1,39 @@
+upkg-index 1
+repo der32-extra
+timestamp 1795238428
+
+name lua-hello
+version 1.0
+release 1
+arch any
+description architecture-independent Lua script greeting the system
+license BSD-2-Clause
+maintainer DER/32 Project
+depend lua>=5.4
+filename lua-hello-1.0-1-any.upkg
+size 604
+sha256 598039c344314de5c7d83cb10da9f617f1a52c1a3e2f2a7e6aca6cdae44bcef5
+
+name nnn
+version 5.1
+release 1
+arch amd64
+description n^3, a fast, small terminal file manager
+license BSD-2-Clause
+maintainer DER/32 Project
+origin https://github.com/jarun/nnn (tag v5.1)
+filename nnn-5.1-1-amd64.upkg
+size 61952
+sha256 319f04d281fc06e5bf7a86c4ba0ea86aae9b78ef1f47eab2c8269e5f2e7c541c
+
+name tree
+version 2.1.3
+release 1
+arch amd64
+description list the contents of directories in a tree-like format
+license GPL-2.0-only
+maintainer DER/32 Project
+origin https://github.com/Old-Man-Programmer/tree (tag 2.1.3)
+filename tree-2.1.3-1-amd64.upkg
+size 45956
+sha256 80feebf11cd2df6efdf3f69988342cd333aa45914f9128aafb04476a3ec80e4d

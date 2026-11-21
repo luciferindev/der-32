@@ -1,0 +1,6 @@
+# tree: plain C, no configure step.
+${CC:-cc} ${CFLAGS:--O2} -std=c11 -D_FILE_OFFSET_BITS=64 -o tree *.c
+mkdir -p "$DESTDIR$PREFIX/bin" "$DESTDIR$PREFIX/man/man1" "$DESTDIR$PREFIX/share/doc/tree"
+install -m 755 tree "$DESTDIR$PREFIX/bin/tree"
+install -m 644 doc/tree.1 "$DESTDIR$PREFIX/man/man1/tree.1"
+install -m 644 LICENSE README "$DESTDIR$PREFIX/share/doc/tree/"
