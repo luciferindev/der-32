@@ -59,29 +59,51 @@ evidence in `devlog.md`), **partial**, **planned**.
 
 ## Known limitations and next steps
 
+* **SSH (release blocker)**: loading any SSH private key spins forever in
+  `ssh-keygen -y` and `sshd`. ktrace shows the process stopping right after
+  `fstat()` on the key file, before the first `read()`, with no further
+  system calls. It happens on the ISO and on installed systems, in QEMU TCG
+  with both `qemu64` and `-cpu max`, and was not caused by the 0.1 installer
+  work. Key *generation* works. `sshd=YES` therefore hangs the boot, so
+  `der32-install` doesn't offer SSH. Next steps: test under KVM and on
+  hardware, and compare a stock NetBSD 10.2 build with our host-built cross
+  toolchain.
+
 * **pkgsrc (source)**: `uname -s` reports `DER32`, so building pkgsrc
   *from source* on DER/32 does not recognise the platform. Plan: carry a
   small pkgsrc patch mapping `OPSYS=DER32` to the NetBSD platform files,
   then add a `pkgsrc <path>` recipe type to `upkg build`. NetBSD's
   *binary* packages already work (see `docs/packages.md`), because
   `pkg_add` checks the compile-time OS name, not `uname -s`.
-* **Console**: the existing serial image remains the tested default. An experimental
-  VGA/`wscons` variant (`make image-pc`, `console=pc`, getty on `ttyE0`) has
-  been implemented but needs QEMU VGA and real-machine validation.
-* **Installer**: `scripts/install-image.sh` now provides a guarded Linux
-  whole-disk writer with explicit confirmation. A real sysinst-based or
-  scripted installer (partitioning, user creation, password) is still planned.
-* **Default root password** `der32` on the image: replace with a
-  first-boot password prompt.
+* **Console**: done. Serial (`make image`), screen (`make image-pc`) and
+  auto-selecting (installer, ISO) variants all exist. The screen console
+  banner is plain ASCII because wscons is not UTF-8. Real-hardware reports
+  are still wanted.
+* **Installer**: done. `der32-install(8)` does GPT, BIOS + UEFI loaders,
+  sets, users, time zone, console, swap, and optionally X11 + XFCE,
+  interactively or from an answer file. It's tested end to end in QEMU
+  (BIOS and OVMF UEFI). Missing: disk encryption (cgd), dual-boot (it
+  always takes the whole disk), and Wi-Fi setup.
+* **UEFI**: done for every image, the ISO and installed systems. Secure
+  Boot is not supported (unsigned loader).
+* **Default root password**: done. The disk images expire it, so the
+  first login forces a change. The installer asks for one.
+* **Growing the root file system** of a `dd`'d disk image to the disk size
+  is not automated. Use `der32-install` instead, which uses the whole disk.
+* **XFCE**: comes from NetBSD's binary packages over the network. The
+  download step can't be tested from the CI or build sandbox, so only the
+  X11 sets and the fallback path are tested.
 * **Package scripts**: by design upkg runs no install scripts. Services
   that need users or groups need a declarative mechanism
   (`user`/`group` keys in `+PKGINFO`), not shell hooks.
 * **Configuration files**: upgrades overwrite package-owned files. Add a
   `config <path>` key so modified configuration is preserved
   (`.upkgnew`).
-* **Signing keys**: the Genesis image trusts only a *test* key generated
-  at build time. A release key with an offline signing procedure, key
-  rotation and revocation lists in the index format are planned.
+* **Signing keys**: images trust the release key
+  (`conf/upkg/keys/der32-release.pub`), which signs the online
+  repositories, plus the build's own test key for the copies on the
+  medium. Key rotation and revocation lists in the index format are
+  planned.
 * **Security updates**: plan to publish a signed advisory feed next to
   each repository and an `upkg audit` command. Base-system fixes ship as
   rebuilt sets from the patched `der32` branch.

@@ -238,6 +238,78 @@ to that host).
 Disk image test 50/50, live ISO 36/36, upkg suite 136/136. Patch series
 re-applied to pristine upstream gives a tree-identical result.
 
+## Installer, UEFI, X11, online repositories (patches 0010-0014)
+
+Goal: install DER/32 like a real OS, from USB or ISO, on BIOS and UEFI
+machines, with XFCE as an option. PR #1 (screen-console image, Linux-side
+image writer) was merged first.
+
+**Build.** `xsrc/` is a second pinned submodule (NetBSD X11, `netbsd-10`
+@ 4d8a282), and `MKX11=yes` with `MKLLVMRT=no` builds the X11 sets
+without LLVM in Mesa. `build.sh` passes `-x -X xsrc` and fetches it
+shallow on first use.
+
+**Images (patch 0013).** `der32image` makes GPT + hybrid MBR images with
+an EFI system partition (`bootx64.efi`, `bootia32.efi`) and writes
+`/boot.cfg` with the console, because the UEFI loader reads nothing else.
+There is a third console mode, `any`: the BIOS loader's `console=auto`
+picks com0 if a terminal answers and the screen otherwise, getty runs on
+`constty`, and the boot menu can force either. `DER32_SETSDIR` adds the
+release sets in `/der32/sets` to make the USB installer image. The ISO
+reuses that tree and gets a second, EFI El Torito entry (`efiboot.img`).
+On the disk images root's password is expired (`pw_change` = 1), and
+`pam_unix` returns `PAM_NEW_AUTHTOK_REQD`, so login asks for a new one
+straight away.
+
+**Installer (patch 0012, `installer/der32-install.sh`).** It writes a GPT
+(`der32efi`, `der32swap`, `der32root`), runs `gpt biosboot` with
+`gptmbr.bin` and `installboot bootxx_ffsv2` for BIOS, and puts
+`EFI/BOOT/BOOTX64.EFI` on the ESP. It extracts the sets with `xz | tar`,
+runs MAKEDEV, writes `fstab` by `NAME=` label, `rc.conf`, `boot.cfg` and
+`localtime`, sets passwords with `pwhash` + `usermod -p`, and runs
+`certctl rehash`. For XFCE it adds the X11 sets, then `pkg_add pkgin` and
+`pkgin install xfce4` in a chroot, with a graceful fallback. `-f answers`
+makes it unattended.
+
+Bugs found by testing it end to end:
+
+* The ISO's root is read-only, so `/targetroot` can't be created. It now
+  falls back to `/mnt`.
+* `postfix=YES` from `etc/defaults/rc.conf`, with no Postfix in the build,
+  stalled boot. The installer writes `postfix=NO`.
+* A stale `pwwork/` gave the installer image the disk images' expired
+  password. `build.sh` now clears it per image.
+* `ttyE1`/`ttyE2` gettys on a serial-console boot spammed "Device not
+  configured". Only `constty` is on now.
+* `rc.d/sshd` rewrites the end of `/etc/motd`, which left an indented
+  duplicate quip. `rc.d/motd` now deletes quips anywhere (patch 0014).
+* The test harness can't type a script into the live shell (TAB
+  completion eats tabs), so it uploads base64 and runs `uudecode -m`.
+
+**SSH (open).** Enabling `sshd` hung the boot. `ssh-keygen -y` on any
+private key spins at 100% CPU right after `fstat()` on the key file, with
+no further syscalls (ktrace). The same happens on the live ISO, under
+`qemu64` and `-cpu max`, with or without a virtio RNG and with the host
+name in `/etc/hosts`. Key generation works. Root cause unknown, so the
+installer doesn't offer SSH for now (roadmap, first item).
+
+**NetBSD bug seen.** `ld(4)` on virtio panicked during the shutdown cache
+flush (`ld_virtio_vq_done1`). The installer test uses IDE disks.
+
+**Repositories.** The images trust a release key
+(`conf/upkg/keys/der32-release.pub`). `scripts/publish-repo.sh` re-signs
+`make repo` output with it into `site/repo/`, which GitHub Pages serves,
+and `repos.conf` lists `der32-{core,extra,community}` over HTTPS ahead of
+the copies on the medium. New ports: `tree` 2.1.3 and `nnn` 5.1,
+cross-built with the base curses and libedit. Their distfiles come from a
+`#@git` recipe line as reproducible `git archive` tarballs (checksums
+verified), and `mkrepo.sh` fetches the lua distfile the same way, so a
+fresh clone no longer stops at `make repo`.
+
+**CI.** `ci.yml` runs the upkg suite on every push. `release.yml` builds
+everything on a runner, runs the tests and the installer test, and
+publishes a GitHub Release with the images. It hasn't run yet.
+
 ## Outstanding
 
 See `roadmap.md`, "Known limitations". The main items are pkgsrc

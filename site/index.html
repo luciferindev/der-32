@@ -44,7 +44,7 @@
   <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
   <a href="https://github.com/luciferindev/der-32">Source</a>
 </div>
-<div id="ticker"><b class="blink">NEW!</b> DER/32 0.1 &ldquo;Genesis&rdquo; boots. NetBSD binary packages install with <tt>pkg_add</tt> and <tt>pkgin</tt>. The tortoise is official.</div>
+<div id="ticker"><b class="blink">NEW!</b> A real installer: <tt>der32-install</tt>, BIOS + UEFI, optional XFCE. Online package repos. The tortoise got slimmer.</div>
 
 <div id="cols">
 
@@ -78,15 +78,13 @@ upkg 0.1</pre>
   </ul></div></div>
 
   <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
-    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
-               .-&#x27;  \________/  &#x27;-.
-             .&#x27;      |      |      &#x27;.
-   .---.    /--------&#x27;      &#x27;-------\
-  /     \  |      /  &#x27;-.__.-&#x27;  \     |
- |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
-  &#x27;-.________________________________ __)
-             |  |               |  |
-             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <pre style="font-size:7px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">           _.-&#x27;&#x27;&#x27;&#x27;-._
+         .&#x27;  \____/  &#x27;.
+  .--.  /----&#x27;    &#x27;----\
+ /    \|     /\__/\     |
+| <span class="eye">--</span>   &#x27;-.__/______\____|_.
+ &#x27;-.______________________)
+        |_|          |_|</pre>
     <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
   </div></div>
 </div>
@@ -99,7 +97,7 @@ upkg 0.1</pre>
       <p><b>DER/32</b> (&ldquo;Derivative 32&rdquo;) is a small, bootable UNIX for amd64, derived from NetBSD 10.
       It's BSD all the way down: BSD make, BSD init and rc.d, POSIX <tt>sh</tt>, FFS. On top of that it has its
       own package manager, <b>upkg</b>, written in C.</p>
-      <p>There's no systemd, no GUI installer and no telemetry. You get a serial console, a login prompt and a tortoise.
+      <p>There's no systemd, no GUI installer and no telemetry. You get a console, a login prompt and a tortoise.
       It's a whole operating system from one source tree, not a kernel with a few thousand packages arranged around it.</p>
       <div class="term"><span class="w">DER/32 UNIX Operating System
 Release 0.1 &mdash; Genesis</span>
@@ -112,6 +110,28 @@ login: <span class="w">root</span>
   </div>
 
   <a id="news"></a>
+  <div class="post">
+    <div class="t"><span class="ico">N</span> Genesis gets an installer, UEFI, and XFCE</div>
+    <div class="meta">Posted by <b>luciferindev</b> on Saturday, November 21, 2026 &middot; Topic: Releases</div>
+    <div class="b">
+      <p>DER/32 now installs like a real OS. Boot the USB stick or the ISO, run <tt>der32-install</tt>,
+      answer a few questions, and get a GPT disk that boots from BIOS <i>and</i> UEFI, with your
+      users, time zone and swap. Say yes to XFCE and it pulls the desktop in too.</p>
+      <div class="term"><span class="p">der32#</span> der32-install
+...
+  Disk:        wd0 (61057 MiB), GPT: EFI 256 MiB, swap 2048 MiB, root the rest
+...
+Everything on wd0 will be destroyed. Type "erase wd0" to go on: _</div>
+      <ul>
+        <li>The live media pick their console by themselves: on BIOS, serial if a terminal answers, the screen otherwise; on UEFI, the screen.</li>
+        <li>The disk images make you change the default root password on first login.</li>
+        <li><tt>upkg sync</tt> now reaches online repositories, signed with the release key. New in them: <tt>tree</tt> and <tt>nnn</tt>.</li>
+        <li><tt>derfetch</tt> got a slimmer tortoise and never wraps on an 80-column console.</li>
+      </ul>
+    </div>
+    <div class="f"><a href="install.html">Read the install guide...</a></div>
+  </div>
+
   <div class="post">
     <div class="t"><span class="ico">N</span> NetBSD binary packages on DER/32</div>
     <div class="meta">Posted by <b>luciferindev</b> on Thursday, November 19, 2026 &middot; Topic: Packages</div>
@@ -195,7 +215,7 @@ login: <span class="w">root</span>
 <span class="w">2026</span>  <span class="p">DER/32 0.1</span>      <span class="c"># Derivative 32, "Genesis"</span></div>
       <p>DER/32 doesn't fork NetBSD. It pins an exact <tt>netbsd-10</tt> commit and keeps everything of its own
       in a short patch series on top, so the upstream code stays as upstream wrote it.</p>
-      <p><b>Genesis was built in a single day, November 19, 2026.</b> Here is how that day went, from the commit log (times are Mountain Time):</p>
+      <p><b>Genesis booted on its first day, November 19, 2026, and learned to install itself on the third.</b> Here's how it went, from the commit log (times are Mountain Time):</p>
     </div>
   </div>
 
@@ -210,6 +230,12 @@ login: <span class="w">root</span>
     <tr><td class="when">21:46</td><td>A resumed build still had the stale flags. Fixed: host tools now rebuild when the flags change. The Arch build gets through the toolchain.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/eddc21e">eddc21e</a></td></tr>
     <tr><td class="when">22:53</td><td><b>A website.</b> This one, first clean and minimal.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/ca54a21">ca54a21</a></td></tr>
     <tr><td class="when">23:33</td><td>&hellip;then it got the treatment you're looking at now.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/480da9b">480da9b</a></td></tr>
+    <tr><td class="when">Nov 19 23:41</td><td><b>A real logo.</b> Genesis gets a bowler hat.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/0989d30">0989d30</a></td></tr>
+    <tr><td class="when">Nov 19 23:51</td><td>An install guide, easter eggs, and a few words about Linux and MINIX.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/d7954b2">d7954b2</a></td></tr>
+    <tr><td class="when">Nov 20 00:13</td><td><b>NetBSD packages.</b> <tt>pkg_add</tt> and <tt>pkgin</tt> install NetBSD binary packages. Quips in the motd.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/299d1cc">299d1cc</a></td></tr>
+    <tr><td class="when">Nov 21 01:39</td><td>Pull request #1 merged: the screen-console image.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/ec6a6ea">ec6a6ea</a></td></tr>
+    <tr><td class="when">Nov 21 02:54</td><td><b>An installer.</b> <tt>der32-install</tt>: GPT, BIOS and UEFI, X11 and XFCE. A first-login password change.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/07bb5ce">07bb5ce</a></td></tr>
+    <tr><td class="when">Nov 21 02:54</td><td><b>Online repositories</b> signed with a release key, <tt>tree</tt> and <tt>nnn</tt>, CI and release builds.</td><td class="c"><a href="https://github.com/luciferindev/der-32/commit/6bc7569">6bc7569</a></td></tr>
   </table>
 
   <a id="boards"></a>

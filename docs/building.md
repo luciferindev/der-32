@@ -12,8 +12,9 @@ privileges are needed, and every artifact goes to `out/`.
 | compression, python | `xz python` | `xz-utils python3` |
 | host upkg (tests, repo publishing) | `libarchive sqlite openssl curl pkgconf` | `libarchive-dev libsqlite3-dev libssl-dev libcurl4-openssl-dev pkg-config` |
 | QEMU (`make qemu`, `make test`) | `qemu-base` | `qemu-system-x86 qemu-utils` |
+| UEFI boot tests (optional) | `edk2-ovmf` | `ovmf` |
 
-About 20 GiB of free disk space. KVM (`/dev/kvm`) is used when available.
+About 25 GiB of free disk space. KVM (`/dev/kvm`) is used when available.
 Without it QEMU falls back to TCG, which works but is slower.
 
 `make check` reports anything missing and gives the command to install it.
@@ -21,16 +22,17 @@ Without it QEMU falls back to TCG, which works but is slower.
 ## Quick start
 
 ```sh
-git clone --recurse-submodules --shallow-submodules https://github.com/luciferindev/der-32
+git clone https://github.com/luciferindev/der-32
 cd der-32
 make check        # verify the host
-make release      # tools, kernel, world, sets, test repos, image, iso
-make test         # upkg suite + artifact checks + QEMU boot test
+make release      # tools, kernel, world + X11, sets, repos, all images
+make test         # upkg suite + artifact checks + QEMU boot tests
 make qemu         # boot DER/32 on this terminal (root / der32; Ctrl-A X quits)
 ```
 
-If you cloned without `--recurse-submodules`, the first build fetches the
-pinned NetBSD commit for you (`scripts/patches.sh apply`).
+The first build fetches the two pinned NetBSD trees, `src/` and `xsrc/`
+(X11), shallow, about 2 GB together (`scripts/patches.sh apply` and
+`build.sh`'s `need_xsrc`). Existing clones pick them up the same way.
 
 ## Targets
 
@@ -43,11 +45,15 @@ pinned NetBSD commit for you (`scripts/patches.sh apply`).
 | `make world` | complete userland, incl. upkg | `out/destdir/` |
 | `make sets` | release sets + `kern-DER32.tgz` | `out/release/amd64/binary/sets/` |
 | `make repo` | official test repositories (native packages, signed) | `out/repos/` |
-| `make image` | bootable raw disk image | `out/images/der32-0.1-amd64.img` |
-| `make iso` | bootable live ISO | `out/images/der32-0.1-amd64.iso` |
+| `make image` | ready-to-run disk, serial console | `out/images/der32-0.1-amd64.img` |
+| `make image-pc` | ready-to-run disk, screen console | `out/images/der32-0.1-amd64-pc.img` |
+| `make installer` | USB installer (live system + sets) | `out/images/der32-0.1-amd64-install.img` |
+| `make iso` | live + install ISO (needs `make installer` first) | `out/images/der32-0.1-amd64.iso` |
 | `make release` | all of the above | |
 | `make qemu` | boot a working copy of the image | `out/images/der32-run.img` |
 | `make test` | all automated tests | `out/logs/test-*.log`, `qemu-test.log` |
+| `scripts/install-test.py ISO` | install to a blank disk, boot it with BIOS and UEFI | `out/logs/install-test-*.log` |
+| `scripts/publish-repo.sh` | sign `out/repos` with the release key into `site/repo/` | `site/repo/` |
 | `make upkg` / `make test-upkg` | host upkg build / its test suite | `upkg/upkg` |
 
 Each step writes a full log to `out/logs/<step>.log`. On failure the driver
@@ -61,12 +67,12 @@ the output directory.
 ## Build configuration
 
 `conf/mk.conf` is passed to `build.sh` as `MAKECONF`. The Genesis profile
-builds a lean, text-console base system. It turns off X11, 32-bit compat
-libraries, debug/profile libraries, ATF tests, rump, ZFS, DTrace, Kerberos,
-LDAP, Postfix, BIND, Unbound, NSD, iSCSI, groff and kernel modules. GCC
-stays on, so DER/32 is self-hosting (`cc` works on the system, and
-`upkg build` uses it). Re-enabling a feature is a one-line change, plus a
-rebuild of `world`.
+builds the base system plus X11 (`MKX11=yes`, needed for the XFCE install
+option; `MKLLVMRT=no` keeps LLVM out of Mesa). It turns off 32-bit compat
+libraries, debug/profile libraries, ATF tests, rump, ZFS, DTrace, LDAP,
+Postfix, BIND, Unbound, NSD, iSCSI, groff and kernel modules. GCC stays on,
+so DER/32 is self-hosting (`cc` works on the system, and `upkg build` uses
+it). Re-enabling a feature is a one-line change, plus a rebuild of `world`.
 
 **MKGCC must stay `yes`.** With `MKGCC=no`, NetBSD skips the cross compiler
 as well, and later steps fail with `CC=false`. If a build ever ran that
@@ -74,73 +80,67 @@ way, delete `out/obj` (except `out/obj/tools`) and `out/destdir` before
 rebuilding, because stub headers generated with `CPP=false` would
 otherwise be reused.
 
-## The image
+## The images
 
-`der32-0.1-amd64.img` is a raw disk: MBR, NetBSD disklabel, FFSv1 root,
-no swap. It is made by `src/distrib/amd64/der32image/Makefile` with
-NetBSD's stock `Makefile.bootimage`:
+All images come from `src/distrib/amd64/der32image/Makefile` with
+NetBSD's stock `Makefile.bootimage`. Each is a raw disk with a **GPT** (plus
+a hybrid MBR), an EFI system partition holding `bootx64.efi`/`bootia32.efi`,
+and an FFSv1 root. They boot from both **BIOS** (`gptmbr` →
+`bootxx_ffsv1` → `/boot`) and **UEFI**. `/boot.cfg` carries the console,
+because the UEFI loader reads only that file.
 
-* sets `base etc comp misc man` + `kern-DER32`
-* `installboot -o console=com0,speed=9600`, with getty on `tty00`
-* `hostname=der32`, `dhcpcd=YES`, `rc_configured=YES`
-* root password `der32` (bcrypt hash in `der32image/root.hash`).
-  **Change it** (`passwd`) on any machine that is not a throwaway VM.
-* `/etc/upkg/` (config + the test signing key), and
-  `/usr/share/upkg/repos/` with the official test repositories
-* `/usr/ports/` (the recipes) and `/usr/share/upkg/distfiles/`
+| `DER32_CONSOLE` | image | console |
+|---|---|---|
+| `serial` | `der32-0.1-amd64.img` | `com0` at 9600 baud, getty on `tty00` |
+| `pc` | `der32-0.1-amd64-pc.img` | screen and keyboard, getty on `ttyE0` |
+| `any` + `DER32_SETSDIR` | `der32-0.1-amd64-install.img` | `auto` (serial if a terminal answers, else screen), getty on `constty`; boot menu can force either |
 
-Write it to a disk with `dd if=out/images/der32-0.1-amd64.img of=/dev/sdX
-bs=1M` to install DER/32 on real hardware. The console is serial, so
-attach a terminal to COM1 at 9600 baud. A VGA-console variant is on the
-roadmap.
+Contents: sets `base etc comp misc man` plus `kern-DER32`, `hostname=der32`,
+`dhcpcd=YES`, `certctl_init=YES`, `/etc/upkg/` (config, the release key and
+the build's test key), `/usr/share/upkg/` (the repositories as built, plus
+distfiles) and `/usr/ports/`. The installer image also carries every
+release set in `/der32/sets/`, X11 sets included.
 
-## VGA/keyboard image (experimental)
+The root password is `der32` (`der32image/root.hash`). On the two disk
+images it is **expired**: the first login makes you choose a new one. The
+installer image and the ISO are live systems and don't expire it.
 
-The original `make image` and `make qemu` remain serial-only and are
-unchanged. To build a second, BIOS/legacy-boot image for local video and
-keyboard, run:
+The ISO (`scripts/mkiso.sh`) reuses the installer's tree. It boots from
+BIOS via El Torito (`bootxx_cd9660`, console `auto`) and from UEFI via an
+`efiboot.img` El Torito entry. The root is read-only cd9660, and
+`rc.d/der32live` copies `/etc`, `/var`, `/root`, `/usr/local` and `/usr/pkg`
+into tmpfs.
 
-```sh
-make release
-make image-pc
-make qemu-pc
-```
+## Installing
 
-This creates `out/images/der32-0.1-amd64-pc.img`. The separate
-`DER32_CONSOLE=pc` configuration configures NetBSD's PC boot console
-and enables the `ttyE0` wscons getty, leaving the serial getty disabled
-in this variant. `make qemu-pc` opens a graphical QEMU display and keeps
-a separate `der32-run-pc.img` working copy.
+Boot the installer image (USB) or the ISO and run `der32-install`
+(`installer/der32-install.sh`, installed to `/usr/sbin` by patch 0012):
+GPT with `der32efi`, `der32swap` and `der32root` partitions, BIOS + UEFI
+loaders, the sets, `fstab` by label, users, time zone and an optional
+XFCE desktop. `der32-install -f answers` runs unattended, and
+`scripts/install-test.py` uses that to install onto a blank QEMU disk and
+boot the result with BIOS and with UEFI (OVMF). See `der32-install(8)`.
 
-**Status:** this path needs a full NetBSD rebuild, QEMU VGA boot test and
-real-hardware validation. It currently targets legacy BIOS, not UEFI.
-Do not assume that graphics, Wi-Fi, trackpads or NVMe work on every laptop.
+`scripts/install-image.sh` (`make install-image`) still copies a
+prepared disk image onto a whole disk from a Linux host, with guards
+(no partitions, no mounted or swapped devices, size check, typed
+`ERASE /dev/sdX`). That gives a 2 GiB root no matter how big the disk is,
+so `der32-install` is usually the better choice.
 
-## Guarded disk-image installation (Linux host)
+## Releases and the online repositories
 
-**WARNING:** This erases the *entire* selected disk. Back up everything,
-disconnect other removable drives, and identify the drive by model/size
-using `lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS,MODEL` before writing.
+`.github/workflows/release.yml` builds everything on a GitHub runner, runs
+the test suites and the installer test, and publishes a GitHub Release with
+the compressed images and `SHA256SUMS`. Trigger it by pushing a `v*` tag,
+or from the Actions tab (`Run workflow`). `.github/workflows/ci.yml` runs
+the fast upkg suite on every push.
 
-```sh
-make image-pc
-sudo sh scripts/install-image.sh out/images/der32-0.1-amd64-pc.img /dev/sdX
-# Or: sudo make install-image IMAGE=out/images/der32-0.1-amd64-pc.img DEVICE=/dev/sdX
-```
-
-The helper refuses partitions, non-block devices, disks with mounted
-partitions or active swap, images larger than the target, or an invalid
-MBR signature. It verifies the `.sha256` sidecar if present and requires
-typing `ERASE /dev/sdX` exactly. The device name above is an example:
-**never paste it without confirming the actual target**.
-
-This copies a complete prepared image; it is **not** a partitioning
-installer, does not resize the root filesystem or create user accounts,
-and does not support UEFI boot. Existing serial automated testing still
-uses the development root password `der32`. On the newly installed
-system run `passwd` immediately after first login, before enabling any
-remote services or using untrusted networks. A proper first-boot password
-wizard remains a release blocker.
+The online upkg repositories are served from the website
+(`https://luciferindev.github.io/der-32/repo/0.1/amd64/{core,extra,community}`).
+`make repo` builds them, and `scripts/publish-repo.sh` re-signs the indexes
+with the **release key** and copies them, with the distfiles, into
+`site/repo/`. Images trust `conf/upkg/keys/der32-release.pub`. The private
+key is never committed: keep it offline and point `UPKG_RELEASE_KEY` at it.
 
 ## Patches workflow
 

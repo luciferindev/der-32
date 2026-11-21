@@ -77,15 +77,13 @@ upkg 0.1</pre>
   </ul></div></div>
 
   <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
-    <pre style="font-size:5.5px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">                   _.-&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;-._
-               .-&#x27;  \________/  &#x27;-.
-             .&#x27;      |      |      &#x27;.
-   .---.    /--------&#x27;      &#x27;-------\
-  /     \  |      /  &#x27;-.__.-&#x27;  \     |
- |  <span class="eye">--</span>   &#x27;-|_____/______________\____|_.
-  &#x27;-.________________________________ __)
-             |  |               |  |
-             &#x27;--&#x27;               &#x27;--&#x27;</pre>
+    <pre style="font-size:7px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">           _.-&#x27;&#x27;&#x27;&#x27;-._
+         .&#x27;  \____/  &#x27;.
+  .--.  /----&#x27;    &#x27;----\
+ /    \|     /\__/\     |
+| <span class="eye">--</span>   &#x27;-.__/______\____|_.
+ &#x27;-.______________________)
+        |_|          |_|</pre>
     <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
   </div></div>
 </div>
@@ -104,17 +102,17 @@ upkg 0.1</pre>
 <div class="qa"><div class="q">Why does <tt>uname -s</tt> say DER32 but <tt>uname -r</tt> says 10.2?</div><div class="a"><p>The system name is DER/32's own. The release number is NetBSD's, kept on purpose so kernel modules, binary packages and anything else that checks the ABI version keep working. DER/32's own release is in <tt>sysctl kern.der32</tt>.</p></div></div>
 <a id="hardware"></a><h3 class="crumb">:: Hardware</h3>
 <div class="qa"><div class="q">Will it run on my machine?</div><div class="a"><p>DER/32 uses NetBSD 10's <tt>GENERIC</tt> kernel configuration, so it has the same drivers as NetBSD 10 on amd64. NetBSD's hardware lists are the best guide. So far, Genesis has only been tested in QEMU. Reports from real hardware are welcome on the <a href="https://github.com/luciferindev/der-32/issues">bug tracker</a>.</p></div></div>
-<div class="qa"><div class="q">What are the requirements?</div><div class="a"><p>An x86-64 CPU. The automated tests boot with 1&nbsp;GiB of RAM and 2 CPUs. The disk image is 2&nbsp;GiB and the live ISO about 525&nbsp;MiB. The live ISO copies <tt>/etc</tt>, <tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> into RAM, so give it some headroom.</p></div></div>
-<div class="qa"><div class="q">I only see a blank screen / no login on my monitor.</div><div class="a"><p>The Genesis images use a <b>serial console</b> (<tt>com0</tt>, getty on <tt>tty00</tt>). In QEMU that's your terminal. On real hardware you need a serial cable, or the VGA-console image variant that is being worked on in <a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>.</p></div></div>
-<div class="qa"><div class="q">How do I install it to a disk?</div><div class="a"><p>See the <a href="install.html">install guide</a>. Short version: there's no installer yet. You write the disk image to a disk, and that <b>erases the disk</b>.</p></div></div>
+<div class="qa"><div class="q">What are the requirements?</div><div class="a"><p>An x86-64 CPU, 1&nbsp;GiB of RAM (2&nbsp;GiB for XFCE), and a disk of at least 4&nbsp;GiB (16&nbsp;GiB or more is comfortable). BIOS and UEFI both work. Secure Boot must be off.</p></div></div>
+<div class="qa"><div class="q">I only see a blank screen / no login on my monitor.</div><div class="a"><p>The USB installer and the ISO pick the console at boot. With BIOS it's the serial port if a terminal answers there, otherwise the screen. With UEFI it's the screen; choose entry 3 for serial. If your machine has a serial port with something attached, choose <b>Boot DER/32 on the screen</b> (entry 2) in the boot menu. The plain <tt>der32-0.1-amd64.img</tt> disk image is serial-only on purpose (servers, QEMU). Use the <tt>-pc</tt> image or install with <tt>der32-install</tt>.</p></div></div>
+<div class="qa"><div class="q">How do I install it to a disk?</div><div class="a"><p>Boot the USB installer or the ISO, log in as <tt>root</tt>, run <tt>der32-install</tt>. See the <a href="install.html">install guide</a>.</p></div></div>
 <a id="using"></a><h3 class="crumb">:: Using it</h3>
-<div class="qa"><div class="q">What's the login?</div><div class="a"><p><tt>root</tt>, password <tt>der32</tt>. Change it right away with <tt>passwd</tt>. A first-boot password prompt is planned.</p></div></div>
+<div class="qa"><div class="q">What's the login?</div><div class="a"><p><tt>root</tt>, password <tt>der32</tt>. On the disk images, the first login makes you pick a new one. The installer asks for the root password up front.</p></div></div>
 <div class="qa"><div class="q">How do I get out of QEMU?</div><div class="a"><p>Press <b>Ctrl-A</b>, then <b>X</b>. To shut down cleanly first, run <tt>shutdown -p now</tt> inside DER/32.</p></div></div>
-<div class="qa"><div class="q">Is networking on?</div><div class="a"><p>Yes. <tt>dhcpcd</tt> runs at boot and configures every interface. In QEMU, user-mode networking gives the guest outbound access. SSH is off by default: set <tt>sshd=YES</tt> in <tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>.</p></div></div>
-<div class="qa"><div class="q">Where's X11 / a desktop?</div><div class="a"><p>The Genesis build profile leaves X11 out. DER/32 0.1 is a console system.</p></div></div>
+<div class="qa"><div class="q">Is networking on?</div><div class="a"><p>Yes. <tt>dhcpcd</tt> runs at boot and configures every interface. In QEMU, user-mode networking gives the guest outbound access.</p><p><b>SSH doesn't work in 0.1 yet.</b> Loading an SSH private key hangs on current builds, so leave <tt>sshd</tt> off: enabled, it would stop the boot. It's the top item on the <a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap</a>.</p></div></div>
+<div class="qa"><div class="q">Where's X11 / a desktop?</div><div class="a"><p>Answer <tt>yes</tt> to XFCE in <tt>der32-install</tt>. You get the X11 sets plus XFCE from NetBSD's binary packages, then run <tt>startx</tt>. The live media stay console-only.</p></div></div>
 <div class="qa"><div class="q">How do I change the system's settings?</div><div class="a"><p>The NetBSD way: <tt>/etc/rc.conf</tt> for services, <tt>/etc/sysctl.conf</tt> for kernel tunables, <tt>/etc/fstab</tt> for mounts. See the <a href="cheatsheet.html">cheat sheet</a>.</p></div></div>
 <a id="packages"></a><h3 class="crumb">:: Packages</h3>
-<div class="qa"><div class="q">upkg or pkgin, which one do I use?</div><div class="a"><p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories into <tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. The two never touch each other's files.</p></div></div>
+<div class="qa"><div class="q">upkg or pkgin, which one do I use?</div><div class="a"><p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories (online at the project site, plus a copy on every medium) into <tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. The two never touch each other's files.</p></div></div>
 <div class="qa"><div class="q">Will NetBSD binaries run on DER/32?</div><div class="a"><p>They should. DER/32 keeps the NetBSD 10 ABI: same libc, same syscalls, same <tt>kern.osrelease</tt>.</p></div></div>
 <div class="qa"><div class="q">Does upkg have Super Cow Powers?</div><div class="a"><p>No. Ask it about cows and find out what it has instead.</p></div></div>
 <div class="qa"><div class="q">Does upkg run install scripts?</div><div class="a"><p>Never. A package is files plus metadata, and that's all upkg installs. Index signatures are Ed25519, package checksums are SHA-256, and an interrupted transaction is completed or rolled back on the next run. Details are in <a href="man-upkg.8.html">upkg(8)</a>.</p></div></div>
@@ -122,7 +120,7 @@ upkg 0.1</pre>
 <a id="build"></a><h3 class="crumb">:: Build problems</h3>
 <div class="qa"><div class="q"><tt>make</tt> stops right away without an error message.</div><div class="a"><p>You're on an old checkout: early versions of the scripts failed silently on a fresh clone. Run <tt>git pull</tt> and <tt>git submodule update --init</tt>, then try again.</p></div></div>
 <div class="qa"><div class="q">The tools build fails in <tt>gmake</tt> / <tt>ar.c</tt> with GCC 14 or newer.</div><div class="a"><p>GCC 14+ defaults to C23 and turns old C warnings into errors, which breaks NetBSD's bundled host tools. Current DER/32 probes the compiler and passes the right flags, and it rebuilds the host tools automatically when those flags change. Run <tt>git pull</tt> and <tt>make release</tt> again. You don't need to delete <tt>out/</tt>.</p></div></div>
-<div class="qa"><div class="q">How much disk does a build need?</div><div class="a"><p>About 20&nbsp;GB: the NetBSD source tree is around 3&nbsp;GB and <tt>out/</tt> around 14&nbsp;GB after a full release build.</p></div></div>
+<div class="qa"><div class="q">How much disk does a build need?</div><div class="a"><p>About 25&nbsp;GB: the NetBSD <tt>src</tt> and <tt>xsrc</tt> trees are around 4&nbsp;GB and <tt>out/</tt> around 18&nbsp;GB after a full release build with X11 and all images.</p></div></div>
 <div class="qa"><div class="q">Can I resume a build that stopped?</div><div class="a"><p>Yes. Just run the same <tt>make</tt> target again. Builds are incremental (<tt>build.sh -u</tt>).</p></div></div>
 <a id="contrib"></a><h3 class="crumb">:: Contributing</h3>
 <div class="qa"><div class="q">How do I change something in the OS itself?</div><div class="a"><p>DER/32 never edits the NetBSD tree in place. Make your change inside <tt>src/</tt> on the <tt>der32</tt> branch, commit it there, then regenerate the patch series:</p><div class="term"><span class="p">$</span> scripts/patches.sh status  <span class="c"># pinned commit and patch state</span>

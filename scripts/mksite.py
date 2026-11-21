@@ -160,37 +160,41 @@ faq = [
        "tested in QEMU. Reports from real hardware are welcome on the "
        f'<a href="{GH}/issues">bug tracker</a>.</p>'),
     qa("What are the requirements?",
-       "<p>An x86-64 CPU. The automated tests boot with 1&nbsp;GiB of RAM and 2 CPUs. The disk image is "
-       "2&nbsp;GiB and the live ISO about 525&nbsp;MiB. The live ISO copies <tt>/etc</tt>, <tt>/var</tt>, "
-       "<tt>/root</tt> and <tt>/usr/local</tt> into RAM, so give it some headroom.</p>"),
+       "<p>An x86-64 CPU, 1&nbsp;GiB of RAM (2&nbsp;GiB for XFCE), and a disk of at least 4&nbsp;GiB "
+       "(16&nbsp;GiB or more is comfortable). BIOS and UEFI both work. Secure Boot must be off.</p>"),
     qa("I only see a blank screen / no login on my monitor.",
-       "<p>The Genesis images use a <b>serial console</b> (<tt>com0</tt>, getty on <tt>tty00</tt>). "
-       "In QEMU that's your terminal. On real hardware you need a serial cable, or the VGA-console "
-       f'image variant that is being worked on in <a href="{GH}/pull/1">pull request #1</a>.</p>'),
+       "<p>The USB installer and the ISO pick the console at boot. With BIOS it's the serial port if a "
+       "terminal answers there, otherwise the screen. With UEFI it's the screen; choose entry 3 for serial. If your machine has a serial port with something attached, choose "
+       "<b>Boot DER/32 on the screen</b> (entry 2) in the boot menu. The plain <tt>der32-0.1-amd64.img</tt> "
+       "disk image is serial-only on purpose (servers, QEMU). Use the <tt>-pc</tt> image or install with "
+       "<tt>der32-install</tt>.</p>"),
     qa("How do I install it to a disk?",
-       '<p>See the <a href="install.html">install guide</a>. Short version: there\'s no installer yet. '
-       "You write the disk image to a disk, and that <b>erases the disk</b>.</p>"),
+       '<p>Boot the USB installer or the ISO, log in as <tt>root</tt>, run <tt>der32-install</tt>. '
+       'See the <a href="install.html">install guide</a>.</p>'),
 
     '<a id="using"></a><h3 class="crumb">:: Using it</h3>',
     qa("What's the login?",
-       "<p><tt>root</tt>, password <tt>der32</tt>. Change it right away with <tt>passwd</tt>. "
-       "A first-boot password prompt is planned.</p>"),
+       "<p><tt>root</tt>, password <tt>der32</tt>. On the disk images, the first login makes you pick a "
+       "new one. The installer asks for the root password up front.</p>"),
     qa("How do I get out of QEMU?",
        "<p>Press <b>Ctrl-A</b>, then <b>X</b>. To shut down cleanly first, run "
        "<tt>shutdown -p now</tt> inside DER/32.</p>"),
     qa("Is networking on?",
        "<p>Yes. <tt>dhcpcd</tt> runs at boot and configures every interface. In QEMU, user-mode "
-       "networking gives the guest outbound access. SSH is off by default: set <tt>sshd=YES</tt> in "
-       "<tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>.</p>"),
+       "networking gives the guest outbound access.</p><p><b>SSH doesn't work in 0.1 yet.</b> Loading an "
+       "SSH private key hangs on current builds, so leave <tt>sshd</tt> off: enabled, it would stop the boot. "
+       'It\'s the top item on the <a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap</a>.</p>'),
     qa("Where's X11 / a desktop?",
-       "<p>The Genesis build profile leaves X11 out. DER/32 0.1 is a console system.</p>"),
+       "<p>Answer <tt>yes</tt> to XFCE in <tt>der32-install</tt>. You get the X11 sets plus XFCE from "
+       "NetBSD's binary packages, then run <tt>startx</tt>. The live media stay console-only.</p>"),
     qa("How do I change the system's settings?",
        "<p>The NetBSD way: <tt>/etc/rc.conf</tt> for services, <tt>/etc/sysctl.conf</tt> for kernel "
        "tunables, <tt>/etc/fstab</tt> for mounts. See the <a href=\"cheatsheet.html\">cheat sheet</a>.</p>"),
 
     '<a id="packages"></a><h3 class="crumb">:: Packages</h3>',
     qa("upkg or pkgin, which one do I use?",
-       "<p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories into "
+       "<p><b>upkg</b> is DER/32's own package manager. It installs from DER/32's signed repositories "
+       "(online at the project site, plus a copy on every medium) into "
        "<tt>/usr/local</tt>. <b>pkgin</b> installs NetBSD's pkgsrc binary packages into <tt>/usr/pkg</tt>. "
        "The two never touch each other's files.</p>"),
     qa("Will NetBSD binaries run on DER/32?",
@@ -217,8 +221,8 @@ faq = [
        "automatically when those flags change. Run <tt>git pull</tt> and <tt>make release</tt> again. You don't "
        "need to delete <tt>out/</tt>.</p>"),
     qa("How much disk does a build need?",
-       "<p>About 20&nbsp;GB: the NetBSD source tree is around 3&nbsp;GB and <tt>out/</tt> around 14&nbsp;GB "
-       "after a full release build.</p>"),
+       "<p>About 25&nbsp;GB: the NetBSD <tt>src</tt> and <tt>xsrc</tt> trees are around 4&nbsp;GB and "
+       "<tt>out/</tt> around 18&nbsp;GB after a full release build with X11 and all images.</p>"),
     qa("Can I resume a build that stopped?",
        "<p>Yes. Just run the same <tt>make</tt> target again. Builds are incremental "
        "(<tt>build.sh -u</tt>).</p>"),
@@ -249,10 +253,10 @@ cs = [
          "<a href=\"#c-build\">building</a></p>", meta="Sticky &middot; Forum: HOWTOs", icon="!"),
 
     post("upkg: DER/32 packages", ref([
-        ("upkg sync", "fetch and verify every enabled repository index"),
+        ("upkg sync", "fetch and verify every enabled repository index (online + medium)"),
         ("upkg search lua", "search package names and descriptions"),
         ("upkg info lua", "installed and repository information"),
-        ("upkg install lua-hello", "install with dependencies (<tt>-n</tt>: dry run)"),
+        ("upkg install tree nnn", "install with dependencies (<tt>-n</tt>: dry run)"),
         ("upkg install core/lua", "take the package from one repository only"),
         ("upkg install 'lua>=5.4'", "version constraint: <tt>&lt; &lt;= = &gt;= &gt;</tt>"),
         ("upkg upgrade", "upgrade everything that has a newer version"),
@@ -282,6 +286,8 @@ cs = [
 
     post("System", ref([
         ("derfetch", "system info and the tortoise (<tt>-l</tt> no logo, <tt>-n</tt> no colour)"),
+        ("der32-install", "install DER/32 to a disk (from the USB stick or ISO)"),
+        ("startx", "start X (XFCE, if you installed it)"),
         ("uname -a", "kernel name, release, version"),
         ("sysctl kern.der32", "DER/32 release name and codename"),
         ("cat /etc/release", "release and build information"),
@@ -295,10 +301,10 @@ cs = [
     ]), icon="S", anchor="c-sys"),
 
     post("Services (rc.d)", ref([
-        ("vi /etc/rc.conf", "turn services on and off: <tt>sshd=YES</tt>"),
-        ("service sshd start", "start a service now (also <tt>stop</tt>, <tt>restart</tt>, <tt>status</tt>)"),
+        ("vi /etc/rc.conf", "turn services on and off: <tt>cron=YES</tt>"),
+        ("service cron restart", "control a service now (also <tt>start</tt>, <tt>stop</tt>, <tt>status</tt>)"),
         ("service -l", "list every rc.d script"),
-        ("service sshd onestart", "start once without enabling it in rc.conf"),
+        ("service ntpd onestart", "start once without enabling it in rc.conf"),
         ("ls /etc/rc.d", "the service scripts themselves"),
     ]), icon="S", anchor="c-svc"),
 
@@ -321,11 +327,14 @@ cs = [
 
     post("Building DER/32 (on the Linux host)", ref([
         ("make check", "check the host for required tools"),
-        ("make release", "tools, kernel, world, sets, disk image"),
-        ("make iso", "live ISO"),
+        ("make release", "tools, kernel, world, sets, repos, all images"),
+        ("make installer", "USB installer image"),
+        ("make iso", "live + install ISO"),
+        ("make image-pc", "disk image with a screen console"),
         ("make qemu", "boot the image here, serial console (exit: Ctrl-A X)"),
         ("SNAPSHOT=1 make qemu", "boot without keeping any disk changes"),
         ("make test", "every test suite"),
+        ("python3 scripts/install-test.py out/images/*.iso", "install to a blank disk, boot it (BIOS and UEFI)"),
         ("make test-upkg", "only the upkg suite (fast, no NetBSD build needed)"),
         ("make kernel", "just the DER32 kernel"),
         ("scripts/patches.sh status", "pinned NetBSD commit and patch state"),
@@ -339,7 +348,8 @@ page("cheatsheet.html", "Cheat sheet", "cheatsheet.html", "\n".join(cs),
 
 MANDOC = shutil.which("mandoc") or os.path.join(ROOT, "out/tools/bin/nbmandoc")
 MANS = [("upkg", "8", "upkg/doc/upkg.8", "DER/32 package manager"),
-        ("derfetch", "1", "derfetch/derfetch.1", "show system information next to Genesis the tortoise")]
+        ("derfetch", "1", "derfetch/derfetch.1", "show system information next to Genesis the tortoise"),
+        ("der32-install", "8", "installer/der32-install.8", "install DER/32 onto a disk")]
 if not os.access(MANDOC, os.X_OK):
     sys.exit("mksite: no mandoc (install mandoc, or build tools with 'make tools')")
 for name, sec, src, desc in MANS:
@@ -359,83 +369,130 @@ page("man.html", "Man pages", "man.html",
           "Everything inherited from NetBSD is documented at "
           '<a href="https://man.netbsd.org/">man.netbsd.org</a>.</p>', icon="M")
      + f'\n<table class="idx"><tr><th></th><th>Page</th><th>Description</th></tr>\n{rows}\n</table>',
-     "DER/32 manual pages: upkg(8), derfetch(1).")
+     "DER/32 manual pages: upkg(8), derfetch(1), der32-install(8).")
 
 # ---------------------------------------------------------------- install guide
 
 inst = [
     post("Install guide", """
-<p>DER/32 0.1 doesn't have an installer. There's no wizard, no partition editor and no screen asking you to
-pick from twelve desktop environments. The disk image <i>is</i> the installed system: you boot it in a VM, or
-write it to a disk.</p>
-<p>Pick one: <a href="#vm">A. QEMU (recommended)</a> &middot; <a href="#live">B. live ISO</a> &middot;
-<a href="#metal">C. real hardware</a>. Then do <a href="#after">the first-boot checklist</a>.</p>
-<div class="quote"><b>Before you start</b>Prebuilt images aren't published yet, so you build them first. That
-takes a Linux host with about 20&nbsp;GB free and a C compiler, and an hour or two the first time.
-Arch is the reference host.</div>""", meta="Sticky &middot; Forum: Installation", icon="!"),
+<p>DER/32 has a real installer now: <tt>der32-install</tt>. It asks a handful of questions, partitions
+the disk, installs the system, and makes it boot from both BIOS and UEFI. It can also put XFCE on it.</p>
+<p>Pick a medium: <a href="#usb">A. USB stick</a> (real PCs) &middot; <a href="#iso">B. ISO</a>
+(virtual machines, CDs) &middot; <a href="#tryit">C. no install at all</a>. Then
+<a href="#installer">run the installer</a>.</p>
+<div class="quote"><b>Getting the images</b>Prebuilt images go on the
+<a href="https://github.com/luciferindev/der-32/releases">releases page</a>, built and tested by
+GitHub Actions. Or build them: <tt>make release</tt> on a Linux host with about 25&nbsp;GB free
+(see <a href="#build">building</a>).</div>""", meta="Sticky &middot; Forum: Installation", icon="!"),
 
-    post("Step 0: build the images", term("""
-$ git clone --recurse-submodules https://github.com/luciferindev/der-32
+    post("A. USB stick (real hardware)", "<p>The USB installer image is a complete live system plus "
+         "the release sets. Write it to a stick. <b>This wipes the stick.</b></p>"
+         + term("""
+$ lsblk -o NAME,SIZE,MODEL  # find the stick. Twice.
+$ xzcat der32-0.1-amd64-install.img.xz | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress""")
+         + "<p>On Windows or macOS, any raw image writer works (balenaEtcher, Rufus in DD mode). "
+           "Boot from the stick. BIOS and UEFI both work, but Secure Boot must be off.</p>"
+           "<p>The boot menu's first entry picks the console for you: on BIOS machines the serial port if "
+           "a terminal answers on it, otherwise the screen; on UEFI machines the screen. Entries 2 and 3 "
+           "force one or the other.</p>",
+         icon="A", anchor="usb"),
+
+    post("B. ISO (virtual machines, CDs)", "<p>The ISO is the same live system with the same "
+         "sets, booting from BIOS or UEFI. In VirtualBox, virt-manager or similar, create a "
+         "64-bit &ldquo;Other&rdquo; or &ldquo;NetBSD&rdquo; machine with 1&nbsp;GiB of RAM or more "
+         "and an empty disk of 8&nbsp;GiB or more, then attach the ISO. With plain QEMU:</p>"
+         + term("""
+$ qemu-img create -f qcow2 der32.qcow2 16G
+$ qemu-system-x86_64 -accel kvm -m 2048 -cdrom der32-0.1-amd64.iso \\
+    -drive file=der32.qcow2,if=virtio -boot d""")
+         + "<p>A USB stick won't boot the ISO. Use the USB image for that.</p>",
+         icon="B", anchor="iso"),
+
+    post("Run the installer", "<p>Log in as <tt>root</tt> with password <tt>der32</tt>, then:</p>"
+         + term("der32# der32-install")
+         + """<p>It asks, in this order:</p>
+<ul>
+<li><b>Disk</b>: lists the disks it found, with sizes. The disk you booted from is never offered.
+At least 4&nbsp;GiB.</li>
+<li><b>Host name</b> and <b>time zone</b>, for example <tt>America/Boise</tt>.</li>
+<li><b>Console</b>: <tt>screen</tt> or <tt>serial</tt> (the default matches how you're logged in).</li>
+<li><b>Swap</b> size.</li>
+<li><b>Root password</b>, and optionally a <b>user</b> (added to group <tt>wheel</tt>, so they can
+<tt>su</tt>).</li>
+<li><b>DHCP</b> and <b>XFCE</b> (yes/no each). There's no SSH question yet: SSH has a known bug in 0.1.</li>
+</ul>
+<p>Then it shows a summary and waits for you to type <tt>erase wd0</tt> (with your disk's name).
+Nothing touches any disk before that. After that it:</p>
+<ul>
+<li>writes a GPT: a 256&nbsp;MiB EFI partition, swap, and an FFSv2 root using the rest of the disk;</li>
+<li>extracts the sets (base, etc, comp, man, misc, text and the DER32 kernel);</li>
+<li>installs the BIOS <i>and</i> UEFI boot loaders;</li>
+<li>writes <tt>fstab</tt> (by partition label), <tt>rc.conf</tt>, the time zone, the passwords and
+the user.</li>
+</ul>
+<p>Takes a few minutes. Then <tt>shutdown -r now</tt>, remove the medium, and log in to your new
+system. The full log is in <tt>/var/log/der32-install.log</tt>.</p>""", icon="!", anchor="installer"),
+
+    post("The XFCE option", "<p>Say <tt>yes</tt> to XFCE and the installer adds the X11 sets from "
+         "the medium, then fetches XFCE and its dependencies from NetBSD's binary package mirror "
+         "with <tt>pkgin</tt>. That's a few hundred megabytes, so it needs a working network. "
+         "When it's done, log in and run:</p>"
+         + term("$ startx")
+         + "<p>If the download fails, nothing else breaks: the X11 sets are installed and you can "
+           "add the desktop later with <tt>pkgin install xfce4</tt>. Want a graphical login? Add "
+           "<tt>xdm=YES</tt> to <tt>/etc/rc.conf</tt>.</p>"
+           "<div class=\"quote\"><b>Honest status</b>The X11 sets and the fallback path are tested "
+           "automatically. The XFCE download itself can't be, because the test machines have no "
+           "route to the package mirror. Tell us how it goes on yours.</div>", icon="X"),
+
+    post("Unattended installs", "<p>Put the answers in a file and run <tt>der32-install -f answers</tt>:</p>"
+         + term("""
+DISK=wd0
+CONFIRM="erase wd0"
+HOSTNAME=tortoise
+TIMEZONE=America/Boise
+CONSOLE=screen
+SWAP_MB=1024
+ROOT_PWHASH='$argon2id$v=19$...'  # from: pwhash 'your password'
+USERNAME=alice
+USER_PWHASH='$argon2id$v=19$...'
+DHCP=yes XFCE=no""")
+         + '<p>Details: <a href="man-der32-install.8.html">der32-install(8)</a>. This is how the '
+           "automated tests install DER/32 on every build.</p>", icon="U"),
+
+    post("C. No install: just run it", "<p>The disk images are a ready-made system. In QEMU on the "
+         "build host:</p>"
+         + term("""
+$ make qemu  # serial console on this terminal; Ctrl-A X quits
+$ make qemu-pc  # a window with screen and keyboard""")
+         + "<p>On first login with <tt>root</tt> / <tt>der32</tt>, the disk images make you choose a "
+           "new root password. The live ISO and the USB installer don't, because they're "
+           "throwaway systems.</p>", icon="C", anchor="tryit"),
+
+    post("After the first boot", term("""
+der32# derfetch  # admire the tortoise
+der32# upkg sync  # DER/32 packages, from the website
+der32# upkg install tree nnn
+der32# pkg_add pkgin  # NetBSD's binary packages
+der32# pkgin install vim git""")
+         + '<p>More on the <a href="cheatsheet.html">cheat sheet</a>.</p>', icon="!"),
+
+    post("Building the images yourself", term("""
+$ git clone https://github.com/luciferindev/der-32
 $ cd der-32
-$ make check  # are the host tools there?
-$ make release  # disk image: out/images/der32-0.1-amd64.img
-$ make iso  # live ISO: out/images/der32-0.1-amd64.iso""")
-         + "<p>A stopped build resumes where it left off: run the same command again. Stuck? "
-           'See <a href="faq.html#build">build problems</a>.</p>', icon="0"),
-
-    post("A. Run it in QEMU (recommended)", "<p>This is how DER/32 is developed and tested.</p>"
-         + term("""
-$ sudo pacman -S qemu-base  # Arch; other distros: install qemu-system-x86_64
-$ make qemu  # boots a working copy of the image on this terminal""")
-         + "<p>Your changes persist in <tt>out/images/der32-run.img</tt>, so the release image stays clean. "
-           "Delete that file to start over. Useful knobs:</p>"
-         + ref([("MEM=2048 make qemu", "more RAM (default 1024 MiB)"),
-                ("SMP=4 make qemu", "more CPUs (default 2)"),
-                ("SNAPSHOT=1 make qemu", "throw away every change on exit"),
-                ("Ctrl-A, then X", "quit QEMU (run <tt>shutdown -p now</tt> first)")],
-               head=("Do this", "To get")), icon="A", anchor="vm"),
-
-    post("B. Boot the live ISO", "<p>The live ISO runs from read-only media and keeps <tt>/etc</tt>, "
-         "<tt>/var</tt>, <tt>/root</tt> and <tt>/usr/local</tt> in RAM, so nothing survives a reboot. "
-         "That's ideal for a look around.</p>"
-         + term("""
-$ qemu-system-x86_64 -accel kvm -cpu host -m 1024 \\
-    -cdrom out/images/der32-0.1-amd64.iso -boot d \\
-    -display none -serial stdio""")
-         + "<p>Drop <tt>-accel kvm -cpu host</tt> if you have no <tt>/dev/kvm</tt>. The ISO is built as "
-           "a CD image. Booting it from a USB stick hasn't been tested.</p>", icon="B", anchor="live"),
-
-    post("C. Real hardware", """
-<div class="quote"><b>Read this twice</b>Writing the image <b>destroys everything on the target disk</b>.
-And Genesis talks to a <b>serial port</b>, not your monitor: without a serial cable you'll see the
-bootloader and then nothing. A VGA-console image is in the works in
-<a href="https://github.com/luciferindev/der-32/pull/1">pull request #1</a>. Real hardware hasn't been
-tested yet.</div>"""
-         + term("""
-$ lsblk -o NAME,SIZE,MODEL  # identify the target disk. Twice.
-$ sudo dd if=out/images/der32-0.1-amd64.img of=/dev/sdX bs=4M conv=fsync status=progress
-$ sync""")
-         + "<p>Boot it with the BIOS / legacy boot option (the image has an MBR, not UEFI). Connect at "
-           "9600 baud. On the Linux side: <tt>screen /dev/ttyUSB0 9600</tt>.</p>"
-           "<p>The image's filesystem is 2&nbsp;GiB, whatever the size of the disk. Growing it isn't "
-           "documented yet.</p>", icon="C", anchor="metal"),
-
-    post("After the first boot", "<p>Log in as <tt>root</tt> with password <tt>der32</tt>. Then:</p>"
-         + term("""
-der32# passwd  # first. Seriously.
-der32# echo 'hostname=tortoise' >> /etc/rc.conf
-der32# hostname tortoise
-der32# ln -sf /usr/share/zoneinfo/America/Boise /etc/localtime  # your zone
-der32# useradd -m -G wheel alice  # a user who may su to root
-der32# passwd alice
-der32# upkg sync  # DER/32 packages
-der32# derfetch  # admire the tortoise""")
-         + "<p>Want SSH? Add <tt>sshd=YES</tt> to <tt>/etc/rc.conf</tt> and run <tt>service sshd start</tt>. "
-           'More commands are on the <a href="cheatsheet.html">cheat sheet</a>. Your Linux muscle memory mostly '
-           "works, and where it doesn't, <tt>man</tt> works.</p>", icon="!", anchor="after"),
+$ make check  # host tools, disk space
+$ make release  # everything below, about 1-3 hours the first time
+$ ls out/images/
+der32-0.1-amd64.img  # disk, serial console
+der32-0.1-amd64-pc.img  # disk, screen console
+der32-0.1-amd64-install.img  # USB installer
+der32-0.1-amd64.iso  # live + install ISO""")
+         + "<p>The first build fetches the pinned NetBSD <tt>src</tt> and <tt>xsrc</tt> trees "
+           "(about 2&nbsp;GB). Stuck? See <a href=\"faq.html#build\">build problems</a>.</p>",
+         icon="0", anchor="build"),
 ]
 page("install.html", "Install guide", "install.html", "\n".join(inst),
-     "How to install DER/32: build the images, run it in QEMU, boot the live ISO, or write it to a disk.")
+     "How to install DER/32 with der32-install from a USB stick or the ISO, with BIOS or UEFI, and optionally XFCE.")
 
 # ---------------------------------------------------------------- slow lane (secret)
 
@@ -479,6 +536,10 @@ page("404.html", "Not found", "", post(
 # ---------------------------------------------------------------- RSS
 
 NEWS = [
+    ("Genesis gets an installer, UEFI, and XFCE", "index.html#news", "Sat, 21 Nov 2026 02:55:00 -0700",
+     "der32-install sets up a GPT disk that boots from BIOS and UEFI, with users, time zone and an "
+     "optional XFCE desktop. Online upkg repositories, a forced first-login password change and a "
+     "slimmer tortoise."),
     ("NetBSD binary packages on DER/32", "index.html#news", "Fri, 20 Nov 2026 00:15:00 -0700",
      "DER/32 keeps the NetBSD 10 ABI, so NetBSD's pkgsrc binary packages install unmodified under "
      "/usr/pkg with pkg_add and pkgin, from cdn.NetBSD.org."),

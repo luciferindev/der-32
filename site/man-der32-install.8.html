@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--
+    ___
+  _|___|_       You're reading the page source.
+   .---.        Good. That's the UNIX way.
+  /     \       
+ |  --   '-.    Some things on DER/32 are hidden in plain sight:
+  '-.______)      $ upkg tortoise
+                  $ upkg moo
+                  $ derfetch          (on 19 November)
+                  and the slash in the title is not just a slash.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>der32-install(8) :: DER/32</title>
+<meta name="description" content="der32-install(8): install DER/32 onto a disk">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:image" content="https://luciferindev.github.io/der-32/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="DER/32 news" href="rss.xml">
+</head>
+<body>
+<div id="wrap">
+
+<div id="head">
+<img src="logo.png" width="112" height="112" alt="DER/32 logo: a tortoise in a bowler hat">
+<div>
+  <h1>DER<a class="slash" href="slow.html" title="">/</a>32</h1>
+  <p>Derivative 32 &middot; a NetBSD-derived UNIX for amd64 &middot; Release 0.1 &ldquo;Genesis&rdquo;</p>
+</div>
+</div>
+
+<div id="tabs">
+  <a href="index.html">Home</a>
+  <a href="index.html#news">News</a>
+  <a href="install.html">Install</a>
+  <a href="faq.html">FAQ</a>
+  <a href="cheatsheet.html">Cheat sheet</a>
+  <a class="on" href="man.html">Man pages</a>
+  <a href="index.html#history">History</a>
+  <a href="https://github.com/luciferindev/der-32/tree/main/docs">Docs</a>
+  <a href="https://github.com/luciferindev/der-32/issues">Bugs</a>
+  <a href="https://github.com/luciferindev/der-32">Source</a>
+</div>
+
+<div id="cols">
+
+<div id="side">
+  <div class="box"><h3>:: Navigation</h3><div class="in"><ul>
+    <li><a href="index.html#news">Latest news</a></li>
+    <li><a href="install.html">Install guide</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="cheatsheet.html">Cheat sheet</a></li>
+    <li><a href="man.html">Man pages</a></li>
+    <li><a href="index.html#history">History</a></li>
+    <li><a href="index.html#boards">Documentation</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/issues">Report a bug</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/pulls">Patches welcome</a></li>
+  </ul></div></div>
+
+  <div class="box"><h3>:: System info</h3><div class="in">
+    <pre>$ uname -s
+DER32
+$ upkg --version
+upkg 0.1</pre>
+    <small>Base: NetBSD 10.2<br>Arch: amd64<br>Init: BSD rc.d<br>Shell: POSIX sh<br>FS: FFS<br>libc: NetBSD libc</small>
+  </div></div>
+
+  <div class="box"><h3>:: Quick links</h3><div class="in"><ul>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/building.md">building.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/packages.md">packages.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/architecture.md">architecture.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/blob/main/docs/roadmap.md">roadmap.md</a></li>
+    <li><a href="https://github.com/luciferindev/der-32/releases">Releases</a></li>
+  </ul></div></div>
+
+  <div class="box mascot"><h3>:: Mascot</h3><div class="in" style="text-align:center">
+    <pre style="font-size:7px;line-height:1.15;text-align:left" aria-label="Genesis, the DER/32 tortoise">           _.-&#x27;&#x27;&#x27;&#x27;-._
+         .&#x27;  \____/  &#x27;.
+  .--.  /----&#x27;    &#x27;----\
+ /    \|     /\__/\     |
+| <span class="eye">--</span>   &#x27;-.__/______\____|_.
+ &#x27;-.______________________)
+        |_|          |_|</pre>
+    <small>Terminal edition, as seen in <tt>derfetch</tt>.<br>Meet <b>Genesis</b>, the DER/32 tortoise.<br>Slow. Armored. Gets there.<br>Hand-drawn by the project.</small>
+  </div></div>
+</div>
+
+<div id="main">
+<div class="post"><div class="t"><span class="ico">M</span> der32-install(8) &mdash; install DER/32 onto a disk</div><div class="b"><p class="crumb"><a href="man.html">Man pages</a> &raquo; der32-install(8)</p><div class="man"><table class="head">
+  <tr>
+    <td class="head-ltitle">DER32-INSTALL(8)</td>
+    <td class="head-vol">System Manager's Manual</td>
+    <td class="head-rtitle">DER32-INSTALL(8)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<code class="Nm">der32-install</code> &#x2014;
+<div class="Nd">install DER/32 onto a disk</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">der32-install</code></td>
+    <td>[<code class="Fl">-f</code> <var class="Ar">answer-file</var>]
+      [<code class="Fl">-s</code> <var class="Ar">sets-dir</var>]</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<code class="Nm">der32-install</code> installs DER/32 from a booted install
+  medium, the live ISO or the USB installer image, onto a disk. It asks a few
+  questions, then:
+<ol class="Bl-enum Bl-compact">
+  <li>replaces the disk's partition table with a GPT holding a 256&#x00A0;MiB
+      EFI system partition (<code class="Li">der32efi</code>), optional swap
+      (<code class="Li">der32swap</code>) and an FFSv2 root using the rest of
+      the disk (<code class="Li">der32root</code>);</li>
+  <li>extracts the release sets (base, etc, comp, man, misc, text,
+    kern-DER32);</li>
+  <li>installs both the BIOS boot loader (GPT boot code plus
+      <span class="Pa">/usr/mdec/bootxx_ffsv2</span>) and the UEFI loader
+      <span class="Pa">EFI/BOOT/BOOTX64.EFI</span>, so the disk boots either
+      way;</li>
+  <li>writes <span class="Pa">/etc/fstab</span> (by GPT label),
+      <span class="Pa">/etc/rc.conf</span>, <span class="Pa">/boot.cfg</span>
+      and the time zone, sets root's password and optionally creates a user in
+      group <code class="Li">wheel</code>;</li>
+  <li>optionally installs the X11 sets and the XFCE desktop from NetBSD's binary
+      packages with <a class="Xr" href="man-pkgin.1.html">pkgin(1)</a>. This
+      needs a working network connection.</li>
+</ol>
+<p class="Pp">Nothing is written to any disk until the disk is confirmed by
+    typing &#x201C;<code class="Li">erase</code>
+    <var class="Ar">disk</var>&#x201D;. The disk the installer itself booted
+    from is never offered.</p>
+<p class="Pp">The options are:</p>
+<dl class="Bl-tag">
+  <dt><a class="permalink" href="#f"><code class="Fl" id="f">-f</code></a>
+    <var class="Ar">answer-file</var></dt>
+  <dd>Run without questions. The file is read by
+      <a class="Xr" href="man-sh.1.html">sh(1)</a> and sets the variables
+    below.</dd>
+  <dt><a class="permalink" href="#s"><code class="Fl" id="s">-s</code></a>
+    <var class="Ar">sets-dir</var></dt>
+  <dd>Take the sets from <var class="Ar">sets-dir</var> instead of
+      <span class="Pa">/der32/sets</span>.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="ANSWER_FILE"><a class="permalink" href="#ANSWER_FILE">ANSWER
+  FILE</a></h1>
+<dl class="Bl-tag Bl-compact">
+  <dt><a class="permalink" href="#DISK"><code class="Ev" id="DISK">DISK</code></a></dt>
+  <dd>target disk, for example <code class="Li">wd0</code></dd>
+  <dt><a class="permalink" href="#CONFIRM"><code class="Ev" id="CONFIRM">CONFIRM</code></a></dt>
+  <dd>must be &#x201C;<code class="Li">erase</code>
+      <code class="Ev">$DISK</code>&#x201D;</dd>
+  <dt><a class="permalink" href="#HOSTNAME"><code class="Ev" id="HOSTNAME">HOSTNAME</code></a></dt>
+  <dd>default <code class="Li">der32</code></dd>
+  <dt><a class="permalink" href="#TIMEZONE"><code class="Ev" id="TIMEZONE">TIMEZONE</code></a></dt>
+  <dd>a name under <span class="Pa">/usr/share/zoneinfo</span>, default
+      <code class="Li">UTC</code></dd>
+  <dt><a class="permalink" href="#CONSOLE"><code class="Ev" id="CONSOLE">CONSOLE</code></a></dt>
+  <dd><a class="permalink" href="#screen"><code class="Li" id="screen">screen</code></a>
+      or <code class="Li">serial</code></dd>
+  <dt><a class="permalink" href="#SWAP_MB"><code class="Ev" id="SWAP_MB">SWAP_MB</code></a></dt>
+  <dd>swap size, 0 for none</dd>
+  <dt><a class="permalink" href="#ROOT_PWHASH"><code class="Ev" id="ROOT_PWHASH">ROOT_PWHASH</code></a></dt>
+  <dd>root's password hash, from
+      <a class="Xr" href="man-pwhash.1.html">pwhash(1)</a> (required)</dd>
+  <dt><a class="permalink" href="#USERNAME"><code class="Ev" id="USERNAME">USERNAME</code></a></dt>
+  <dd>optional user to create</dd>
+  <dt><a class="permalink" href="#USER_PWHASH"><code class="Ev" id="USER_PWHASH">USER_PWHASH</code></a></dt>
+  <dd>that user's password hash</dd>
+  <dt><a class="permalink" href="#DHCP"><code class="Ev" id="DHCP">DHCP</code></a>,
+    <code class="Ev">XFCE</code></dt>
+  <dd><a class="permalink" href="#yes"><code class="Li" id="yes">yes</code></a>
+      or <code class="Li">no</code></dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="FILES"><a class="permalink" href="#FILES">FILES</a></h1>
+<dl class="Bl-tag Bl-compact">
+  <dt><span class="Pa">/der32/sets</span></dt>
+  <dd>release sets on the install medium</dd>
+  <dt><span class="Pa">/tmp/der32-install.log</span></dt>
+  <dd>log of the run, copied to
+      <span class="Pa">/var/log/der32-install.log</span> on the new system</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXAMPLES"><a class="permalink" href="#EXAMPLES">EXAMPLES</a></h1>
+<div class="Bd Bd-indent">
+<pre>
+# der32-install
+</pre>
+</div>
+<p class="Pp">Unattended:</p>
+<div class="Bd Pp Bd-indent">
+<pre>
+DISK=wd0
+CONFIRM=&quot;erase wd0&quot;
+HOSTNAME=tortoise
+TIMEZONE=America/Boise
+CONSOLE=screen
+SWAP_MB=1024
+ROOT_PWHASH='$argon2id$v=19$...'
+DHCP=yes XFCE=no
+</pre>
+</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<a class="Xr" href="man-pkgin.1.html">pkgin(1)</a>,
+  <a class="Xr" href="man-pwhash.1.html">pwhash(1)</a>,
+  <a class="Xr" href="man-upkg.8.html">upkg(8)</a>,
+  <a class="Xr" href="man-boot.8.html">boot(8)</a>,
+  <a class="Xr" href="man-gpt.8.html">gpt(8)</a>,
+  <a class="Xr" href="man-installboot.8.html">installboot(8)</a>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="HISTORY"><a class="permalink" href="#HISTORY">HISTORY</a></h1>
+<code class="Nm">der32-install</code> first appeared in DER/32 0.1
+  &#x201C;Genesis&#x201D;.
+</section>
+<section class="Sh">
+<h1 class="Sh" id="BUGS"><a class="permalink" href="#BUGS">BUGS</a></h1>
+The SSH server is not offered: in DER/32 0.1, loading SSH private keys hangs, so
+  an enabled <a class="Xr" href="man-sshd.8.html">sshd(8)</a> would stop the
+  boot.
+</section>
+<section class="Sh">
+<h1 class="Sh" id="CAVEATS"><a class="permalink" href="#CAVEATS">CAVEATS</a></h1>
+The XFCE option downloads several hundred megabytes from
+  <code class="Li">cdn.NetBSD.org</code>. If that fails, the X11 sets are still
+  installed and the desktop can be added later with <code class="Ic">pkgin
+  install xfce4</code>.
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">November 20, 2026</td>
+    <td class="foot-os">NetBSD 10.2</td>
+  </tr>
+</table>
+</div></div></div>
+</div>
+</div>
+
+<div id="badges">
+  <a class="b88 b1" href="https://www.netbsd.org/">POWERED BY<br>NetBSD 10</a>
+  <span class="b88 b2">upkg 0.1<br>$ _</span>
+  <span class="b88 b3" title="Do what you like. Keep the notice.">BSD<br>LICENSED</span>
+  <span class="b88 b4" title="Or w3m. We don't judge.">BEST VIEWED<br>IN LYNX</span>
+  <span class="b88 b5" title="Not one line. View source if you don't believe us.">NO<br>JAVASCRIPT</span>
+  <span class="b88 b6" title="journalctl: not found">systemd<br>FREE</span>
+  <span class="b88 b3" title="*Except the copy inside your CPU's management engine. That one isn't ours.">MINIX<br>FREE*</span>
+  <a class="b88 b1" href="rss.xml">RSS<br>NEWS FEED</a>
+</div>
+<div id="foot">
+  DER/32 is built from NetBSD sources, &copy; The NetBSD Foundation and contributors, under the BSD licences they carry.
+  DER/32's own code is BSD-2-Clause (<a href="https://github.com/luciferindev/der-32/tree/main/LICENSES">LICENSES/</a>).<br>
+  NetBSD is a registered trademark of The NetBSD Foundation, Inc. DER/32 is not affiliated with it.
+</div>
+
+</div>
+</body>
+</html>

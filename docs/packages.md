@@ -241,6 +241,40 @@ when you explicitly ask for a build, never as a side effect of `sync`.
 `scripts/mkrepo.sh` cross-builds the same recipes for the official test
 repositories.
 
+## Online repositories
+
+Every image is configured with three online repositories over HTTPS,
+served by GitHub Pages from `site/repo/`:
+
+| name | url | priority |
+|---|---|---|
+| `der32-core` | `https://luciferindev.github.io/der-32/repo/0.1/amd64/core` | 120 |
+| `der32-extra` | `.../extra` (tree, nnn, lua-hello) | 90 |
+| `der32-community` | `.../community` | 60 |
+
+They are signed with the DER/32 **release key**. Its public half ships in
+`/etc/upkg/keys/der32-release.pub` (from `conf/upkg/keys/`). The private
+half never enters the repository. The same packages also come on every
+medium as `core`, `extra` and `community` (`file:///usr/share/upkg/repos`,
+lower priorities), so `upkg` works offline. Disable the online ones with
+`upkg repo disable der32-core` and so on.
+
+Publishing, on the build host:
+
+```sh
+make repo                                   # build the ports, test-signed
+UPKG_RELEASE_KEY=/path/to/der32-release.key \
+    scripts/publish-repo.sh                 # re-sign into site/repo/
+git add site/repo && git commit && git push # Pages serves it
+```
+
+`publish-repo.sh` refuses a key that doesn't match the committed public
+key. It also copies the distfiles to `site/repo/distfiles/`, so recipes
+whose `source` points there build natively with `upkg build`. Ports that
+come from git declare a `#@git URL REF PREFIX` line. `make repo` turns that
+into a `git archive` tarball, which is reproducible byte for byte, so the
+recipe's `source_sha256` holds.
+
 ## NetBSD binary packages (pkgsrc)
 
 DER/32 keeps the NetBSD 10 ABI, so NetBSD's official binary packages

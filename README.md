@@ -27,7 +27,20 @@ login:
 * **upkg**: a multi-repository package manager written in C. It has
   Ed25519-signed indexes, SHA-256 verified packages, dependency resolution,
   conflict detection, repository priorities, crash-safe transactions on
-  SQLite, and unprivileged source builds.
+  SQLite, and unprivileged source builds. Online repositories are served
+  from the project site, and a copy ships on every medium.
+* **der32-install**: a real installer. It sets up GPT, makes the disk boot
+  from both BIOS and UEFI, installs the sets, and creates users. It can
+  optionally add X11 and the XFCE desktop.
+
+## Install
+
+Boot the USB installer image or the ISO, log in as `root` (password
+`der32`), and run `der32-install`. The
+[install guide](https://luciferindev.github.io/der-32/install.html) has the
+details. Images come from the
+[releases page](https://github.com/luciferindev/der-32/releases), or you can
+build them yourself:
 
 ## Mascot
 
@@ -54,16 +67,26 @@ On Arch Linux (or any Linux/BSD host, no root needed):
 ```sh
 sudo pacman -S --needed base-devel git xz python pkgconf \
     libarchive sqlite openssl curl qemu-base
-git clone --recurse-submodules --shallow-submodules https://github.com/luciferindev/der-32
+git clone https://github.com/luciferindev/der-32
 cd der-32
 make check     # host report
-make release   # toolchain, kernel, userland, sets, test repos, image, ISO
-make test      # automated tests, including a full QEMU boot
+make release   # toolchain, kernel, userland + X11, sets, repos, all images
+make test      # automated tests, including full QEMU boots
 make qemu      # boot it: login root / password der32, Ctrl-A X to quit
 ```
 
-The individual targets are `make tools kernel world sets repo image iso`.
-See [docs/building.md](docs/building.md).
+The first build fetches the pinned NetBSD `src` and `xsrc` trees (about
+2 GB). `make release` leaves these in `out/images/`:
+
+| image | what |
+|---|---|
+| `der32-0.1-amd64-install.img` | USB installer: live system plus sets, BIOS + UEFI |
+| `der32-0.1-amd64.iso` | the same as a live + install ISO, BIOS + UEFI |
+| `der32-0.1-amd64.img` | ready-to-run disk, serial console (QEMU, servers) |
+| `der32-0.1-amd64-pc.img` | ready-to-run disk, screen and keyboard |
+
+The individual targets are `make tools kernel world sets repo image
+image-pc installer iso`. See [docs/building.md](docs/building.md).
 
 ## upkg in one minute
 
@@ -96,13 +119,15 @@ Details and limits are in [docs/packages.md](docs/packages.md#netbsd-binary-pack
 
 | path | |
 |---|---|
-| `UPSTREAM`, `src/`, `patches/` | pinned NetBSD + the DER/32 patch series |
+| `UPSTREAM`, `src/`, `xsrc/`, `patches/` | pinned NetBSD (+ X11) and the DER/32 patch series |
+| `installer/` | `der32-install(8)`, the disk installer, in base |
 | `upkg/` | package manager (C), test suite, man page |
 | `derfetch/` | `derfetch(1)`: system info next to Genesis, in base |
 | `ports/` | source recipes (`upkg build`) |
 | `repos/` | repository tiers: core, extra, community |
 | `conf/` | build profile (`mk.conf`) and default `/etc/upkg` |
-| `scripts/` | build, image, ISO, repository, QEMU and test drivers |
+| `scripts/` | build, image, ISO, repository, QEMU, installer-test and site drivers |
+| `site/` | the website (GitHub Pages), including the online package repositories |
 | `share/fastfetch/` | fastfetch logo + config (Genesis) |
 | `docs/` | [architecture](docs/architecture.md), [building](docs/building.md), [packages](docs/packages.md), [roadmap](docs/roadmap.md), [development log](docs/devlog.md) |
 
