@@ -3,3 +3,8 @@ UPSTREAM_URL=https://github.com/NetBSD/src
 UPSTREAM_BRANCH=netbsd-10
 UPSTREAM_COMMIT=06f422a9d514cd1d9476676205760cc7e7c56a21
 UPSTREAM_DESC="NetBSD 10.2_STABLE (netbsd-10 branch, 2026-11-17, 'Ticket #1422')"
+
+# Pinned upstream NetBSD X11 source, for the X11 sets.
+XSRC_URL=https://github.com/NetBSD/xsrc
+XSRC_BRANCH=netbsd-10
+XSRC_COMMIT=4d8a282df81c4752a06c70b3b33b1e14752bb62a

@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 01:38:47 -0700
+Subject: [PATCH 14/14] etc/rc.d/motd: drop old tortoise quips wherever they
+ ended up
+
+rc.d/sshd rewrites the tail of /etc/motd (its unsafe-keys warning), which
+could leave an earlier quip indented or out of place, so every boot added
+one more. Match the quip anywhere on a line.
+---
+ etc/rc.d/motd | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/etc/rc.d/motd b/etc/rc.d/motd
+index c3931927daa00c8e7374176c9ec731022d1b6cec..3a4e12c91b00d6f4d510867fefa989719d907c63 100755
+--- a/etc/rc.d/motd
++++ b/etc/rc.d/motd
+@@ -39,7 +39,7 @@ motd_start()
+ 	fi
+ 	# DER/32: a fresh quip from the tortoise at every boot.
+ 	if [ -r /usr/share/misc/der32-quips ]; then
+-		sed '/^Tortoise says: /d' < $T > $T.q && mv $T.q $T
++		sed '/Tortoise says: /d' < $T > $T.q && mv $T.q $T
+ 		awk 'BEGIN { srand() } !/^#/ && NF { q[++n] = $0 }
+ 		    END { if (n) print "Tortoise says: " q[int(rand() * n) + 1] }' \
+ 		    /usr/share/misc/der32-quips >> $T

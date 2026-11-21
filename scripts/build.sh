@@ -9,8 +9,10 @@
 #   scripts/build.sh kernel     DER32 kernel               -> out/obj/.../DER32/netbsd
 #   scripts/build.sh world      userland + upkg (DESTDIR)  -> out/destdir
 #   scripts/build.sh sets       release sets + kern-DER32  -> out/release
-#   scripts/build.sh image      bootable disk image        -> out/images/*.img
-#   scripts/build.sh iso        bootable ISO               -> out/images/*.iso
+#   scripts/build.sh image      disk image, serial console -> out/images/*.img
+#   scripts/build.sh image-pc   disk image, screen console -> out/images/*-pc.img
+#   scripts/build.sh installer  USB installer image        -> out/images/*-install.img
+#   scripts/build.sh iso        live + install ISO         -> out/images/*.iso
 #   scripts/build.sh repo       signed test repository     -> out/repos
 #   scripts/build.sh release    all of the above, in order
 #
@@ -22,6 +24,8 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 SRC=$ROOT/src
+XSRC=$ROOT/xsrc	# NetBSD X11 tree, for the X11 sets (XFCE needs them)
+. "$ROOT/UPSTREAM"
 OUT=${DER32_OUT:-$ROOT/out}
 LOGDIR=$OUT/logs
 MACHINE=amd64
@@ -65,7 +69,7 @@ check_env() {
 	mkdir -p "$OUT"
 	avail=$(df -Pk "$OUT" | awk 'NR == 2 { print int($4 / 1048576) }')
 	echo "disk:      ${avail} GiB free in $(df -P "$OUT" | awk 'NR==2{print $6}')"
-	[ "$avail" -ge 20 ] || warn "a full build needs about 20 GiB free"
+	[ "$avail" -ge 25 ] || warn "a full build needs about 25 GiB free"
 	for c in qemu-system-x86_64 qemu-img; do
 		command -v "$c" >/dev/null 2>&1 ||
 		    warn "$c not found: 'make qemu' and 'make test' need it (Arch: pacman -S qemu-base; Debian: apt install qemu-system-x86 qemu-utils)"
@@ -121,6 +125,15 @@ host_cflags() {
 	echo "$flags"
 }
 
+# xsrc/ is a second pinned submodule (see UPSTREAM). Fetch only the
+# pinned commit, shallow, the first time it is needed.
+need_xsrc() {
+	[ -f "$XSRC/external/mit/xorg-server/dist/configure.ac" ] && return 0
+	echo "==> fetching NetBSD xsrc $XSRC_COMMIT (about 1 GiB, once)"
+	git -C "$ROOT" submodule update --init --depth 1 xsrc ||
+	    die "cannot initialise xsrc/ (network access to $XSRC_URL needed)"
+}
+
 nbbuild() {
 	: "${HOST_CFLAGS:=$(host_cflags)}"
 	export HOST_CFLAGS
@@ -135,8 +148,10 @@ nbbuild() {
 	fi
 	mkdir -p "$OUT"
 	echo "${HOST_CC:-cc} $HOST_CFLAGS" > "$stamp"
+	need_xsrc
 	cd "$SRC"
 	MAKECONF=$ROOT/conf/mk.conf ./build.sh -U -u -N1 -j"$JOBS" -m "$MACHINE" \
+	    -x -X "$XSRC" \
 	    -O "$OUT/obj" -T "$OUT/tools" -D "$OUT/destdir" -R "$OUT/release" "$@"
 }
 
@@ -173,12 +188,22 @@ do_repo() {
 
 do_image() {
 	console=${1:-serial}
-	case "$console" in serial|pc) ;; *) die "unknown console: $console" ;; esac
+	setsdir=
+	case "$console" in
+	serial|pc) ;;
+	installer)
+		console=any
+		setsdir=$OUT/release/$MACHINE/binary/sets
+		[ -f "$setsdir/base.tar.xz" ] || die "no release sets: run 'make sets' first"
+		;;
+	*) die "unknown image kind: $console" ;;
+	esac
 	need_patches
 	extra=$OUT/image-extra
 	rm -rf "$extra"
 	mkdir -p "$extra/etc/upkg/keys"
 	cp "$ROOT/conf/upkg/upkg.conf" "$ROOT/conf/upkg/repos.conf" "$extra/etc/upkg/"
+	cp "$ROOT"/conf/upkg/keys/*.pub "$extra/etc/upkg/keys/"	# release key(s)
 	if [ -d "$OUT/repos" ] && [ -f "$OUT/keys/der32-test.pub" ]; then
 		mkdir -p "$extra/usr/share/upkg/repos"
 		for r in core extra community; do
@@ -192,18 +217,25 @@ do_image() {
 	mkdir -p "$extra/usr/ports"
 	cp -R "$ROOT/ports/." "$extra/usr/ports/"
 	imgdir=$SRC/distrib/$MACHINE/der32image
+	# the password database depends on the image kind (first-login change)
+	rm -rf "$OUT/obj/distrib/$MACHINE/der32image/pwwork"
 	run_logged image sh -c '
 	    set -e
 	    "$0" -C "$1" obj
 	    "$0" -C "$1" cleandir
-	    "$0" -C "$1" DER32_CONSOLE="$4" DER32_EXTRA_DIR="$2" RELEASEDIR="$3" live_image
-	' "$OUT/tools/bin/nbmake-$MACHINE" "$imgdir" "$extra" "$OUT/release" "$console"
+	    "$0" -C "$1" DER32_CONSOLE="$4" DER32_EXTRA_DIR="$2" RELEASEDIR="$3" \
+		${5:+DER32_SETSDIR="$5"} live_image
+	' "$OUT/tools/bin/nbmake-$MACHINE" "$imgdir" "$extra" "$OUT/release" "$console" "$setsdir"
 	suffix=
 	[ "$console" = pc ] && suffix=-pc
+	[ -n "$setsdir" ] && suffix=-install
 	img=$OUT/obj/distrib/$MACHINE/der32image/der32-$DER32_RELEASE-$MACHINE$suffix.img
 	[ -f "$img" ] || die "image not produced: $img"
 	mkdir -p "$OUT/images"
-	cp "$img" "$OUT/images/"
+	# move, not copy: images are 2-4 GiB each; drop the unused .gz too
+	mv "$img" "$OUT/images/"
+	rm -f "$img.gz" "${img%/*}/imgroot.fs" "${img%/*}/work.img"
+	img=$OUT/images/${img##*/}
 	(cd "$OUT/images" && sha256sum "$(basename "$img")" > "$(basename "$img").sha256")
 	say "image: out/images/$(basename "$img") ($(du -h "$img" | cut -f1))"
 }
@@ -222,10 +254,12 @@ sets)    do_sets ;;
 repo)    do_repo ;;
 image)   do_image serial ;;
 image-pc) do_image pc ;;
+installer) do_image installer ;;
 iso)     do_iso ;;
 release)
 	check_env
-	do_tools; do_kernel; do_world; do_sets; do_repo; do_image; do_iso
+	do_tools; do_kernel; do_world; do_sets; do_repo
+	do_image serial; do_image pc; do_image installer; do_iso
 	say "DER/32 $DER32_RELEASE release artifacts in out/images/"
 	ls -l "$OUT/images"
 	;;

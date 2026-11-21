@@ -4,3 +4,9 @@
 	branch = netbsd-10
 	shallow = true
 	ignore = all
+[submodule "xsrc"]
+	path = xsrc
+	url = https://github.com/NetBSD/xsrc
+	branch = netbsd-10
+	shallow = true
+	ignore = all

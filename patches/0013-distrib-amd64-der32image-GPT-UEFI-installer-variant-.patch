@@ -1,0 +1,157 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:12:31 -0700
+Subject: [PATCH 13/14] distrib/amd64/der32image: GPT + UEFI, installer
+ variant, first-boot password
+
+* Images are GPT with a hybrid MBR and an EFI system partition, so they
+  boot from BIOS and from UEFI (bootx64.efi, bootia32.efi).
+* /boot.cfg carries the console (the UEFI loader reads only that file).
+* DER32_CONSOLE=any: a boot menu choosing screen or serial, with getty on
+  constty, for the installer.
+* DER32_SETSDIR puts the release sets into /der32/sets: a USB installer
+  image (der32-<rel>-amd64-install.img) for der32-install(8).
+* The disk images expire root's default password, so the first login
+  forces a new one. The installer image does not.
+---
+ distrib/amd64/der32image/Makefile | 66 +++++++++++++++++++++++++++----
+ distrib/amd64/der32image/ttys.any | 15 +++++++
+ 2 files changed, 74 insertions(+), 7 deletions(-)
+ create mode 100644 distrib/amd64/der32image/ttys.any
+
+diff --git a/distrib/amd64/der32image/Makefile b/distrib/amd64/der32image/Makefile
+index f1618ec09ae80487f872c45f4ffc849b70517e40..4a92cabf7730936e96b78398f4c43f6f5e57f0c8 100644
+--- a/distrib/amd64/der32image/Makefile
++++ b/distrib/amd64/der32image/Makefile
+@@ -13,19 +13,46 @@
+ .include "${NETBSDSRCDIR}/sys/conf/der32.release"
+ 
+ # Keep the original serial image intact, and build a separate PC variant.
+-# The console selection must be passed to nbmake for each image build.
++# The console selection must be passed to nbmake for each image build:
++#   serial  com0 at 9600 baud, getty on tty00 (QEMU, servers; the default)
++#   pc      screen and keyboard, getty on ttyE0
++#   any     serial if a terminal answers on com0, else screen; the boot
++#           menu can force either. getty on constty (installer)
++# DER32_SETSDIR, if set, puts the release sets into /der32/sets and makes
++# the image a USB installer for der32-install(8).
+ DER32_CONSOLE?= serial
+ .if ${DER32_CONSOLE} == "serial"
+-LIVEIMGBASE=	der32-${DER32_RELEASE}-${MACHINE}
++IMGSUFFIX=
+ INSTALLBOOTOPTIONS=	-o console=com0,speed=9600,timeout=3
+ DER32_TTYS=	${.CURDIR}/ttys
+ .elif ${DER32_CONSOLE} == "pc"
+-LIVEIMGBASE=	der32-${DER32_RELEASE}-${MACHINE}-pc
++IMGSUFFIX=	-pc
+ INSTALLBOOTOPTIONS=	-o console=pc,timeout=3
+ DER32_TTYS=	${.CURDIR}/ttys.pc
++.elif ${DER32_CONSOLE} == "any"
++# "auto": the serial port if one answers with its status lines up (a
++# connected terminal, or QEMU's -serial), the screen otherwise.
++IMGSUFFIX=
++INSTALLBOOTOPTIONS=	-o console=auto,timeout=5
++DER32_TTYS=	${.CURDIR}/ttys.any
+ .else
+-.error "DER32_CONSOLE must be serial or pc"
++.error "DER32_CONSOLE must be serial, pc or any"
+ .endif
++.if defined(DER32_SETSDIR)
++IMGSUFFIX:=	${IMGSUFFIX}-install
++LIVEIMAGEMB?=	4096
++# The installer is a live system: no forced password change.
++DER32_PWCHANGE?=	no
++.endif
++DER32_PWCHANGE?=	yes
++LIVEIMGBASE=	der32-${DER32_RELEASE}-${MACHINE}${IMGSUFFIX}
++
++# GPT with a protective/hybrid MBR: boots from BIOS (gptmbr ->
++# bootxx_ffsv1 -> /boot) and from UEFI (EFI/boot/bootx64.efi).
++USE_MBR=	yes
++USE_GPT=	yes
++USE_GPTMBR=	yes
++EFIBOOT=	${WORKDIR}/usr/mdec/bootx64.efi ${WORKDIR}/usr/mdec/bootia32.efi
+ LIVEIMAGEMB?=	2048
+ SWAPMB=		0
+ IMAGEHOSTNAME=	der32
+@@ -35,7 +62,6 @@ SETS?=		base etc comp misc man
+ PRIMARY_BOOT=	bootxx_ffsv1
+ SECONDARY_BOOT=	boot
+ SECONDARY_BOOT_ARG=
+-USE_MBR=	yes
+ RC_CONF_EXTRA=	${.CURDIR}/rc.conf.der32
+ SPEC_EXTRA=	${.CURDIR}/spec.der32
+ 
+@@ -43,15 +69,40 @@ DER32_ROOT_HASH?=	${.CURDIR}/root.hash
+ PWWORK=		${.OBJDIR}/pwwork
+ 
+ IMGFILE_EXTRA=	${DER32_TTYS}			etc/ttys \
++		${.OBJDIR}/boot.cfg		boot.cfg \
+ 		${PWWORK}/etc/master.passwd	etc/master.passwd \
+ 		${PWWORK}/etc/passwd		etc/passwd \
+ 		${PWWORK}/etc/pwd.db		etc/pwd.db \
+ 		${PWWORK}/etc/spwd.db		etc/spwd.db
+ 
+ .if defined(DER32_EXTRA_DIR)
+-IMGDIR_EXTRA=	${DER32_EXTRA_DIR}	.
++IMGDIR_EXTRA+=	${DER32_EXTRA_DIR}	.
++.endif
++.if defined(DER32_SETSDIR)
++IMGDIR_EXTRA+=	${DER32_SETSDIR}	der32/sets
+ .endif
+ 
++# /boot.cfg: the BIOS loader also gets the console from installboot, but
++# the UEFI loader only reads this file.
++prepare_md_post: ${.OBJDIR}/boot.cfg
++${.OBJDIR}/boot.cfg: ${.CURDIR}/Makefile
++	( echo "banner=Welcome to ${DER32_NAME} ${DER32_RELEASE} \"${DER32_CODENAME}\"" ; \
++	  echo "banner================================================" ; \
++	  echo "timeout=5" ; \
++	  case "${DER32_CONSOLE}" in \
++	  serial) echo "consdev=com0" ; \
++		  echo "menu=Boot DER/32:boot netbsd" ;; \
++	  pc)	  echo "consdev=pc" ; \
++		  echo "menu=Boot DER/32:boot netbsd" ;; \
++	  any)	  echo "menu=Boot DER/32:boot netbsd" ; \
++		  echo "menu=Boot DER/32 on the screen:consdev pc;boot netbsd" ; \
++		  echo "menu=Boot DER/32 on the serial port (9600 baud):consdev com0;boot netbsd" ;; \
++	  esac ; \
++	  echo "menu=Boot DER/32 single user:boot netbsd -s" ; \
++	  echo "menu=Drop to boot prompt:prompt" ; \
++	  echo "default=1" ) > ${.TARGET}
++CLEANFILES+=	boot.cfg
++
+ # Root's password database is regenerated with the image's root hash.
+ prepare_md_post: ${PWWORK}/etc/spwd.db
+ ${PWWORK}/etc/spwd.db: ${DER32_ROOT_HASH}
+@@ -59,7 +110,8 @@ ${PWWORK}/etc/spwd.db: ${DER32_ROOT_HASH}
+ 	mkdir -p ${PWWORK}/etc
+ 	hash=$$(cat ${DER32_ROOT_HASH}); \
+ 	${TOOL_AWK} -F: -v OFS=: -v h="$$hash" \
+-	    '$$1 == "root" { $$2 = h } { print }' \
++	    -v chg=${DER32_PWCHANGE:S/yes/1/:S/no/0/} \
++	    '$$1 == "root" { $$2 = h; $$6 = chg } { print }' \
+ 	    ${NETBSDSRCDIR}/etc/master.passwd > ${PWWORK}/etc/master.passwd
+ 	${TOOL_PWD_MKDB} -p -d ${PWWORK} ${PWWORK}/etc/master.passwd
+ 
+diff --git a/distrib/amd64/der32image/ttys.any b/distrib/amd64/der32image/ttys.any
+new file mode 100644
+index 0000000000000000000000000000000000000000..37a08ccb936d1d1b4d97d1977751f48f0d5f6906
+--- /dev/null
++++ b/distrib/amd64/der32image/ttys.any
+@@ -0,0 +1,15 @@
++#	$DER32: ttys.any,v 0.1 2026/11/20 $
++#
++# DER/32 installer image: one getty on whatever the boot menu chose as
++# the console (screen or serial).
++#
++# name	getty				type	status		comments
++#
++console	"/usr/libexec/getty Pc"		vt100	off secure
++constty	"/usr/libexec/getty Pc"		vt100	on secure
++ttyE0	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE1	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE2	"/usr/libexec/getty Pc"		wsvt25	off secure
++ttyE3	"/usr/libexec/getty Pc"		wsvt25	off secure
++tty00	"/usr/libexec/getty std.9600"	vt100	off secure
++tty01	"/usr/libexec/getty std.9600"	unknown off secure

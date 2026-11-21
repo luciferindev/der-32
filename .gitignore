@@ -3,3 +3,4 @@
 /upkg/src/*.o
 *.upkg
 __pycache__/
+!/site/repo/**/*.upkg

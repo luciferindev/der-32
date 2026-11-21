@@ -1,0 +1,152 @@
+.\"	$DER32: der32-install.8,v 0.1 2026/11/20 $
+.\"
+.\" Copyright (c) 2026 The DER/32 Project.  BSD-2-Clause, see LICENSES/.
+.\"
+.Dd November 20, 2026
+.Dt DER32-INSTALL 8
+.Os
+.Sh NAME
+.Nm der32-install
+.Nd install DER/32 onto a disk
+.Sh SYNOPSIS
+.Nm
+.Op Fl f Ar answer-file
+.Op Fl s Ar sets-dir
+.Sh DESCRIPTION
+.Nm
+installs DER/32 from a booted install medium, the live ISO or the USB
+installer image, onto a disk.
+It asks a few questions, then:
+.Bl -enum -compact
+.It
+replaces the disk's partition table with a GPT holding a 256\ MiB EFI
+system partition
+.Pq Li der32efi ,
+optional swap
+.Pq Li der32swap
+and an FFSv2 root using the rest of the disk
+.Pq Li der32root ;
+.It
+extracts the release sets
+.Pq base, etc, comp, man, misc, text, kern-DER32 ;
+.It
+installs both the BIOS boot loader (GPT boot code plus
+.Pa /usr/mdec/bootxx_ffsv2 )
+and the UEFI loader
+.Pa EFI/BOOT/BOOTX64.EFI ,
+so the disk boots either way;
+.It
+writes
+.Pa /etc/fstab
+(by GPT label),
+.Pa /etc/rc.conf ,
+.Pa /boot.cfg
+and the time zone, sets root's password and optionally creates a user in
+group
+.Li wheel ;
+.It
+optionally installs the X11 sets and the XFCE desktop from NetBSD's
+binary packages with
+.Xr pkgin 1 .
+This needs a working network connection.
+.El
+.Pp
+Nothing is written to any disk until the disk is confirmed by typing
+.Dq Li erase Ar disk .
+The disk the installer itself booted from is never offered.
+.Pp
+The options are:
+.Bl -tag -width indent
+.It Fl f Ar answer-file
+Run without questions.
+The file is read by
+.Xr sh 1
+and sets the variables below.
+.It Fl s Ar sets-dir
+Take the sets from
+.Ar sets-dir
+instead of
+.Pa /der32/sets .
+.El
+.Sh ANSWER FILE
+.Bl -tag -width USER_PWHASH -compact
+.It Ev DISK
+target disk, for example
+.Li wd0
+.It Ev CONFIRM
+must be
+.Dq Li erase Ev $DISK
+.It Ev HOSTNAME
+default
+.Li der32
+.It Ev TIMEZONE
+a name under
+.Pa /usr/share/zoneinfo ,
+default
+.Li UTC
+.It Ev CONSOLE
+.Li screen
+or
+.Li serial
+.It Ev SWAP_MB
+swap size, 0 for none
+.It Ev ROOT_PWHASH
+root's password hash, from
+.Xr pwhash 1
+(required)
+.It Ev USERNAME
+optional user to create
+.It Ev USER_PWHASH
+that user's password hash
+.It Ev DHCP , XFCE
+.Li yes
+or
+.Li no
+.El
+.Sh FILES
+.Bl -tag -width /var/log/der32-install.log -compact
+.It Pa /der32/sets
+release sets on the install medium
+.It Pa /tmp/der32-install.log
+log of the run, copied to
+.Pa /var/log/der32-install.log
+on the new system
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# der32-install
+.Ed
+.Pp
+Unattended:
+.Bd -literal -offset indent
+DISK=wd0
+CONFIRM="erase wd0"
+HOSTNAME=tortoise
+TIMEZONE=America/Boise
+CONSOLE=screen
+SWAP_MB=1024
+ROOT_PWHASH='$argon2id$v=19$...'
+DHCP=yes XFCE=no
+.Ed
+.Sh SEE ALSO
+.Xr pkgin 1 ,
+.Xr pwhash 1 ,
+.Xr upkg 8 ,
+.Xr boot 8 ,
+.Xr gpt 8 ,
+.Xr installboot 8
+.Sh HISTORY
+.Nm
+first appeared in DER/32 0.1
+.Dq Genesis .
+.Sh BUGS
+The SSH server is not offered: in DER/32 0.1, loading SSH private keys
+hangs, so an enabled
+.Xr sshd 8
+would stop the boot.
+.Sh CAVEATS
+The XFCE option downloads several hundred megabytes from
+.Li cdn.NetBSD.org .
+If that fails, the X11 sets are still installed and the desktop can be
+added later with
+.Ic pkgin install xfce4 .

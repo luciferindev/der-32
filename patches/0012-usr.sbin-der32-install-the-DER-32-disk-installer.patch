@@ -1,0 +1,90 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:11:18 -0700
+Subject: [PATCH 12/14] usr.sbin/der32-install: the DER/32 disk installer
+
+Reachover for installer/der32-install.sh and its manual page, which live
+in the top-level DER/32 tree. Installs to /usr/sbin/der32-install; listed
+in the base and man sets.
+---
+ distrib/sets/lists/base/mi      |  1 +
+ distrib/sets/lists/man/mi       |  3 +++
+ usr.sbin/Makefile               |  2 +-
+ usr.sbin/der32-install/Makefile | 15 +++++++++++++++
+ 4 files changed, 20 insertions(+), 1 deletion(-)
+ create mode 100644 usr.sbin/der32-install/Makefile
+
+diff --git a/distrib/sets/lists/base/mi b/distrib/sets/lists/base/mi
+index a0f79dc816539ad55636633043663c469d2e23bf..253e666704d40e3ebbfaf5d8e1b13cf1618050ac 100644
+--- a/distrib/sets/lists/base/mi
++++ b/distrib/sets/lists/base/mi
+@@ -1474,6 +1474,7 @@
+ ./usr/sbin/daicctl				base-obsolete		obsolete
+ ./usr/sbin/dbsym				base-sysutil-bin	binutils
+ ./usr/sbin/ddns-confgen				base-bind-bin
++./usr/sbin/der32-install			base-sysutil-bin
+ ./usr/sbin/dev_mkdb				base-sysutil-bin
+ ./usr/sbin/dhcpd				base-dhcpd-bin
+ ./usr/sbin/dhcrelay				base-dhcpd-bin
+diff --git a/distrib/sets/lists/man/mi b/distrib/sets/lists/man/mi
+index 97b05b10e27f5178908c42ce6ee47a200ef21a53..c743cbcab709b1c7fe9e8effa8124020af99c281 100644
+--- a/distrib/sets/lists/man/mi
++++ b/distrib/sets/lists/man/mi
+@@ -2709,6 +2709,7 @@
+ ./usr/share/man/cat8/dbsym.0			man-sysutil-catman	binutils,.cat
+ ./usr/share/man/cat8/ddns-confgen.0		man-bind-catman		.cat
+ ./usr/share/man/cat8/defer.0			man-postfix-catman	postfix,.cat
++./usr/share/man/cat8/der32-install.0		man-sysutil-catman	.cat
+ ./usr/share/man/cat8/dev_mkdb.0			man-sysutil-catman	.cat
+ ./usr/share/man/cat8/devpubd.0			man-sysutil-catman	.cat
+ ./usr/share/man/cat8/dhclient-script.0		man-obsolete		obsolete
+@@ -5986,6 +5987,7 @@
+ ./usr/share/man/html8/dbsym.html		man-sysutil-htmlman	binutils,html
+ ./usr/share/man/html8/ddns-confgen.html		man-bind-htmlman	html
+ ./usr/share/man/html8/defer.html		man-postfix-htmlman	postfix,html
++./usr/share/man/html8/der32-install.html	man-sysutil-htmlman	html
+ ./usr/share/man/html8/dev_mkdb.html		man-sysutil-htmlman	html
+ ./usr/share/man/html8/devpubd.html		man-sysutil-htmlman	html
+ ./usr/share/man/html8/dhclient-script.html	man-obsolete		obsolete
+@@ -9316,6 +9318,7 @@
+ ./usr/share/man/man8/dbsym.8			man-sysutil-man		binutils,.man
+ ./usr/share/man/man8/ddns-confgen.8		man-bind-man		.man
+ ./usr/share/man/man8/defer.8			man-postfix-man		postfix,.man
++./usr/share/man/man8/der32-install.8		man-sysutil-man		.man
+ ./usr/share/man/man8/dev_mkdb.8			man-sysutil-man		.man
+ ./usr/share/man/man8/devpubd.8			man-sysutil-man		.man
+ ./usr/share/man/man8/dhclient-script.8		man-obsolete		obsolete
+diff --git a/usr.sbin/Makefile b/usr.sbin/Makefile
+index fc9d4a4693b0133dfdf76c52210f9941b53266e9..ee80082801cd1bec31ed2429099e46131c7d533e 100644
+--- a/usr.sbin/Makefile
++++ b/usr.sbin/Makefile
+@@ -6,7 +6,7 @@
+ SUBDIR=	ac accton acpitools altq apm apmd arp autofs \
+ 	bad144 bootp bta2dpd btattach btconfig btdevctl bthcid btpand catman \
+ 	certctl chroot cnwctl cpuctl crash \
+-	dev_mkdb diskpart dumpfs dumplfs \
++	dev_mkdb diskpart der32-install dumpfs dumplfs \
+ 	edquota eeprom envstat etcupdate extattrctl \
+ 	flashctl fssconfig fstyp fusermount fwctl \
+ 	gpioctl grfconfig gspa \
+diff --git a/usr.sbin/der32-install/Makefile b/usr.sbin/der32-install/Makefile
+new file mode 100644
+index 0000000000000000000000000000000000000000..13d9dc2c657a3c6619372f44d9855f4bd9bed9bf
+--- /dev/null
++++ b/usr.sbin/der32-install/Makefile
+@@ -0,0 +1,15 @@
++#	$DER32: Makefile,v 0.1 2026/11/20 $
++#
++# Reachover Makefile: der32-install is developed in the top-level DER/32
++# installer/ directory and installed into the base system here.
++
++.include <bsd.own.mk>
++
++INSTALLERDIR=	${NETBSDSRCDIR}/../installer
++.PATH:		${INSTALLERDIR}
++
++SCRIPTS=	der32-install.sh
++SCRIPTSDIR=	/usr/sbin
++MAN=		der32-install.8
++
++.include <bsd.prog.mk>

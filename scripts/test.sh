@@ -58,6 +58,15 @@ t_build() {
 	ck "bootable image exists"        test -f "$IMG"
 	ck "image has an MBR boot signature" \
 	    sh -c "[ \"\$(od -An -tx1 -j510 -N2 '$IMG' | tr -d ' ')\" = 55aa ]"
+	ck "image has a GPT (BIOS + UEFI boot)" \
+	    sh -c "[ \"\$(dd if='$IMG' bs=1 skip=512 count=8 2>/dev/null)\" = 'EFI PART' ]"
+	ck "userland: der32-install in base" test -x "$OUT/destdir/usr/sbin/der32-install"
+	ck "userland: X11 server built"   test -x "$OUT/destdir/usr/X11R7/bin/Xorg"
+	for s in xbase xcomp xetc xfont xserver; do
+		ck "release sets: $s" test -f "$OUT/release/amd64/binary/sets/$s.tar.xz"
+	done
+	ck "USB installer image exists"   test -f "$OUT/images/der32-0.1-amd64-install.img"
+	ck "live + install ISO exists"    test -f "$OUT/images/der32-0.1-amd64.iso"
 	} 2>&1 | tee "$LOGDIR/test-build.log"
 	grep -q FAIL "$LOGDIR/test-build.log" && FAIL=1
 }

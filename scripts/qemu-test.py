@@ -24,6 +24,7 @@ LOG = sys.argv[2] if len(sys.argv) > 2 else "qemu-test.log"
 BOOT_TIMEOUT = int(os.environ.get("BOOT_TIMEOUT", "900"))
 CMD_TIMEOUT = int(os.environ.get("CMD_TIMEOUT", "300"))
 PASSWORD = os.environ.get("DER32_ROOT_PASSWORD", "der32")
+NEW_PASSWORD = os.environ.get("DER32_NEW_PASSWORD", "tortoise-2026")
 
 ISO = IMG.endswith(".iso")
 accel = ["-accel", "kvm", "-cpu", "host"] if os.access("/dev/kvm", os.W_OK) \
@@ -96,7 +97,13 @@ def run(cmd, timeout=CMD_TIMEOUT):
     # the markers are split by quotes so the echoed command line never
     # matches them -- only the shell's output does
     send(f"echo @@B''EGIN{seq}@@; {cmd}; echo @@E''ND{seq}@@ $?\n")
-    expect(rf"@@BEGIN{seq}@@\r*\n", timeout)
+    # The serial line occasionally drops the newline of a long command;
+    # if the shell has not started it, press Return once more.
+    try:
+        expect(rf"@@BEGIN{seq}@@\r*\n", 20)
+    except TimeoutError:
+        send("\n")
+        expect(rf"@@BEGIN{seq}@@\r*\n", timeout)
     start = pos
     m = expect(rf"@@END{seq}@@ (\d+)", timeout)
     out = text()[start:m.start()].replace("\r", "").strip("\n")
@@ -132,12 +139,25 @@ try:
                r"(\S+)/(\S+) \((\S+)\)\r*\n\r*\nlogin: ", BOOT_TIMEOUT)
     check(f"multi-user boot to getty login in {int(time.time() - t0)}s "
           f"({m.group(1)}/{m.group(2)} ({m.group(3)}))", True)
-    check("getty banner: der32/amd64 (tty00)",
-          (m.group(1), m.group(2), m.group(3)) == ("der32", "amd64", "tty00"))
+    tty = "constty" if ISO else "tty00"
+    check(f"getty banner: der32/amd64 ({tty})",
+          (m.group(1), m.group(2), m.group(3)) == ("der32", "amd64", tty))
     send("root\n")
     expect(r"Password:", 60)
     send(PASSWORD + "\n")
-    expect(r"DER/32 0\.1 GENESIS", 60)
+    m = expect(r"DER/32 0\.1 GENESIS|password has expired|(?i:new password:)", 60)
+    expired = "GENESIS" not in m.group(0)
+    if ISO:
+        check("live ISO: no forced password change", not expired)
+    else:
+        check("first login forces a new root password", expired)
+    if expired:
+        if "assword:" not in m.group(0):
+            expect(r"(?i)new password:", 30)
+        send(NEW_PASSWORD + "\n")
+        expect(r"(?i)(retype|again|new password)[^:]*:", 30)
+        send(NEW_PASSWORD + "\n")
+        expect(r"DER/32 0\.1 GENESIS", 60)
     check("login as root; motd shows DER/32 0.1 GENESIS", True)
     time.sleep(2)
     send("PS1='# '; export PS1\n")
@@ -168,6 +188,10 @@ try:
                   "mount | head -1", rx=r" on / type cd9660 \(.*read-only")
         check_cmd("writable tmpfs layers", "mount | grep -c 'tmpfs on /'",
                   rx=r"^[5-9]$")
+        check_cmd("install sets on the ISO", "ls /der32/sets | grep -c 'tar.xz$'",
+                  rx=r"^(1[0-9]|[2-9][0-9])$")
+        check_cmd("der32-install is in the base system",
+                  "der32-install -x 2>&1; true", rx=r"usage: der32-install")
     else:
         check_cmd("root filesystem is FFS", "mount | head -1", rx=r" on / type ffs")
     check_cmd("filesystem operations (mkdir/write/mv/ln/rm)",
@@ -193,7 +217,9 @@ try:
     check("derfetch shows the DER32 kernel and NetBSD base",
           re.search(r"Kernel: DER32 #\d+", out) is not None and
           re.search(r"Base: NetBSD 10\.", out) is not None, out[-200:])
-    check("derfetch draws Genesis", "'-.__.-'" in out, out[:200])
+    check("derfetch draws Genesis (27 columns)", "\\____/" in out and "|_|" in out, out[:200])
+    check_cmd("derfetch fits an 80-column console",
+              "COLUMNS=80 derfetch -n | awk 'length > 79' | wc -l", rx=r"^\s*0$")
 
     print("== easter eggs")
     check_cmd("motd carries a tortoise quip, refreshed at boot",
@@ -230,13 +256,23 @@ try:
 
     print("== upkg")
     check_cmd("upkg --version", "upkg --version", want="upkg 0.1")
+    check_cmd("online repositories configured over HTTPS",
+              "grep -c '^url = https://luciferindev.github.io/der-32/repo/' /etc/upkg/repos.conf",
+              want="3")
+    check_cmd("release key installed", "test -s /etc/upkg/keys/der32-release.pub && echo ok",
+              want="ok")
+    # The test machine has no route to the internet: test the copies on
+    # the medium only.
+    check_cmd("disable the online repositories for the offline test",
+              "for r in core extra community; do upkg repo disable der32-$r; done; "
+              "upkg repo list | grep -c disabled", want="3")
     if ISO:
         check_cmd("live: upkg sync + install der32-hello",
                   "upkg sync >/dev/null && upkg install der32-hello >/dev/null && der32-hello",
                   rx=r"kern\.der32: release 0\.1")
         raise StopIteration
-    check_cmd("upkg repo list (3 test repositories)", "upkg repo list | wc -l",
-              want="3")
+    check_cmd("upkg repo list (3 online + 3 on the medium)", "upkg repo list | wc -l",
+              want="6")
     check_cmd("upkg sync verifies signed indexes", "upkg sync",
               rx=r"core .*packages")
     check_cmd("upkg search", "upkg search lua", rx=r"core/lua 5\.4\.7-1")
