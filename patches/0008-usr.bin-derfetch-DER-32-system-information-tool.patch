@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 19:59:50 -0700
-Subject: [PATCH 8/9] usr.bin/derfetch: DER/32 system information tool
+Subject: [PATCH 08/14] usr.bin/derfetch: DER/32 system information tool
 
 Reachover Makefile for ../derfetch (top level of the DER/32 tree), hooked
 into SUBDIR and listed in the base, man and debug sets.

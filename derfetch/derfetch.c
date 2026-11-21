@@ -11,6 +11,7 @@
  */
 
 #include <sys/param.h>
+#include <sys/ioctl.h>
 #include <sys/statvfs.h>
 #include <sys/time.h>
 #include <sys/utsname.h>
@@ -36,18 +37,16 @@
 
 /* Genesis, from share/fastfetch/der32.txt; '\1' outline, '\2' eye. */
 static const char *logo[] = {
-	"\1                   _.-''''''-._",
-	"\1               .-'  \\________/  '-.",
-	"\1             .'      |      |      '.",
-	"\1   .---.    /--------'      '-------\\",
-	"\1  /     \\  |      /  '-.__.-'  \\     |",
-	"\1 |  \2--\1   '-|_____/______________\\____|_.",
-	"\1  '-.________________________________ __)",
-	"\1             |  |               |  |",
-	"\1             '--'               '--'",
+	"\1           _.-''''-._",
+	"\1         .'  \\____/  '.",
+	"\1  .--.  /----'    '----\\",
+	"\1 /    \\|     /\\__/\\     |",
+	"\1| \2--\1   '-.__/______\\____|_.",
+	"\1 '-.______________________)",
+	"\1        |_|          |_|",
 };
 #define LOGO_LINES	(sizeof(logo) / sizeof(logo[0]))
-#define LOGO_WIDTH	41
+#define LOGO_WIDTH	27
 
 static int color = 1;
 
@@ -380,6 +379,36 @@ print_logo_line(size_t i, int show)
 	printf("%*s", LOGO_WIDTH - width + 3, "");
 }
 
+/* Terminal width: the tty's, else $COLUMNS, else 80. */
+static int
+term_cols(void)
+{
+	struct winsize ws;
+	const char *c;
+	int n;
+
+	if (isatty(STDOUT_FILENO) && ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 &&
+	    ws.ws_col > 0)
+		return ws.ws_col;
+	if ((c = getenv("COLUMNS")) != NULL && (n = atoi(c)) > 0)
+		return n;
+	return 80;
+}
+
+/* Print at most room characters of s (room < 1 prints nothing). */
+static void
+put_clipped(const char *s, int room)
+{
+	if (room <= 0)
+		return;
+	if ((int)strlen(s) <= room)
+		fputs(s, stdout);
+	else if (room > 3)
+		printf("%.*s...", room - 3, s);
+	else
+		printf("%.*s", room, s);
+}
+
 static void
 usage(void)
 {
@@ -394,7 +423,7 @@ main(int argc, char **argv)
 	struct utsname u;
 	struct passwd *pw;
 	char host[MAXHOSTNAMELEN], title[MAXHOSTNAMELEN + 64];
-	int ch, show_logo = 1;
+	int ch, show_logo = 1, cols, room;
 	size_t i, rows;
 
 	while ((ch = getopt(argc, argv, "lnV")) != -1)
@@ -434,18 +463,38 @@ main(int argc, char **argv)
 	do_disk();
 	do_hatchday();
 
-	/* title, rule, then the info lines beside the logo */
-	rows = nlines + 2 > LOGO_LINES ? nlines + 2 : LOGO_LINES;
+	/*
+	 * Title, rule, then the info lines beside the logo, clipped to the
+	 * terminal (an 80-column console must not wrap).  Too narrow for
+	 * the logo and some text: drop the logo.
+	 */
+	cols = term_cols() - 1;
+	if (show_logo && cols < LOGO_WIDTH + 3 + 24)
+		show_logo = 0;
+	room = cols - (show_logo ? LOGO_WIDTH + 3 : 0);
+	rows = nlines + 2;
+	if (show_logo && rows < LOGO_LINES)
+		rows = LOGO_LINES;
 	for (i = 0; i < rows; i++) {
 		print_logo_line(i, show_logo);
-		if (i == 0)
-			printf("%s%s%s", ACCENT, title, RESET);
-		else if (i == 1)
-			for (size_t k = 0; k < strlen(title); k++)
+		if (i == 0) {
+			fputs(ACCENT, stdout);
+			put_clipped(title, room);
+			fputs(RESET, stdout);
+		} else if (i == 1) {
+			for (size_t k = 0; k < strlen(title) && (int)k < room; k++)
 				putchar('-');
-		else if (i - 2 < nlines)
-			printf("%s%s%s: %s", ACCENT, lines[i - 2].key, RESET,
-			    lines[i - 2].val);
+		} else if (i - 2 < nlines) {
+			int klen = (int)strlen(lines[i - 2].key) + 2;
+
+			fputs(ACCENT, stdout);
+			put_clipped(lines[i - 2].key, room);
+			fputs(RESET, stdout);
+			if (room > klen) {
+				fputs(": ", stdout);
+				put_clipped(lines[i - 2].val, room - klen);
+			}
+		}
 		putchar('\n');
 	}
 	return 0;

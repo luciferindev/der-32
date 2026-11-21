@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 00:11:30 -0700
-Subject: [PATCH 9/9] etc: NetBSD binary packages, CA certificates, and
+Subject: [PATCH 09/14] etc: NetBSD binary packages, CA certificates, and
  tortoise quips in motd
 
 /etc/pkg_install.conf (amd64) points pkg_add(1) at cdn.NetBSD.org's

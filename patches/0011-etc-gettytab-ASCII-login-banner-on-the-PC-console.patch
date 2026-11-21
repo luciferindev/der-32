@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: DER/32-Project <der32@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:11:02 -0700
+Subject: [PATCH 11/14] etc/gettytab: ASCII login banner on the PC console
+
+wscons consoles are not UTF-8, so the em dash in the default banner
+showed as mojibake on ttyE*. The Pc entry now carries its own banner
+with a plain hyphen; serial consoles keep the em dash.
+---
+ etc/gettytab | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/etc/gettytab b/etc/gettytab
+index a3ae3415458d836599a4e494e399cb63ba2ac02e..9cbf16122fb73ea9eb8fa9bcb976db23ddb87a00 100644
+--- a/etc/gettytab
++++ b/etc/gettytab
+@@ -120,8 +120,10 @@ Console-1200|Console Decwriter III:\
+ X|Xwindow|X window system:\
+ 	:rw:sp#9600:
+ 
++# DER/32: the wscons console is not UTF-8, so its banner uses "-" where
++# the default (serial, UTF-8 terminals) uses an em dash.
+ Pc|Pc console:\
+-	:np:ig:ht:
++	:np:ig:ht:im=\r\nDER/32 UNIX Operating System\r\nRelease 0.1 - Genesis\r\n\r\n%h/%m (%t)\r\n\r\n:
+ 
+ # 8 bit clean Sun console
+ suncons|Sun Console:\

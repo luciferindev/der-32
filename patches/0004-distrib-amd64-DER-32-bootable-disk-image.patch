@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 16:41:40 -0700
-Subject: [PATCH 4/9] distrib/amd64: DER/32 bootable disk image
+Subject: [PATCH 04/14] distrib/amd64: DER/32 bootable disk image
 
 Builds der32-<release>-amd64.img from the release sets and kern-DER32 with
 the stock Makefile.bootimage: MBR + FFS root, serial console on com0,

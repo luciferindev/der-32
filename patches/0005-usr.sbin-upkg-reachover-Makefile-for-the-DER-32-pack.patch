@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: DER/32-Project <der32@users.noreply.github.com>
 Date: Thu, 19 Nov 2026 16:41:41 -0700
-Subject: [PATCH 5/9] usr.sbin/upkg: reachover Makefile for the DER/32 package
- manager
+Subject: [PATCH 05/14] usr.sbin/upkg: reachover Makefile for the DER/32
+ package manager
 
 Compiles ../upkg (top level of the DER/32 tree) against the base
 libarchive, sqlite3, libfetch and OpenSSL.  Not yet hooked into SUBDIR.
